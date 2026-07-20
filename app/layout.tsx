@@ -3,12 +3,12 @@ import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
+
 import type { Metadata } from "next";
 import {
   Geist,
   Geist_Mono,
-  Jersey_20,
-  Nabla
+  Nabla,
 } from "next/font/google";
 
 import "./globals.css";
@@ -22,14 +22,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const gameFont = Jersey_20({
-  variable: "--font-jersey-20",
-  subsets: ["latin"],
-  weight: "400",
-});
 const accentFont = Nabla({
-  variable: "--font-accent",
+  variable: "--font-nabla",
   subsets: ["latin"],
   weight: "400",
 });
@@ -46,16 +40,15 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn(
-        "h-full",
-        geistSans.variable,
-        geistMono.variable,
-        gameFont.variable,
-        accentFont.variable,
-      )}
-    >
+  lang="uk"
+  suppressHydrationWarning
+  className={cn(
+    "h-full",
+    geistSans.variable,
+    geistMono.variable,
+    accentFont.variable,
+  )}
+>
       <body className="flex min-h-full flex-col antialiased">
         <ClerkProvider>
           <ThemeProvider

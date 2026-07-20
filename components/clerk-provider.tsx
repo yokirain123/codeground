@@ -1,18 +1,22 @@
-import { ClerkProvider as ClerkNextJSProvider } from '@clerk/nextjs';
-import { shadcn } from '@clerk/ui/themes';
+import {
+  ClerkProvider as NextClerkProvider,
+} from "@clerk/nextjs";
+import type { ComponentProps } from "react";
 
-type ClerkProviderProps = React.ComponentProps<typeof ClerkNextJSProvider>;
+import { clerkAppearance } from "@/config/clerk-appearance";
 
-export function ClerkProvider({ children, appearance, ...props }: ClerkProviderProps) {
+type ClerkProviderProps = ComponentProps<typeof NextClerkProvider>;
+
+export function ClerkProvider({
+  children,
+  ...props
+}: ClerkProviderProps) {
   return (
-    <ClerkNextJSProvider
-      appearance={{
-        theme: shadcn,
-        ...appearance,
-      }}
+    <NextClerkProvider
       {...props}
+      appearance={clerkAppearance}
     >
       {children}
-    </ClerkNextJSProvider>
+    </NextClerkProvider>
   );
 }

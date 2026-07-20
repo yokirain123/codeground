@@ -303,7 +303,7 @@ export default function BasicDropdown({
           aria-haspopup="listbox"
           aria-controls="home-dropdown-items"
           onClick={handleToggle}
-          className={`group relative h-8 w-24 shrink-0 cursor-pointer justify-center overflow-hidden border bg-accent px-0 text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none ${className}`}
+          className={`group relative h-8 w-24 shrink-0 cursor-pointer justify-center overflow-hidden border bg-accent px-0 text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none ${className}`}
         >
           <span
             aria-hidden="true"
