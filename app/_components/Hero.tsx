@@ -5,7 +5,7 @@ import BlurOutUp from "@/components/HeroText";
 
 function Hero() {
   return (
-    <section className="relative flex min-h-[calc(100svh-72px)] items-center justify-center overflow-hidden">
+    <section className="relative flex min-h-[calc(100svh-64px)] items-center justify-center overflow-hidden">
   <Image
     src={bgImage}
     alt=""
@@ -18,7 +18,7 @@ function Hero() {
   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_48%,rgba(0,0,0,0.85)_100%)]" />
 
   <div className="relative z-10 flex flex-col items-center px-6 text-center">
-    <h2 className="font-pixel text-4xl font-bold text-white md:text-5xl [text-shadow:2px_2px_0_#000,-2px_2px_0_#000,2px_-2px_0_#000,-2px_-2px_0_#000]">
+    <h2 className="font-pixel text-4xl font-bold text-white md:text-5xl [text-shadow:2px_2px_0_#000]">
       <BlurOutUp stagger={50}>
         Start your adventure with
       </BlurOutUp>
