@@ -14,24 +14,30 @@ function Provider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
-  const { user } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
 
   const [userDetail, setUserDetail] = useState();
 
+  const userId = user?.id;
+
   useEffect(() => {
-    if (!user) {
+    if (!isLoaded || !isSignedIn || !userId) {
       return;
     }
 
     const createNewUser = async () => {
-      const result = await axios.post("/api/user", {});
+      try {
+        const result = await axios.post("/api/user");
 
-      console.log(result);
-      setUserDetail(result.data);
+        console.log("Database user:", result.data);
+        setUserDetail(result.data);
+      } catch (error) {
+        console.error("Failed to save user:", error);
+      }
     };
 
     void createNewUser();
-  }, [user]);
+  }, [isLoaded, isSignedIn, userId]);
 
   return (
     <NextThemesProvider {...props}>

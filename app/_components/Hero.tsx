@@ -24,13 +24,13 @@ function Hero() {
       </BlurOutUp>
     </h2>
 
-    <h1 className="mt-2 font-accent text-7xl font-bold leading-none text-accent md:text-9xl [text-shadow:3px_3px_0_#000,-3px_3px_0_#000,3px_-3px_0_#000,-3px_-3px_0_#000]">
+    <h2 className="mt-2 font-accent text-7xl font-bold leading-none text-accent md:text-9xl [text-shadow:3px_3px_0_#000,-3px_3px_0_#000,3px_-3px_0_#000,-3px_-3px_0_#000]">
       <span className="glint-title" data-text="Code Quest">
         <BlurOutUp delay={300} stagger={80}>
           Code Quest
         </BlurOutUp>
       </span>
-    </h1>
+    </h2>
 
     <p className="mt-4 font-pixel text-xl text-white/80 md:text-2xl [text-shadow:2px_2px_0_#000]">
       Beginner-friendly coding courses and projects

@@ -3,6 +3,7 @@ import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
+import Provider from "./provider";
 
 import type { Metadata } from "next";
 import {
@@ -22,6 +23,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 const accentFont = Nabla({
   variable: "--font-nabla",
   subsets: ["latin"],
@@ -40,28 +42,29 @@ export default function RootLayout({
 }>) {
   return (
     <html
-  lang="uk"
-  suppressHydrationWarning
-  className={cn(
-    "h-full",
-    geistSans.variable,
-    geistMono.variable,
-    accentFont.variable,
-  )}
->
+      lang="uk"
+      suppressHydrationWarning
+      className={cn(
+        "h-full",
+        geistSans.variable,
+        geistMono.variable,
+        accentFont.variable,
+      )}
+    >
       <body className="flex min-h-full flex-col antialiased">
-        <ClerkProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-
-            {children}
-          </ThemeProvider>
-        </ClerkProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClerkProvider>
+            <Provider>
+              <Header />
+              {children}
+            </Provider>
+          </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

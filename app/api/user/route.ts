@@ -1,27 +1,53 @@
 import { db } from "@/config/db";
 import { usersTable } from "@/config/schema";
 import { currentUser } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
+  try {
     const user = await currentUser();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-expect-error
-    const users = await db.select().from(usersTable).where(eq(usersTable.email, user?.primaryEmailAddress?.emailAddress));
 
-    if(users?.length <= 0) 
-        {
-            const newUser={
-                name: user?.fullName ?? "",
-                email: user?.primaryEmailAddress?.emailAddress??'',
-                points: 0
-            }
-            const result = await db.insert(usersTable).values(newUser).returning();
-
-            return NextResponse.json(result[0]);
-        }
-
-        return NextResponse.json(users[0]);
-
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      );
     }
+
+    const email =
+      user.primaryEmailAddress?.emailAddress;
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "User does not have an email address" },
+        { status: 400 },
+      );
+    }
+
+    const [savedUser] = await db
+      .insert(usersTable)
+      .values({
+        clerkId: user.id,
+        name: user.fullName ?? user.firstName ?? "User",
+        email,
+        // role та points встановляться через default
+      })
+      .onConflictDoUpdate({
+        target: usersTable.clerkId,
+        set: {
+          name: user.fullName ?? user.firstName ?? "User",
+          email,
+        },
+      })
+      .returning();
+
+    return NextResponse.json(savedUser);
+  } catch (error) {
+    console.error("Failed to create user:", error);
+
+    return NextResponse.json(
+      { error: "Failed to create user" },
+      { status: 500 },
+    );
+  }
+}
