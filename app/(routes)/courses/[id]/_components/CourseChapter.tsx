@@ -141,12 +141,13 @@ function CourseChapterItem({ chapter, isEnrolled }: CourseChapterItemProps) {
                   </svg>
                 ) : (
                   <svg
-                    className="size-5"
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
                     viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-5 shrink-0"
+                    aria-hidden="true"
                   >
-                    <path d="M19 22H5v-2h14v2ZM5 20H3V10h2v10Zm16 0h-2V10h2v10ZM9 8h6V4h2v4h2v2H5V8h2V4h2v4Zm6-4H9V2h6v2Z" />
+                    <path d="M9 3h6v2h2v5h2v11H5V10h2V5h2V3Zm0 7h6V5H9v5Zm2 4v4h2v-4h-2Z" />
                   </svg>
                 )}
               </button>

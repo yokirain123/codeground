@@ -11,11 +11,11 @@ import { Button } from "@/components/ui/shadcn/button";
 const homeItems: DropdownItem[] = [
   { id: "/courses", label: "Courses" },
   { id: "/playground", label: "Playground" },
-  { id: "/projects", label: "Projects" },
+
 ];
 
 const navItems = [
-  { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -51,7 +51,7 @@ function Navbar() {
   return (
     <nav className="flex items-center gap-4">
       <BasicDropdown
-        label="Home"
+        label="Explore"
         items={homeItems}
         onChange={(item) => router.push(String(item.id))}
       />
