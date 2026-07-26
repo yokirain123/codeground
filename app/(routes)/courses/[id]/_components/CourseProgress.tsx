@@ -1,7 +1,4 @@
-import { Trophy } from "lucide-react";
-
 import type { Chapter } from "./CourseChapter";
-import { Button } from "@/components/ui/shadcn/button";
 
 interface CourseProgressProps {
   chapters: Chapter[];
@@ -117,20 +114,6 @@ export default function CourseProgress({
           <span className="text-accent">{totalXp} XP</span>
         </div>
       </div>
-
-      <Button
-            variant="default"
-            className="mt-4 w-full group relative px-8 py-6 cursor-pointer overflow-hidden border bg-accent text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
-          >
-            <span
-              aria-hidden="true"
-              className="absolute top-full left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
-            />
-    
-            <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-              Start course
-            </span>
-          </Button>
     </aside>
   );
 }

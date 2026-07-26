@@ -114,3 +114,40 @@ export const CourseChaptersTable = pgTable(
     ),
   ],
 );
+
+export const courseEnrollmentsTable = pgTable(
+  "course_enrollments",
+  {
+    id: integer("id")
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+
+    courseId: integer("course_id")
+      .notNull()
+      .references(() => coursesTable.id, {
+        onDelete: "cascade",
+      }),
+
+    userId: varchar("user_id")
+      .notNull()
+      .references(() => usersTable.id, {
+        onDelete: "cascade",
+      }),
+
+    enrolledAt: timestamp("enrolled_at", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+
+    xpEarned: integer("xp_earned")
+      .notNull()
+      .default(0),
+  },
+  (table) => [
+    uniqueIndex("course_enrollment_unique").on(
+      table.userId,
+      table.courseId,
+    ),
+  ],
+);

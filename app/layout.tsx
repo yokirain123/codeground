@@ -13,6 +13,7 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
+import { Toaster } from "@/components/ui/shadcn/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +63,7 @@ export default function RootLayout({
             <Provider>
               <Header />
               {children}
+              <Toaster/>
             </Provider>
           </ClerkProvider>
         </ThemeProvider>

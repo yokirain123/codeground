@@ -9,7 +9,7 @@ import BasicDropdown, {
 import { Button } from "@/components/ui/shadcn/button";
 
 const homeItems: DropdownItem[] = [
-  { id: "/", label: "Home" },
+  { id: "/courses", label: "Courses" },
   { id: "/playground", label: "Playground" },
   { id: "/projects", label: "Projects" },
 ];

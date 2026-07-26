@@ -1,7 +1,5 @@
 "use client";
 
-import { ChevronDown, Play } from "lucide-react";
-
 import { useState } from "react";
 
 export interface Exercise {
@@ -22,18 +20,16 @@ export interface Chapter {
 
 interface CourseChaptersProps {
   chapters: Chapter[];
+  isEnrolled: boolean;
 }
 
 interface CourseChapterItemProps {
   chapter: Chapter;
-  defaultOpen?: boolean;
+  isEnrolled: boolean;
 }
 
-function CourseChapterItem({
-  chapter,
-  defaultOpen = false,
-}: CourseChapterItemProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+function CourseChapterItem({ chapter, isEnrolled }: CourseChapterItemProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <details
@@ -43,7 +39,7 @@ function CourseChapterItem({
       }}
       className="group border-b border-border last:border-b-0"
     >
-      <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 transition-colors hover:bg-accent/10 [&::-webkit-details-marker]:hidden transition-all duration-500">
+      <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 transition-all duration-500 hover:bg-accent/10 [&::-webkit-details-marker]:hidden">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border font-pixel text-xl">
           {chapter.chapterId}
         </span>
@@ -56,13 +52,39 @@ function CourseChapterItem({
           {chapter.exercises.length} exercises
         </span>
 
-        <svg className="size-5 shrink-0 transition-transform duration-500 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className="size-5 shrink-0 transition-transform duration-500 group-open:rotate-180"
+        >
+          <path d="M13 16h-2v-2h2v2Zm-2-2H9v-2h2v2Zm4 0h-2v-2h2v2Zm-6-2H7v-2h2v2Zm8 0h-2v-2h2v2ZM7 10H5V8h2v2Zm12 0h-2V8h2v2Z" />
+        </svg>
       </summary>
 
-      <div className="border py-5 px-8">
+      <div className="border px-8 py-5">
         <p className="mb-5 font-pixel text-lg text-foreground/70">
           {chapter.desc}
         </p>
+
+        {!isEnrolled && (
+          <div className="mb-5 flex items-center gap-3 border border-accent bg-accent/10 px-4 py-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="size-5 shrink-0 text-accent"
+              aria-hidden="true"
+            >
+              <path d="M9 3h6v2h2v5h2v11H5V10h2V5h2V3Zm0 7h6V5H9v5Zm2 4v4h2v-4h-2Z" />
+            </svg>
+
+            <p className="font-pixel text-lg text-accent">
+              Enroll in this course to unlock exercises.
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-col">
           {chapter.exercises.map((exercise, exerciseIndex) => (
@@ -84,16 +106,49 @@ function CourseChapterItem({
                 </p>
               </div>
 
-              <span className="font-pixel text-lg text-accent">
+              <span
+                className={`font-pixel text-lg ${
+                  isEnrolled ? "text-accent" : "text-foreground/30"
+                }`}
+              >
                 +{exercise.xp} XP
               </span>
 
               <button
                 type="button"
-                aria-label={`Start ${exercise.name}`}
-                className="flex size-9 transition-all duration-500 items-center justify-center border border-border bg-secondary text-foreground hover:border-accent hover:bg-accent hover:text-black"
+                disabled={!isEnrolled}
+                title={
+                  isEnrolled
+                    ? `Start ${exercise.name}`
+                    : "Enroll to unlock this exercise"
+                }
+                aria-label={
+                  isEnrolled
+                    ? `Start ${exercise.name}`
+                    : `${exercise.name} is locked`
+                }
+                className="flex size-9 items-center justify-center border border-border bg-secondary text-foreground transition-all duration-500 hover:border-accent hover:bg-accent hover:text-black disabled:cursor-not-allowed disabled:bg-secondary/30 disabled:text-foreground/20 disabled:hover:border-border disabled:hover:bg-secondary/30"
               >
-                <svg className="size-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M9 5h2v2H9v10h2v2H9v2H7V3h2v2Zm4 12h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-2-2h-2V9h2v2Zm-2-2h-2V7h2v2Z"/></svg>
+                {isEnrolled ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className="size-5"
+                  >
+                    <path d="M9 5h2v2H9v10h2v2H9v2H7V3h2v2Zm4 12h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2v-2h2v2Zm-2-2h-2V9h2v2Zm-2-2h-2V7h2v2Z" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="size-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M19 22H5v-2h14v2ZM5 20H3V10h2v10Zm16 0h-2V10h2v10ZM9 8h6V4h2v4h2v2H5V8h2V4h2v4Zm6-4H9V2h6v2Z" />
+                  </svg>
+                )}
               </button>
             </div>
           ))}
@@ -105,9 +160,10 @@ function CourseChapterItem({
 
 export default function CourseChapters({
   chapters,
+  isEnrolled,
 }: CourseChaptersProps) {
   return (
-    <div className="min-w-0 col-span-2">
+    <div className="col-span-2 min-w-0">
       <h2 className="mb-6 font-pixel text-4xl text-accent md:text-5xl">
         Course chapters
       </h2>
@@ -120,11 +176,11 @@ export default function CourseChapters({
         </div>
       ) : (
         <div className="overflow-hidden border-2 border-accent bg-background">
-          {chapters.map((chapter, index) => (
+          {chapters.map((chapter) => (
             <CourseChapterItem
               key={chapter.id}
               chapter={chapter}
-              defaultOpen={index === 0}
+              isEnrolled={isEnrolled}
             />
           ))}
         </div>

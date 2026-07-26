@@ -1,49 +1,53 @@
-"use client"
+"use client";
 
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
+import { useTheme } from "next-themes";
+import {
+  Toaster as SonnerToaster,
+  type ToasterProps,
+} from "sonner";
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+export function Toaster(props: ToasterProps) {
+  const { theme = "system" } = useTheme();
 
   return (
-    <Sonner
+    <SonnerToaster
       theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      icons={{
-        success: (
-          <CircleCheckIcon className="size-4" />
-        ),
-        info: (
-          <InfoIcon className="size-4" />
-        ),
-        warning: (
-          <TriangleAlertIcon className="size-4" />
-        ),
-        error: (
-          <OctagonXIcon className="size-4" />
-        ),
-        loading: (
-          <Loader2Icon className="size-4 animate-spin" />
-        ),
-      }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
+      position="bottom-right"
+      closeButton
       toastOptions={{
+        unstyled: true,
+        duration: 2500,
+
         classNames: {
-          toast: "cn-toast",
+          toast:
+            "flex w-full items-center gap-3 border-2 border-accent bg-background px-4 py-3 font-pixel text-xl text-foreground shadow-[4px_4px_0_0_#FF8C00]",
+
+          success:
+            "border-accent bg-background text-foreground",
+
+          error:
+            "border-red-500 bg-background text-red-400 shadow-[4px_4px_0_0_#991B1B]",
+
+          warning:
+            "border-orange-500 bg-background text-orange-400",
+
+          info:
+            "border-blue-500 bg-background text-blue-400",
+
+          title:
+            "font-pixel text-xl text-accent",
+
+          description:
+            "font-pixel text-base text-foreground/60",
+
+          icon:
+            "text-accent",
+
+          closeButton:
+            "border border-accent bg-background text-accent hover:bg-accent hover:text-black",
         },
       }}
       {...props}
     />
-  )
+  );
 }
-
-export { Toaster }
