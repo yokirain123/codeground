@@ -1,14 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import type { Course } from "@/app/_components/CreateCourseButton";
 
 import CourseChapters, {
+  CourseProgressData,
   type Chapter,
 } from "./_components/CourseChapter";
 import CourseDetailsBanner from "./_components/CourseDetailsBanner";
@@ -19,20 +17,21 @@ export default function CoursePage() {
     id: string;
   }>();
 
-  const [course, setCourse] =
-    useState<Course | null>(null);
+  const [courseProgress, setCourseProgress] = useState<CourseProgressData>({
+    completedChapters: 0,
+    completedExercises: 0,
+    earnedXp: 0,
+  });
 
-  const [chapters, setChapters] =
-    useState<Chapter[]>([]);
+  const [course, setCourse] = useState<Course | null>(null);
 
-  const [isEnrolled, setIsEnrolled] =
-    useState(false);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
 
-  const [isLoading, setIsLoading] =
-    useState(true);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [error, setError] = useState("");
 
   const courseId = params.id;
 
@@ -41,86 +40,59 @@ export default function CoursePage() {
       return;
     }
 
-    const controller =
-      new AbortController();
+    const controller = new AbortController();
 
     const getCourseData = async () => {
       try {
         setIsLoading(true);
         setError("");
 
-        const [
-          coursesResponse,
-          chaptersResponse,
-        ] = await Promise.all([
+        const [coursesResponse, chaptersResponse] = await Promise.all([
           fetch("/api/courses", {
             cache: "no-store",
             signal: controller.signal,
           }),
 
-          fetch(
-            `/api/admin/save-chapters?courseId=${courseId}`,
-            {
-              cache: "no-store",
-              signal: controller.signal,
-            },
-          ),
+          fetch(`/api/admin/save-chapters?courseId=${courseId}`, {
+            cache: "no-store",
+            signal: controller.signal,
+          }),
         ]);
 
         if (!coursesResponse.ok) {
-          throw new Error(
-            "Failed to load course",
-          );
+          throw new Error("Failed to load course");
         }
 
         if (!chaptersResponse.ok) {
-          throw new Error(
-            "Failed to load chapters",
-          );
+          throw new Error("Failed to load chapters");
         }
 
-        const coursesData: Course[] =
-          await coursesResponse.json();
+        const coursesData: Course[] = await coursesResponse.json();
 
-        const chaptersData: Chapter[] =
-          await chaptersResponse.json();
+        const chaptersData: Chapter[] = await chaptersResponse.json();
 
-        const currentCourse =
-          coursesData.find(
-            (item) =>
-              item.id === Number(courseId),
-          );
+        const currentCourse = coursesData.find(
+          (item) => item.id === Number(courseId),
+        );
 
         if (!currentCourse) {
-          throw new Error(
-            "Course not found",
-          );
+          throw new Error("Course not found");
         }
 
         setCourse(currentCourse);
         setChapters(chaptersData);
       } catch (error) {
-        if (
-          error instanceof Error &&
-          error.name === "AbortError"
-        ) {
+        if (error instanceof Error && error.name === "AbortError") {
           return;
         }
 
-        console.error(
-          "Course loading error:",
-          error,
-        );
+        console.error("Course loading error:", error);
 
         setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load course",
+          error instanceof Error ? error.message : "Failed to load course",
         );
       } finally {
-        if (
-          !controller.signal.aborted
-        ) {
+        if (!controller.signal.aborted) {
           setIsLoading(false);
         }
       }
@@ -136,9 +108,7 @@ export default function CoursePage() {
   if (isLoading) {
     return (
       <main className="flex min-h-96 items-center justify-center">
-        <p className="font-pixel text-2xl text-accent">
-          Loading course...
-        </p>
+        <p className="font-pixel text-2xl text-accent">Loading course...</p>
       </main>
     );
   }
@@ -158,9 +128,7 @@ export default function CoursePage() {
       <CourseDetailsBanner
         key={course.id}
         course={course}
-        onEnrollmentChange={
-          setIsEnrolled
-        }
+        onEnrollmentChange={setIsEnrolled}
       />
 
       <section className="w-full px-6 py-12 md:px-10 lg:px-16">
@@ -168,12 +136,10 @@ export default function CoursePage() {
           <CourseChapters
             chapters={chapters}
             isEnrolled={isEnrolled}
+            onProgressChange={setCourseProgress}
           />
 
-          <CourseProgress
-            chapters={chapters}
-            progress={0}
-          />
+          <CourseProgress chapters={chapters} completion={courseProgress} />
         </div>
       </section>
     </main>

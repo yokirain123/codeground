@@ -1,6 +1,6 @@
 import {
+  index,
   integer,
-  json,
   jsonb,
   pgEnum,
   pgTable,
@@ -148,6 +148,50 @@ export const courseEnrollmentsTable = pgTable(
     uniqueIndex("course_enrollment_unique").on(
       table.userId,
       table.courseId,
+    ),
+  ],
+);
+
+export const completedExercisesTable = pgTable(
+  "completed_exercises",
+  {
+    id: integer("id")
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+
+    userId: varchar("user_id", {
+      length: 255,
+    })
+      .notNull()
+      .references(() => usersTable.clerkId, {
+        onDelete: "cascade",
+      }),
+      
+    chapterId: integer("chapter_id")
+      .notNull()
+      .references(() => CourseChaptersTable.id, {
+        onDelete: "cascade",
+      }),
+
+    exerciseSlug: varchar("exercise_slug", {
+      length: 255,
+    }).notNull(),
+
+    completedAt: timestamp("completed_at", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("completed_exercise_unique").on(
+      table.userId,
+      table.chapterId,
+      table.exerciseSlug,
+    ),
+
+    index("completed_exercises_chapter_idx").on(
+      table.chapterId,
     ),
   ],
 );
