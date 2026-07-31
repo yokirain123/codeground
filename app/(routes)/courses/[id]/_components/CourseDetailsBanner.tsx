@@ -315,7 +315,7 @@ export default function CourseDetailsBanner({
                 isEnrolling ||
                 isLeaving
               }
-              className="group relative cursor-pointer overflow-hidden border bg-accent p-6 text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:pointer-events-none disabled:opacity-70"
+              className="group relative cursor-pointer overflow-hidden border bg-accent p-6 text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-70"
             >
               <span
                 aria-hidden="true"
@@ -345,7 +345,7 @@ export default function CourseDetailsBanner({
                 variant="outline"
                 onClick={leaveCourse}
                 disabled={isLeaving}
-                className="cursor-pointer border-2 border-red-500 bg-background px-4 py-6 font-pixel text-3xl text-red-400 shadow-[4px_4px_0_0_#991B1B] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_0_#991B1B] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:pointer-events-none disabled:opacity-70"
+                className="cursor-pointer border-2 border-red-500 bg-background px-4 py-6 font-pixel text-3xl text-red-400 shadow-[4px_4px_0_0_#991B1B] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_0_#991B1B] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-70"
               >
                 {isLeaving
                   ? "Leaving..."

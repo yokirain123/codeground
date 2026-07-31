@@ -1,4 +1,7 @@
+import { sql } from "drizzle-orm";
 import {
+  check,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -128,11 +131,11 @@ export const courseEnrollmentsTable = pgTable(
         onDelete: "cascade",
       }),
 
-    userId: varchar("user_id")
-      .notNull()
-      .references(() => usersTable.id, {
-        onDelete: "cascade",
-      }),
+    userId: integer("user_id")
+  .notNull()
+  .references(() => usersTable.id, {
+    onDelete: "cascade",
+  }),
 
     enrolledAt: timestamp("enrolled_at", {
       withTimezone: true,
@@ -159,13 +162,11 @@ export const completedExercisesTable = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
 
-    userId: varchar("user_id", {
-      length: 255,
-    })
-      .notNull()
-      .references(() => usersTable.clerkId, {
-        onDelete: "cascade",
-      }),
+    userId: integer("user_id")
+  .notNull()
+  .references(() => usersTable.id, {
+    onDelete: "cascade",
+  }),
       
     chapterId: integer("chapter_id")
       .notNull()
@@ -192,6 +193,94 @@ export const completedExercisesTable = pgTable(
 
     index("completed_exercises_chapter_idx").on(
       table.chapterId,
+    ),
+  ],
+);
+
+export type StarterCode = Record<string, string>;
+
+export const ExerciseTable = pgTable(
+  "exercises",
+  {
+    id: integer("id")
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+
+    courseId: integer("course_id").notNull(),
+
+    // Це chapterId з DATA: 1, 2, 3...
+    chapterId: integer("chapter_id").notNull(),
+
+    // slug, наприклад explore-the-web-skeleton
+    exerciseId: varchar("exercise_id", {
+      length: 255,
+    }).notNull(),
+
+    exerciseName: varchar("exercise_name", {
+      length: 255,
+    }).notNull(),
+
+    content: text("content").notNull(),
+
+    task: text("task").notNull(),
+
+    hint: text("hint").notNull(),
+
+    starterCode: jsonb("starter_code")
+      .$type<StarterCode>()
+      .notNull(),
+
+    validationRegex: text(
+      "validation_regex",
+    ).notNull(),
+
+    expectedOutput: text(
+      "expected_output",
+    ).notNull(),
+
+    hintXp: integer("hint_xp").notNull(),
+
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+
+    updatedAt: timestamp("updated_at", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    // Одна вправа не може повторюватись у тій самій главі
+    uniqueIndex("exercise_unique").on(
+      table.courseId,
+      table.chapterId,
+      table.exerciseId,
+    ),
+
+    index("exercises_course_chapter_idx").on(
+      table.courseId,
+      table.chapterId,
+    ),
+
+    // Зв’язок із конкретною главою курсу
+    foreignKey({
+      name: "exercise_course_chapter_fk",
+      columns: [
+        table.courseId,
+        table.chapterId,
+      ],
+      foreignColumns: [
+        CourseChaptersTable.courseId,
+        CourseChaptersTable.chapterId,
+      ],
+    }).onDelete("cascade"),
+
+    check(
+      "exercise_hint_xp_range",
+      sql`${table.hintXp} >= 30 AND ${table.hintXp} <= 80`,
     ),
   ],
 );

@@ -7,7 +7,7 @@ import Provider from "./provider";
 
 import type { Metadata } from "next";
 import {
-  Geist,
+  VT323,
   Geist_Mono,
   Nabla,
 } from "next/font/google";
@@ -15,9 +15,10 @@ import {
 import "./globals.css";
 import { Toaster } from "@/components/ui/shadcn/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const codeText = VT323({
+  variable: "--font-vt323",
   subsets: ["latin"],
+  weight: "400",
 });
 
 const geistMono = Geist_Mono({
@@ -47,7 +48,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(
         "h-full",
-        geistSans.variable,
+        codeText.variable,
         geistMono.variable,
         accentFont.variable,
       )}

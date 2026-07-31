@@ -38,7 +38,7 @@ function Hero() {
 
     <Button
             variant="default"
-            className="mt-10 group relative px-8 py-6 cursor-pointer overflow-hidden border bg-accent text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+            className="mt-10 group relative px-8 py-6 cursor-pointer overflow-hidden border bg-accent text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
             <span
               aria-hidden="true"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -7,8 +8,16 @@ export interface Exercise {
   name: string;
   slug: string;
   xp: number;
-  difficulty: string;
+  difficulty: Difficulty;
 }
+
+type Difficulty = "easy" | "medium" | "hard";
+
+const difficultyColors: Record<Difficulty, string> = {
+  easy: "text-green-500",
+  medium: "text-orange-500",
+  hard: "text-red-500",
+};
 
 export interface Chapter {
   id: number;
@@ -183,7 +192,13 @@ function CourseChapterItem({
                     {exercise.name}
                   </p>
 
-                  <p className="font-pixel text-xs uppercase text-foreground/40">
+                  <p
+                    className={`font-pixel text-xs uppercase ${
+                      isCompleted
+                        ? "text-accent"
+                        : difficultyColors[exercise.difficulty]
+                    }`}
+                  >
                     {isCompleted ? "Completed" : exercise.difficulty}
                   </p>
                 </div>
@@ -197,49 +212,48 @@ function CourseChapterItem({
                 >
                   +{exercise.xp} XP
                 </span>
-
-                <button
-                  type="button"
-                  disabled={!canStart || isCompleting}
-                  onClick={() => {
-                    void onCompleteExercise(chapter, exercise);
-                  }}
-                  title={
-                    !isEnrolled
-                      ? "Enroll to unlock this exercise"
-                      : !isCompletedDataReady
-                        ? "Loading your progress"
-                        : isCompleted
-                          ? "Exercise completed"
-                          : canStart
-                            ? `Start ${exercise.name}`
-                            : "Complete the previous exercise first"
-                  }
-                  aria-label={
-                    isCompleted
-                      ? `${exercise.name} is completed`
-                      : canStart
-                        ? `Start ${exercise.name}`
-                        : `${exercise.name} is locked`
-                  }
-                  className={`flex size-9 items-center justify-center border transition-all duration-500 ${
-                    isCompleted
-                      ? "cursor-default border-accent bg-accent text-black"
-                      : canStart
-                        ? "border-border bg-secondary text-foreground hover:border-accent hover:bg-accent hover:text-black"
-                        : "cursor-not-allowed border-border bg-secondary/30 text-foreground/20"
-                  }`}
-                >
-                  {isCompleting ? (
-                    <span className="font-pixel text-sm">...</span>
-                  ) : isCompleted ? (
-                    <CompletedIcon />
-                  ) : isLocked ? (
-                    <LockIcon />
-                  ) : (
-                    <PlayIcon />
-                  )}
-                </button>
+{isCompleted || canStart ? (
+  <Link
+    href={`/courses/${chapter.courseId}/${chapter.chapterId}/${exercise.slug}`}
+    title={
+      isCompleted
+        ? `Open ${exercise.name}`
+        : `Start ${exercise.name}`
+    }
+    aria-label={
+      isCompleted
+        ? `Open completed exercise ${exercise.name}`
+        : `Start ${exercise.name}`
+    }
+    className={`flex size-9 items-center justify-center border transition-all duration-500 ${
+      isCompleted
+        ? "border-accent bg-accent text-black"
+        : "border-border bg-secondary text-foreground hover:border-accent hover:bg-accent hover:text-black"
+    }`}
+  >
+    {isCompleted ? (
+      <CompletedIcon />
+    ) : (
+      <PlayIcon />
+    )}
+  </Link>
+) : (
+  <button
+    type="button"
+    disabled
+    title={
+      !isEnrolled
+        ? "Enroll to unlock this exercise"
+        : !isCompletedDataReady
+          ? "Loading your progress"
+          : "Complete the previous exercise first"
+    }
+    aria-label={`${exercise.name} is locked`}
+    className="flex size-9 cursor-not-allowed items-center justify-center border border-border bg-secondary/30 text-foreground/20"
+  >
+    <LockIcon />
+  </button>
+)}
               </div>
             );
           })}
