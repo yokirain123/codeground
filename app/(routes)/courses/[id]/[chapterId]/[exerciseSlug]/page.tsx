@@ -164,11 +164,11 @@ export default function Playground() {
   return (
     <main className="h-[calc(100dvh-64px)] min-h-0 overflow-hidden">
       <PlaygroundLayout
-        exerciseTitle={exerciseTitle}
-        exercise={
-          exerciseDetail.exerciseData
-        }
-      />
+  exerciseTitle={exerciseTitle}
+  exercise={
+    exerciseDetail.exerciseData
+  }
+/>
     </main>
   );
 }

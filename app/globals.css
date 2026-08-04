@@ -155,10 +155,10 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: #0a0a0a;
   --foreground: oklch(0.985 0 0);
 
-  --card: oklch(0.205 0 0);
+  --card: #171717;
   --card-foreground: oklch(0.985 0 0);
 
   --popover: oklch(0.205 0 0);
@@ -325,4 +325,114 @@
     4s
     ease-in-out
     infinite;
+}
+
+/* CodeMirror autocomplete */
+
+.sp-wrapper
+  .cm-tooltip.cm-tooltip-autocomplete {
+  overflow: hidden;
+  border: 1px solid var(--accent) !important;
+  border-radius: 0 !important;
+  background: #171717 !important;
+  color: var(--foreground) !important;
+  box-shadow: 4px 4px 0 #ff8c00;
+  font-family:
+    var(--font-vt323),
+    monospace;
+  font-size: 16px;
+}
+
+.sp-wrapper
+  .cm-tooltip-autocomplete
+  > ul {
+  max-height: 240px;
+  background: #171717 !important;
+  scrollbar-color:
+    var(--accent)
+    #171717;
+}
+
+.sp-wrapper
+  .cm-tooltip-autocomplete
+  > ul
+  > li {
+  padding: 4px 10px;
+  background: #171717 !important;
+  color: var(--foreground) !important;
+}
+
+.sp-wrapper
+  .cm-tooltip-autocomplete
+  > ul
+  > li:hover {
+  background: #252525 !important;
+}
+
+/* Обраний варіант */
+
+.sp-wrapper
+  .cm-tooltip-autocomplete
+  > ul
+  > li[aria-selected] {
+  background: var(--accent) !important;
+  color: #000 !important;
+}
+
+/* Частина тексту, яка співпала */
+
+.sp-wrapper
+  .cm-completionMatchedText {
+  color: var(--accent-hover) !important;
+  text-decoration: none !important;
+  font-weight: 700;
+}
+
+.sp-wrapper
+  li[aria-selected]
+  .cm-completionMatchedText {
+  color: #000 !important;
+}
+
+/* Іконки зліва */
+
+.sp-wrapper
+  .cm-completionIcon {
+  color: var(--accent) !important;
+  opacity: 1;
+}
+
+.sp-wrapper
+  li[aria-selected]
+  .cm-completionIcon {
+  color: #000 !important;
+}
+
+/* Додаткова інформація справа */
+
+.sp-wrapper
+  .cm-completionDetail {
+  margin-left: 12px;
+  color: var(--muted-foreground) !important;
+  font-style: normal;
+}
+
+.sp-wrapper
+  li[aria-selected]
+  .cm-completionDetail {
+  color: rgb(0 0 0 / 65%) !important;
+}
+
+/* Додаткове вікно з описом */
+
+.sp-wrapper
+  .cm-tooltip.cm-completionInfo {
+  border: 1px solid var(--accent) !important;
+  border-radius: 0 !important;
+  background: #171717 !important;
+  color: var(--foreground) !important;
+  box-shadow: 4px 4px 0 #ff8c00;
+  font-family:
+    var(--font-vt323),
+    monospace;
 }
