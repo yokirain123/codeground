@@ -9,30 +9,44 @@ import {
 import CodeEditor from "./CodeEditor";
 import ContentSection from "./ContentSection";
 
-import type { ExerciseData } from "./types";
+import type {
+  ExerciseData,
+} from "./types";
 
 interface PlaygroundLayoutProps {
   exerciseTitle: string;
   exercise: ExerciseData;
+  courseTags?: string | null;
+  onCompletionChange?: (
+    isCompleted: boolean,
+  ) => void;
 }
 
 export default function PlaygroundLayout({
   exerciseTitle,
   exercise,
+  courseTags,
+  onCompletionChange,
 }: PlaygroundLayoutProps) {
   return (
     <div className="h-full min-h-0 overflow-hidden">
       <Group
         orientation="horizontal"
-        className="h-full w-full"
+        className="h-full min-h-0 w-full"
+        style={{
+          height: "100%",
+        }}
       >
         <Panel
           id="instructions"
           defaultSize="35%"
           minSize="20%"
+          className="h-full min-h-0 overflow-hidden"
         >
           <ContentSection
-            exerciseTitle={exerciseTitle}
+            exerciseTitle={
+              exerciseTitle
+            }
             exercise={exercise}
           />
         </Panel>
@@ -43,12 +57,22 @@ export default function PlaygroundLayout({
           id="playground"
           defaultSize="65%"
           minSize="30%"
-          className="min-w-0"
+          className="relative h-full min-h-0 min-w-0 overflow-hidden"
         >
-          <CodeEditor
-            exerciseTitle={exerciseTitle}
-            exercise={exercise}
-          />
+          <div className="absolute inset-0 min-h-0 overflow-hidden">
+            <CodeEditor
+              exerciseTitle={
+                exerciseTitle
+              }
+              exercise={exercise}
+              courseTags={
+                courseTags
+              }
+              onCompletionChange={
+                onCompletionChange
+              }
+            />
+          </div>
         </Panel>
       </Group>
     </div>

@@ -436,3 +436,26 @@
     var(--font-vt323),
     monospace;
 }
+
+.codequest-sandpack {
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.codequest-sandpack > .sp-layout {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.codequest-sandpack .sp-stack {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.codequest-sandpack .sp-code-editor,
+.codequest-sandpack .sp-preview-container,
+.codequest-sandpack .sp-preview-iframe {
+  height: 100% !important;
+  min-height: 0 !important;
+}

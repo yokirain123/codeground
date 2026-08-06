@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 
 export interface Exercise {
   name: string;
@@ -52,9 +51,7 @@ interface CourseChapterItemProps {
   isEnrolled: boolean;
   isCompletedDataReady: boolean;
   completedExerciseKeys: Set<string>;
-  completingExerciseKey: string | null;
   nextExerciseKey: string | null;
-  onCompleteExercise: (chapter: Chapter, exercise: Exercise) => Promise<void>;
 }
 
 function getExerciseKey(chapterId: number, exerciseSlug: string) {
@@ -73,7 +70,7 @@ function calculateCourseProgress(
     let completedInChapter = 0;
 
     for (const exercise of chapter.exercises) {
-      const exerciseKey = getExerciseKey(chapter.id, exercise.slug);
+      const exerciseKey = getExerciseKey(chapter.chapterId, exercise.slug);
 
       if (completedExerciseKeys.has(exerciseKey)) {
         completedInChapter += 1;
@@ -103,9 +100,7 @@ function CourseChapterItem({
   isEnrolled,
   isCompletedDataReady,
   completedExerciseKeys,
-  completingExerciseKey,
   nextExerciseKey,
-  onCompleteExercise,
 }: CourseChapterItemProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -158,19 +153,18 @@ function CourseChapterItem({
 
         <div className="flex flex-col">
           {chapter.exercises.map((exercise, exerciseIndex) => {
-            const exerciseKey = getExerciseKey(chapter.id, exercise.slug);
+            const exerciseKey = getExerciseKey(
+              chapter.chapterId,
+              exercise.slug,
+            );
 
             const isCompleted = completedExerciseKeys.has(exerciseKey);
-
-            const isCompleting = completingExerciseKey === exerciseKey;
 
             const canStart =
               isEnrolled &&
               isCompletedDataReady &&
               !isCompleted &&
               exerciseKey === nextExerciseKey;
-
-            const isLocked = !isCompleted && !canStart;
 
             return (
               <div
@@ -212,48 +206,44 @@ function CourseChapterItem({
                 >
                   +{exercise.xp} XP
                 </span>
-{isCompleted || canStart ? (
-  <Link
-    href={`/courses/${chapter.courseId}/${chapter.chapterId}/${exercise.slug}`}
-    title={
-      isCompleted
-        ? `Open ${exercise.name}`
-        : `Start ${exercise.name}`
-    }
-    aria-label={
-      isCompleted
-        ? `Open completed exercise ${exercise.name}`
-        : `Start ${exercise.name}`
-    }
-    className={`flex size-9 items-center justify-center border transition-all duration-500 ${
-      isCompleted
-        ? "border-accent bg-accent text-black"
-        : "border-border bg-secondary text-foreground hover:border-accent hover:bg-accent hover:text-black"
-    }`}
-  >
-    {isCompleted ? (
-      <CompletedIcon />
-    ) : (
-      <PlayIcon />
-    )}
-  </Link>
-) : (
-  <button
-    type="button"
-    disabled
-    title={
-      !isEnrolled
-        ? "Enroll to unlock this exercise"
-        : !isCompletedDataReady
-          ? "Loading your progress"
-          : "Complete the previous exercise first"
-    }
-    aria-label={`${exercise.name} is locked`}
-    className="flex size-9 cursor-not-allowed items-center justify-center border border-border bg-secondary/30 text-foreground/20"
-  >
-    <LockIcon />
-  </button>
-)}
+                {isCompleted || canStart ? (
+                  <Link
+                    href={`/courses/${chapter.courseId}/${chapter.chapterId}/${exercise.slug}`}
+                    title={
+                      isCompleted
+                        ? `Open ${exercise.name}`
+                        : `Start ${exercise.name}`
+                    }
+                    aria-label={
+                      isCompleted
+                        ? `Open completed exercise ${exercise.name}`
+                        : `Start ${exercise.name}`
+                    }
+                    className={`flex size-9 items-center justify-center border transition-all duration-500 ${
+                      isCompleted
+                        ? "border-accent bg-accent text-black"
+                        : "border-border bg-secondary text-foreground hover:border-accent hover:bg-accent hover:text-black"
+                    }`}
+                  >
+                    {isCompleted ? <CompletedIcon /> : <PlayIcon />}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    title={
+                      !isEnrolled
+                        ? "Enroll to unlock this exercise"
+                        : !isCompletedDataReady
+                          ? "Loading your progress"
+                          : "Complete the previous exercise first"
+                    }
+                    aria-label={`${exercise.name} is locked`}
+                    className="flex size-9 cursor-not-allowed items-center justify-center border border-border bg-secondary/30 text-foreground/20"
+                  >
+                    <LockIcon />
+                  </button>
+                )}
               </div>
             );
           })}
@@ -272,10 +262,6 @@ export default function CourseChapters({
     Set<string>
   >(() => new Set());
 
-  const [completingExerciseKey, setCompletingExerciseKey] = useState<
-    string | null
-  >(null);
-
   const [loadedCompletedCourseId, setLoadedCompletedCourseId] = useState<
     number | null
   >(null);
@@ -291,7 +277,7 @@ export default function CourseChapters({
    * Знаходимо першу незавершену
    * вправу в усьому курсі.
    */
-  const nextExerciseKey = useMemo(() => {
+  const nextExercise = useMemo(() => {
     if (!isCompletedDataReady) {
       return null;
     }
@@ -303,16 +289,22 @@ export default function CourseChapters({
 
     for (const chapter of orderedChapters) {
       for (const exercise of chapter.exercises) {
-        const exerciseKey = getExerciseKey(chapter.id, exercise.slug);
+        const exerciseKey = getExerciseKey(chapter.chapterId, exercise.slug);
 
         if (!completedExerciseKeys.has(exerciseKey)) {
-          return exerciseKey;
+          return {
+            chapterId: chapter.chapterId,
+            exercise,
+            key: exerciseKey,
+          };
         }
       }
     }
 
     return null;
   }, [chapters, completedExerciseKeys, isCompletedDataReady]);
+
+  const nextExerciseKey = nextExercise?.key ?? null;
 
   /*
    * Завантажуємо завершені вправи.
@@ -381,96 +373,43 @@ export default function CourseChapters({
     };
   }, [courseId, chapters, isEnrolled, onProgressChange]);
 
-  /*
-   * Завершуємо поточну доступну вправу.
-   */
-  const completeExercise = async (chapter: Chapter, exercise: Exercise) => {
-    if (!isEnrolled) {
-      toast.error("Enroll in the course first");
-
-      return;
-    }
-
-    if (!isCompletedDataReady) {
-      toast.info("Your progress is still loading");
-
-      return;
-    }
-
-    const exerciseKey = getExerciseKey(chapter.id, exercise.slug);
-
-    if (completedExerciseKeys.has(exerciseKey)) {
-      return;
-    }
-
-    if (exerciseKey !== nextExerciseKey) {
-      toast.error("Complete the previous exercise first");
-
-      return;
-    }
-
-    if (completingExerciseKey) {
-      return;
-    }
-
-    try {
-      setCompletingExerciseKey(exerciseKey);
-
-      const response = await fetch("/api/completed-exercises", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chapterId: chapter.id,
-          exerciseSlug: exercise.slug,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to complete exercise");
-      }
-
-      const updatedExerciseKeys = new Set(completedExerciseKeys);
-
-      updatedExerciseKeys.add(exerciseKey);
-
-      setCompletedExerciseKeys(updatedExerciseKeys);
-
-      /*
-       * Відправляємо оновлений прогрес
-       * у CoursePage.
-       */
-      onProgressChange?.(
-        calculateCourseProgress(chapters, updatedExerciseKeys),
-      );
-
-      if (data.alreadyCompleted) {
-        toast.info("Exercise was already completed");
-      } else {
-        toast.success("Exercise completed!", {
-          description: `You earned ${data.xpEarned} XP.`,
-        });
-      }
-    } catch (error) {
-      console.error("Exercise completion error:", error);
-
-      toast.error("Could not complete exercise", {
-        description:
-          error instanceof Error ? error.message : "Please try again",
-      });
-    } finally {
-      setCompletingExerciseKey(null);
-    }
-  };
-
   return (
     <div className="col-span-2 min-w-0">
       <h2 className="mb-6 font-pixel text-4xl text-accent md:text-5xl">
         Course chapters
       </h2>
+
+      {isEnrolled && isCompletedDataReady && nextExercise && courseId && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border border-accent bg-accent/10 p-4">
+          <div>
+            <p className="font-pixel text-sm uppercase text-foreground/50">
+              Next available exercise
+            </p>
+
+            <p className="font-pixel text-2xl text-accent">
+              {nextExercise.exercise.name}
+            </p>
+          </div>
+
+          <Link
+            href={`/courses/${courseId}/${nextExercise.chapterId}/${nextExercise.exercise.slug}`}
+            className="border bg-accent px-4 py-2 font-pixel text-xl text-black shadow-[3px_3px_0_0_#FF8C00] transition-all hover:translate-x-px hover:translate-y-px hover:bg-accent-hover hover:text-white hover:shadow-[2px_2px_0_0_#FF8C00]"
+          >
+            Start next exercise
+          </Link>
+        </div>
+      )}
+
+      {isEnrolled &&
+        isCompletedDataReady &&
+        !nextExercise &&
+        chapters.length > 0 && (
+          <div className="mb-6 border border-green-500 bg-green-500/10 p-4">
+            <p className="font-pixel text-xl text-green-400">
+              Course completed! Every exercise is finished.
+            </p>
+          </div>
+        )}
 
       {loadingError && (
         <div className="mb-4 border border-red-500 bg-red-500/10 p-3">
@@ -493,9 +432,7 @@ export default function CourseChapters({
               isEnrolled={isEnrolled}
               isCompletedDataReady={isCompletedDataReady}
               completedExerciseKeys={completedExerciseKeys}
-              completingExerciseKey={completingExerciseKey}
               nextExerciseKey={nextExerciseKey}
-              onCompleteExercise={completeExercise}
             />
           ))}
         </div>

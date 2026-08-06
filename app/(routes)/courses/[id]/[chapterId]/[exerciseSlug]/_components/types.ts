@@ -11,6 +11,7 @@ export interface ExerciseData {
   validationRegex: string;
   expectedOutput: string;
   hintXp: number;
+  isFallback?: boolean;
 }
 
 export interface ExerciseResponse {

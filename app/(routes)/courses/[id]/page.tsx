@@ -1,12 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { Course } from "@/app/_components/CreateCourseButton";
 
 import CourseChapters, {
-  CourseProgressData,
+  type CourseProgressData,
   type Chapter,
 } from "./_components/CourseChapter";
 import CourseDetailsBanner from "./_components/CourseDetailsBanner";
@@ -34,6 +34,18 @@ export default function CoursePage() {
   const [error, setError] = useState("");
 
   const courseId = params.id;
+
+  const handleEnrollmentChange = useCallback((enrolled: boolean) => {
+    setIsEnrolled(enrolled);
+
+    if (!enrolled) {
+      setCourseProgress({
+        completedChapters: 0,
+        completedExercises: 0,
+        earnedXp: 0,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (!courseId) {
@@ -128,7 +140,7 @@ export default function CoursePage() {
       <CourseDetailsBanner
         key={course.id}
         course={course}
-        onEnrollmentChange={setIsEnrolled}
+        onEnrollmentChange={handleEnrollmentChange}
       />
 
       <section className="w-full px-6 py-12 md:px-10 lg:px-16">

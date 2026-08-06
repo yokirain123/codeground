@@ -131,11 +131,11 @@ export const courseEnrollmentsTable = pgTable(
         onDelete: "cascade",
       }),
 
-    userId: integer("user_id")
-  .notNull()
-  .references(() => usersTable.id, {
-    onDelete: "cascade",
-  }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => usersTable.clerkId, {
+        onDelete: "cascade",
+      }),
 
     enrolledAt: timestamp("enrolled_at", {
       withTimezone: true,
@@ -162,38 +162,58 @@ export const completedExercisesTable = pgTable(
       .primaryKey()
       .generatedAlwaysAsIdentity(),
 
-    userId: integer("user_id")
-  .notNull()
-  .references(() => usersTable.id, {
-    onDelete: "cascade",
-  }),
-      
+    userId: varchar("user_id", {
+      length: 255,
+    })
+      .notNull()
+      .references(
+        () => usersTable.clerkId,
+        {
+          onDelete: "cascade",
+        },
+      ),
+
     chapterId: integer("chapter_id")
       .notNull()
-      .references(() => CourseChaptersTable.id, {
-        onDelete: "cascade",
-      }),
+      .references(
+        () => CourseChaptersTable.id,
+        {
+          onDelete: "cascade",
+        },
+      ),
 
-    exerciseSlug: varchar("exercise_slug", {
-      length: 255,
-    }).notNull(),
+    exerciseSlug: varchar(
+      "exercise_slug",
+      {
+        length: 255,
+      },
+    ).notNull(),
 
-    completedAt: timestamp("completed_at", {
-      withTimezone: true,
-    })
+    completedAt: timestamp(
+      "completed_at",
+      {
+        withTimezone: true,
+      },
+    )
       .notNull()
       .defaultNow(),
   },
   (table) => [
-    uniqueIndex("completed_exercise_unique").on(
+    uniqueIndex(
+      "completed_exercise_unique",
+    ).on(
       table.userId,
       table.chapterId,
       table.exerciseSlug,
     ),
 
-    index("completed_exercises_chapter_idx").on(
-      table.chapterId,
-    ),
+    index(
+      "completed_exercises_user_idx",
+    ).on(table.userId),
+
+    index(
+      "completed_exercises_chapter_idx",
+    ).on(table.chapterId),
   ],
 );
 
