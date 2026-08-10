@@ -15,6 +15,7 @@ import {
   SandpackLayout,
   SandpackPreview,
   SandpackProvider,
+  useSandpack
 } from "@codesandbox/sandpack-react";
 
 import {
@@ -61,8 +62,10 @@ interface CodeEditorProps {
 }
 
 interface CodeEditorActionsProps {
-  onCompleteExercise:
-    () => Promise<void>;
+  onCompleteExercise: (
+    files: Record<string, string>,
+  ) => Promise<void>;
+
   isChecking: boolean;
   isCompleting: boolean;
   isCompleted: boolean;
@@ -127,13 +130,38 @@ function CodeEditorActions({
   isCompleting,
   isCompleted,
 }: CodeEditorActionsProps) {
+  const { sandpack } =
+    useSandpack();
+
   const buttonText = isChecking
     ? "Checking..."
     : isCompleting
-      ? "Completing..."
+      ? "Checking code..."
       : isCompleted
         ? "Completed"
-        : "Mark completed";
+        : "Check & complete";
+
+  const handleComplete =
+    () => {
+      const submittedFiles =
+        Object.fromEntries(
+          Object.entries(
+            sandpack.files,
+          ).map(
+            ([
+              path,
+              file,
+            ]) => [
+              path,
+              file.code,
+            ],
+          ),
+        );
+
+      void onCompleteExercise(
+        submittedFiles,
+      );
+    };
 
   return (
     <footer className="flex shrink-0 items-center justify-end gap-3 border-t border-border bg-card px-4 py-3">
@@ -145,9 +173,7 @@ function CodeEditorActions({
           isCompleting ||
           isCompleted
         }
-        onClick={() => {
-          void onCompleteExercise();
-        }}
+        onClick={handleComplete}
         className={cn(
           "group relative cursor-pointer overflow-hidden border p-2 text-lg text-black transition-all duration-300",
           "disabled:pointer-events-none disabled:opacity-100",
@@ -164,7 +190,6 @@ function CodeEditorActions({
                 "shadow-[4px_4px_0_0_#FF8C00]",
                 "hover:translate-x-0.5",
                 "hover:translate-y-0.5",
-                "hover:bg-accent",
                 "hover:shadow-[2px_2px_0_0_#FF8C00]",
                 "active:translate-x-1",
                 "active:translate-y-1",
@@ -414,136 +439,141 @@ export default function CodeEditor({
   ]);
 
   const onCompleteExercise =
-    async () => {
-      if (
-        isChecking ||
-        isCompleting ||
-        isCompleted
-      ) {
-        return;
-      }
+  async (
+    submittedFiles:
+      Record<string, string>,
+  ) => {
+    if (
+      isChecking ||
+      isCompleting ||
+      isCompleted
+    ) {
+      return;
+    }
 
-      if (
-        !Number.isInteger(
-          courseId,
-        ) ||
-        courseId <= 0
-      ) {
-        toast.error(
-          "Invalid course ID",
-        );
+    if (
+      !Number.isInteger(
+        courseId,
+      ) ||
+      courseId <= 0
+    ) {
+      toast.error(
+        "Invalid course ID",
+      );
 
-        return;
-      }
+      return;
+    }
 
-      if (
-        !Number.isInteger(
-          chapterId,
-        ) ||
-        chapterId <= 0
-      ) {
-        toast.error(
-          "Invalid chapter ID",
-        );
+    if (
+      !Number.isInteger(
+        chapterId,
+      ) ||
+      chapterId <= 0
+    ) {
+      toast.error(
+        "Invalid chapter ID",
+      );
 
-        return;
-      }
+      return;
+    }
 
-      if (!exerciseSlug) {
-        toast.error(
-          "Exercise slug is required",
-        );
+    if (!exerciseSlug) {
+      toast.error(
+        "Exercise slug is required",
+      );
 
-        return;
-      }
+      return;
+    }
 
-      if (
-        !completionRequestKey
-      ) {
-        toast.error(
-          "Invalid exercise URL",
-        );
+    if (
+      !completionRequestKey
+    ) {
+      toast.error(
+        "Invalid exercise URL",
+      );
 
-        return;
-      }
+      return;
+    }
 
-      try {
-        setIsCompleting(true);
+    try {
+      setIsCompleting(true);
 
-        const response =
-          await fetch(
-            "/api/completed-exercises",
-            {
-              method: "POST",
+      const response =
+        await fetch(
+          "/api/completed-exercises",
+          {
+            method: "POST",
 
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body: JSON.stringify({
-                courseId,
-                chapterId,
-                exerciseSlug,
-              }),
+            headers: {
+              "Content-Type":
+                "application/json",
             },
-          );
 
-        const data =
-          (await response.json()) as CompletionResponse;
+            body: JSON.stringify({
+              courseId,
+              chapterId,
+              exerciseSlug,
 
-        if (!response.ok) {
-          throw new Error(
-            data.error ||
-              "Failed to complete exercise",
-          );
-        }
-
-        setCompletionState({
-          requestKey:
-            completionRequestKey,
-
-          isCompleted: true,
-        });
-
-        onCompletionChange?.(
-          true,
+              files:
+                submittedFiles,
+            }),
+          },
         );
 
-        if (
-          data.alreadyCompleted
-        ) {
-          toast.info(
-            "Exercise was already completed",
-          );
-        } else {
-          toast.success(
-            "Exercise completed!",
-            {
-              description:
-                typeof data.xpEarned ===
-                "number"
-                  ? `You earned ${data.xpEarned} XP.`
-                  : undefined,
-            },
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Exercise completion error:",
-          error,
+      const data =
+        (await response.json()) as CompletionResponse;
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Code validation failed",
         );
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to complete exercise";
-
-        toast.error(message);
-      } finally {
-        setIsCompleting(false);
       }
-    };
+
+      setCompletionState({
+        requestKey:
+          completionRequestKey,
+
+        isCompleted: true,
+      });
+
+      onCompletionChange?.(
+        true,
+      );
+
+      if (
+        data.alreadyCompleted
+      ) {
+        toast.info(
+          "Exercise was already completed",
+        );
+      } else {
+        toast.success(
+          "Exercise completed!",
+          {
+            description:
+              typeof data.xpEarned ===
+              "number"
+                ? `Your code passed the check. You earned ${data.xpEarned} XP.`
+                : "Your code passed the check.",
+          },
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Exercise completion error:",
+        error,
+      );
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Code validation failed",
+      );
+    } finally {
+      setIsCompleting(false);
+    }
+  };
 
   if (
     templateConfig.engine ===

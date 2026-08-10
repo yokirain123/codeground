@@ -14,7 +14,7 @@ interface CompleteExerciseBody {
   courseId?: unknown;
   chapterId?: unknown;
   exerciseSlug?: unknown;
-  exerciseId?: unknown;
+  files?: unknown;
 }
 
 interface CourseChapterRecord {
@@ -294,16 +294,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = (await request.json()) as CompleteExerciseBody;
-    const courseId = Number(body.courseId);
-    const chapterNumber = Number(body.chapterId);
-    const rawExerciseSlug =
-      typeof body.exerciseSlug === "string"
-        ? body.exerciseSlug
-        : typeof body.exerciseId === "string"
-          ? body.exerciseId
-          : "";
-    const exerciseSlug = normalizeExerciseSlug(rawExerciseSlug);
+    const body =
+  (await request.json()) as CompleteExerciseBody;
+
+const courseId = Number(body.courseId);
+const chapterNumber = Number(body.chapterId);
+
+const exerciseSlug =
+  typeof body.exerciseSlug === "string"
+    ? normalizeExerciseSlug(body.exerciseSlug)
+    : "";
+
+const submittedFiles = body.files;
 
     if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(

@@ -2,6 +2,7 @@ import bgImage from "@/components/images/bg.gif";
 import Image from "next/image";
 import { Button } from "@/components/ui/shadcn/button";
 import BlurOutUp from "@/components/HeroText";
+import Link from "next/link";
 
 function Hero() {
   return (
@@ -45,9 +46,9 @@ function Hero() {
               className="absolute top-full left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
             />
     
-            <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
+            <Link href="/courses" className="relative z-10 transition-colors duration-500 group-hover:text-white">
               Start coding
-            </span>
+            </Link>
           </Button>
   </div>
 </section>

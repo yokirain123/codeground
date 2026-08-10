@@ -210,20 +210,27 @@ export async function POST(request: Request) {
       )
       .limit(1);
 
-    const exerciseData =
-      exercise ??
-      createFallbackExercise({
+    if (!exercise) {
+  return NextResponse.json(
+    {
+      error: "Exercise content has not been created yet",
+      missingExercise: {
         courseId,
         chapterId,
-        chapterName: chapter.name,
-        chapterDescription: chapter.desc,
-        exercise: exerciseMetadata,
-      });
+        exerciseId,
+        exerciseName: exerciseMetadata.name,
+      },
+    },
+    {
+      status: 404,
+    },
+  );
+}
 
-    return NextResponse.json({
-      ...chapter,
-      exerciseData,
-    });
+return NextResponse.json({
+  ...chapter,
+  exerciseData: exercise,
+});
   } catch (error) {
     console.error("Exercise loading error:", error);
 

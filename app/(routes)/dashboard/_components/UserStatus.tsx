@@ -1,46 +1,226 @@
 "use client";
 
-import React from "react";
-import { useUser } from "@clerk/nextjs";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import Image from "next/image";
+
 import Star from "@/components/images/blink.png";
 import Badge from "@/components/images/label.png";
 import Streak from "@/components/images/confetti.png";
-import { ProfileAvatar } from "@/components/profile-avatar";
 
-function UserStatus() {
-  const { user } = useUser();
-  return (
-    <div className="px-10 py-4 border border-accent shadow-[4px_4px_0_0_#FF8C00]">
-      <div className="flex items-center justify-center gap-6">
-        <ProfileAvatar />
-        <h2 className="text-4xl">{user?.primaryEmailAddress?.emailAddress}</h2>
-      </div>
-      <div className="grid grid-cols-2 gap-5 mt-6">
-        <div className="flex gap-3 items-center">
-          <Image src={Star} alt="Points" width={50} height={50} />
-          <div className="flex flex-col">
-            <h3 className="text-3xl text-accent">20</h3>
-            <h3 className="text-xl">Total points</h3>
-          </div>
-        </div>
-        <div className="flex gap-3 items-center">
-          <Image src={Badge} alt="Points" width={50} height={50} />
-          <div className="flex flex-col">
-            <h3 className="text-3xl text-accent">3</h3>
-            <h3 className="text-xl">Badge</h3>
-          </div>
-        </div>
-        <div className="flex gap-3 items-center">
-          <Image src={Streak} alt="Points" width={50} height={50} />
-          <div className="flex flex-col">
-            <h3 className="text-3xl text-accent">7</h3>
-            <h3 className="text-xl">Streak</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+import {
+  ProfileAvatar,
+} from "@/components/profile-avatar";
+
+interface Achievement {
+  id: number;
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  metric:
+    | "exercises_completed"
+    | "points_earned"
+    | "streak";
+  target: number;
+  currentValue: number;
+  progress: number;
+  isUnlocked: boolean;
+  unlockedAt: string | null;
 }
 
-export default UserStatus;
+interface DashboardStats {
+  user: {
+    name: string;
+    email: string;
+  };
+
+  stats: {
+    totalPoints: number;
+    badges: number;
+    streak: number;
+    completedExercises: number;
+  };
+
+  achievements: Achievement[];
+}
+
+export default function UserStatus() {
+  const [
+    dashboardData,
+    setDashboardData,
+  ] =
+    useState<DashboardStats | null>(
+      null,
+    );
+
+  const [error, setError] =
+    useState("");
+
+  useEffect(() => {
+    const controller =
+      new AbortController();
+
+    const loadStats = async () => {
+      try {
+        const response = await fetch(
+          "/api/dashboard-stats",
+          {
+            method: "GET",
+            cache: "no-store",
+            signal:
+              controller.signal,
+          },
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Failed to load stats",
+          );
+        }
+
+        if (
+          !controller.signal.aborted
+        ) {
+          setDashboardData(data);
+        }
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Dashboard stats error:",
+          error,
+        );
+
+        if (
+          !controller.signal.aborted
+        ) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to load stats",
+          );
+        }
+      }
+    };
+
+    void loadStats();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  if (error) {
+    return (
+      <div className="border border-red-400 p-5 text-red-400">
+        {error}
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <div className="border border-accent p-6 shadow-[4px_4px_0_0_#FF8C00]">
+        <p className="text-xl text-accent">
+          Loading stats...
+        </p>
+      </div>
+    );
+  }
+
+  const {
+    user,
+    stats,
+    achievements,
+  } = dashboardData;
+
+  return (
+    <aside className="border border-accent px-6 py-5 shadow-[4px_4px_0_0_#FF8C00]">
+      <div className="flex items-center gap-5">
+        <ProfileAvatar />
+
+        <div className="min-w-0">
+          <h2 className="truncate text-3xl">
+            {user.name}
+          </h2>
+
+          <p className="truncate text-lg text-foreground/50">
+            {user.email}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-5">
+        <div className="flex items-center gap-3">
+          <Image
+            src={Star}
+            alt=""
+            width={50}
+            height={50}
+          />
+
+          <div>
+            <p className="text-3xl text-accent">
+              {stats.totalPoints}
+            </p>
+
+            <p className="text-xl">
+              Total points
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Image
+            src={Badge}
+            alt=""
+            width={50}
+            height={50}
+          />
+
+          <div>
+            <p className="text-3xl text-accent">
+              {stats.badges}/{achievements.length}
+            </p>
+
+            <p className="text-xl">
+              Achievements
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Image
+            src={Streak}
+            alt=""
+            width={50}
+            height={50}
+          />
+
+          <div>
+            <p className="text-3xl text-accent">
+              {stats.streak}
+            </p>
+
+            <p className="text-xl">
+              Day streak
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}

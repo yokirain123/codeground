@@ -1,5 +1,18 @@
 "use client";
 
+import { useState } from "react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/shadcn/alert-dialog";
+
 import {
   SandpackCodeEditor,
   SandpackLayout,
@@ -17,6 +30,8 @@ import {
 } from "react-resizable-panels";
 
 import {
+  ChevronDown,
+  Code2,
   Play,
   RotateCcw,
 } from "lucide-react";
@@ -25,49 +40,95 @@ import { Button } from "@/components/ui/shadcn/button";
 
 import { codeQuestSandpackTheme } from "@/app/sandpack/sandpackTheme";
 
-const playgroundFiles = {
-  "/index.html": {
-    active: true,
-    code: `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+import {
+  playgroundPresetIds,
+  playgroundPresets,
+  type PlaygroundPresetId,
+} from "./_components/playgroundTemplates";
 
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
+interface ConfirmDialogProps {
+  open: boolean;
+  title: string;
+  description: string;
+  confirmText: string;
+  onConfirm: () => void;
+  onOpenChange: (
+    open: boolean,
+  ) => void;
+}
 
-    <title>My Playground</title>
+function ConfirmDialog({
+  open,
+  title,
+  description,
+  confirmText,
+  onConfirm,
+  onOpenChange,
+}: ConfirmDialogProps) {
+  return (
+    <AlertDialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <AlertDialogContent className="border-2 border-accent bg-card shadow-[6px_6px_0_0_#FF8C00] sm:max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-3xl text-accent">
+            {title}
+          </AlertDialogTitle>
 
-    <link
-      rel="stylesheet"
-      href="/styles.css"
-    />
-  </head>
+          <AlertDialogDescription className="text-lg text-foreground/70">
+            {description}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-  <body>
-    <!-- Start coding here -->
+        <AlertDialogFooter className="mt-4 gap-3 sm:gap-3">
+          <AlertDialogCancel className="h-10 cursor-pointer border border-accent bg-transparent px-5 text-lg text-accent hover:bg-accent/10 hover:text-accent">
+            Cancel
+          </AlertDialogCancel>
 
-    <script src="/script.js"></script>
-  </body>
-</html>`,
-  },
+          <AlertDialogAction
+            onClick={onConfirm}
+            className="group relative h-10 cursor-pointer overflow-hidden border bg-accent px-5 text-lg text-black shadow-[3px_3px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-px hover:translate-y-px hover:bg-accent hover:shadow-[1px_1px_0_0_#FF8C00]"
+          >
+            <span
+              aria-hidden="true"
+              className="absolute top-full left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
+            />
 
-  "/styles.css": {
-    code: `/* Add your styles here */`,
-  },
+            <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
+              {confirmText}
+            </span>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
-  "/script.js": {
-    code: `// Add your JavaScript here`,
-  },
-};
+interface PlaygroundToolbarProps {
+  presetId: PlaygroundPresetId;
+  onPresetChange: (
+    presetId: PlaygroundPresetId,
+  ) => void;
+}
 
-function PlaygroundToolbar() {
+function PlaygroundToolbar({
+  presetId,
+  onPresetChange,
+}: PlaygroundToolbarProps) {
   const { sandpack } = useSandpack();
+
+  const [
+    isResetDialogOpen,
+    setIsResetDialogOpen,
+  ] = useState(false);
+
+  const preset =
+    playgroundPresets[presetId];
 
   const resetCode = () => {
     sandpack.resetAllFiles();
+    setIsResetDialogOpen(false);
   };
 
   const runCode = () => {
@@ -75,79 +136,209 @@ function PlaygroundToolbar() {
   };
 
   return (
-    <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-border bg-card px-5 py-3">
-      <div>
-        <p className="text-sm uppercase text-foreground/40">
-          HTML · CSS · JavaScript
-        </p>
+    <>
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-border bg-card px-4 py-3">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="hidden size-10 shrink-0 items-center justify-center border border-accent text-accent sm:flex">
+            <Code2 className="size-5" />
+          </div>
 
-        <h1 className="text-2xl text-accent md:text-3xl">
-          Code Playground
-        </h1>
-      </div>
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl text-accent md:text-3xl">
+              Code Playground
+            </h1>
 
-      <div className="flex items-center gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={resetCode}
-          className="h-8 border-accent px-3 text-base text-accent hover:bg-accent hover:text-black"
-        >
-          <RotateCcw className="size-4" />
+            <p className="truncate text-sm text-foreground/50">
+              {preset.description}
+            </p>
+          </div>
+        </div>
 
-          Reset
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <label
+              htmlFor="playground-preset"
+              className="sr-only"
+            >
+              Playground type
+            </label>
 
-        <Button
-          type="button"
-          variant="default"
-          onClick={runCode}
-          className="group relative h-8 cursor-pointer overflow-hidden border bg-accent px-4 text-base text-black shadow-[3px_3px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-px hover:translate-y-px hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
-        >
-          <span
-            aria-hidden="true"
-            className="absolute top-full left-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
-          />
+            <select
+              id="playground-preset"
+              value={presetId}
+              onChange={(event) => {
+                onPresetChange(
+                  event.target
+                    .value as PlaygroundPresetId,
+                );
+              }}
+              className="h-9 min-w-52 cursor-pointer appearance-none border border-accent bg-background py-1 pr-10 pl-3 text-base text-accent outline-none transition-colors hover:bg-accent/10 focus:ring-2 focus:ring-accent/40"
+            >
+              {playgroundPresetIds.map(
+                (currentPresetId) => {
+                  const currentPreset =
+                    playgroundPresets[
+                      currentPresetId
+                    ];
 
-          <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
-            <Play className="size-4" />
+                  return (
+                    <option
+                      key={
+                        currentPreset.id
+                      }
+                      value={
+                        currentPreset.id
+                      }
+                      className="bg-card text-foreground"
+                    >
+                      {
+                        currentPreset.label
+                      }
+                    </option>
+                  );
+                },
+              )}
+            </select>
 
-            Run code
-          </span>
-        </Button>
-      </div>
-    </header>
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-accent" />
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setIsResetDialogOpen(
+                true,
+              );
+            }}
+            className="h-9 cursor-pointer border-accent px-3 text-base text-accent hover:bg-accent hover:text-black"
+          >
+            <RotateCcw className="size-4" />
+
+            <span className="hidden sm:inline">
+              Reset
+            </span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="default"
+            onClick={runCode}
+            className="group relative h-9 cursor-pointer overflow-hidden border bg-accent px-4 text-base text-black shadow-[3px_3px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-px hover:translate-y-px hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+          >
+            <span
+              aria-hidden="true"
+              className="absolute top-full left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
+            />
+
+            <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
+              <Play className="size-4" />
+
+              Run code
+            </span>
+          </Button>
+        </div>
+      </header>
+
+      <ConfirmDialog
+        open={isResetDialogOpen}
+        title="Reset playground?"
+        description="All your changes will be replaced with the original starter code. This action cannot be undone."
+        confirmText="Reset code"
+        onConfirm={resetCode}
+        onOpenChange={
+          setIsResetDialogOpen
+        }
+      />
+    </>
   );
 }
 
 export default function PlaygroundPage() {
-  const visibleFiles = [
-    "/index.html",
-    "/styles.css",
-    "/script.js",
-  ];
+  const [
+    presetId,
+    setPresetId,
+  ] =
+    useState<PlaygroundPresetId>(
+      "html",
+    );
+
+  const [
+    pendingPresetId,
+    setPendingPresetId,
+  ] =
+    useState<PlaygroundPresetId | null>(
+      null,
+    );
+
+  const preset =
+    playgroundPresets[presetId];
+
+  const requestPresetChange = (
+    nextPresetId: PlaygroundPresetId,
+  ) => {
+    if (nextPresetId === presetId) {
+      return;
+    }
+
+    setPendingPresetId(
+      nextPresetId,
+    );
+  };
+
+  const confirmPresetChange = () => {
+    if (!pendingPresetId) {
+      return;
+    }
+
+    setPresetId(pendingPresetId);
+    setPendingPresetId(null);
+  };
+
+  const handlePresetDialogChange = (
+    open: boolean,
+  ) => {
+    if (!open) {
+      setPendingPresetId(null);
+    }
+  };
 
   return (
-    <main className="h-[calc(100dvh-64px)] min-h-0 overflow-hidden bg-background">
+    <main className="h-[calc(100dvh-64px)] min-h-0 w-full overflow-hidden">
       <SandpackProvider
-        template="static"
-        theme={codeQuestSandpackTheme}
-        files={playgroundFiles}
-        className="codequest-sandpack"
-        style={{
-          height: "100%",
-          minHeight: 0,
-        }}
-        options={{
-          activeFile: "/index.html",
-          visibleFiles,
-          autorun: true,
-          autoReload: true,
-          recompileMode: "immediate",
-        }}
-      >
+  key={preset.id}
+  className="codequest-sandpack h-full min-h-0"
+  style={{
+    height: "100%",
+    minHeight: 0,
+  }}
+  template={preset.template}
+  theme={codeQuestSandpackTheme}
+  files={preset.files}
+  options={{
+    activeFile:
+      preset.activeFile,
+
+    visibleFiles:
+      preset.visibleFiles,
+
+    externalResources:
+      preset.externalResources ??
+      [],
+
+    autorun: true,
+    autoReload: true,
+    recompileMode:
+      "immediate",
+  }}
+>
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <PlaygroundToolbar />
+          <PlaygroundToolbar
+            presetId={presetId}
+            onPresetChange={
+              requestPresetChange
+            }
+          />
 
           <div className="min-h-0 flex-1 overflow-hidden">
             <SandpackLayout
@@ -164,9 +355,6 @@ export default function PlaygroundPage() {
               <Group
                 orientation="horizontal"
                 className="h-full min-h-0 w-full"
-                style={{
-                  height: "100%",
-                }}
               >
                 <Panel
                   id="playground-editor"
@@ -177,15 +365,24 @@ export default function PlaygroundPage() {
                 >
                   <SandpackCodeEditor
                     extensions={[
-                      autocompletion({
-                        activateOnTyping: true,
-                      }),
+                      autocompletion(
+                        {
+                          activateOnTyping:
+                            true,
+                        },
+                      ),
                     ]}
                     initMode="immediate"
-                    showTabs
+                    showTabs={
+                      preset
+                        .visibleFiles
+                        .length > 1
+                    }
                     showLineNumbers
                     showInlineErrors
-                    wrapContent={false}
+                    wrapContent={
+                      false
+                    }
                     className="h-full min-h-0"
                     style={{
                       width: "100%",
@@ -205,9 +402,15 @@ export default function PlaygroundPage() {
                   className="h-full min-h-0 min-w-0 overflow-hidden"
                 >
                   <SandpackPreview
-                    showNavigator={false}
-                    showOpenInCodeSandbox={false}
-                    showRefreshButton={false}
+                    showNavigator={
+                      false
+                    }
+                    showOpenInCodeSandbox={
+                      false
+                    }
+                    showRefreshButton={
+                      false
+                    }
                     className="h-full min-h-0"
                     style={{
                       width: "100%",
@@ -221,6 +424,21 @@ export default function PlaygroundPage() {
           </div>
         </div>
       </SandpackProvider>
+
+      <ConfirmDialog
+        open={
+          pendingPresetId !== null
+        }
+        title="Change playground?"
+        description="Changing the playground type will reset your current code. This action cannot be undone."
+        confirmText="Change template"
+        onConfirm={
+          confirmPresetChange
+        }
+        onOpenChange={
+          handlePresetDialogChange
+        }
+      />
     </main>
   );
 }

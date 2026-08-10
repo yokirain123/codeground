@@ -304,3 +304,108 @@ export const ExerciseTable = pgTable(
     ),
   ],
 );
+
+export const achievementMetricEnum =
+  pgEnum("achievement_metric", [
+    "exercises_completed",
+    "points_earned",
+    "streak",
+  ]);
+
+export const achievementsTable = pgTable(
+  "achievements",
+  {
+    id: integer("id")
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+
+    key: varchar("key", {
+      length: 100,
+    })
+      .notNull()
+      .unique(),
+
+    name: varchar("name", {
+      length: 255,
+    }).notNull(),
+
+    description: text(
+      "description",
+    ).notNull(),
+
+    icon: varchar("icon", {
+      length: 50,
+    })
+      .notNull()
+      .default("🏆"),
+
+    metric:
+      achievementMetricEnum("metric")
+        .notNull(),
+
+    target: integer("target")
+      .notNull(),
+
+    createdAt: timestamp(
+      "created_at",
+      {
+        withTimezone: true,
+      },
+    )
+      .notNull()
+      .defaultNow(),
+  },
+);
+
+export const userAchievementsTable =
+  pgTable(
+    "user_achievements",
+    {
+      id: integer("id")
+        .primaryKey()
+        .generatedAlwaysAsIdentity(),
+
+      userId: varchar("user_id", {
+        length: 255,
+      })
+        .notNull()
+        .references(
+          () => usersTable.clerkId,
+          {
+            onDelete: "cascade",
+          },
+        ),
+
+      achievementId: integer(
+        "achievement_id",
+      )
+        .notNull()
+        .references(
+          () => achievementsTable.id,
+          {
+            onDelete: "cascade",
+          },
+        ),
+
+      unlockedAt: timestamp(
+        "unlocked_at",
+        {
+          withTimezone: true,
+        },
+      )
+        .notNull()
+        .defaultNow(),
+    },
+    (table) => [
+      uniqueIndex(
+        "user_achievement_unique",
+      ).on(
+        table.userId,
+        table.achievementId,
+      ),
+
+      index(
+        "user_achievements_user_idx",
+      ).on(table.userId),
+    ],
+  );
