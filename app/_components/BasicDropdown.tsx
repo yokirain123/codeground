@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/shadcn/button";
-import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import {
   AnimatePresence,
@@ -18,7 +17,7 @@ import {
 import { createPortal } from "react-dom";
 
 const DROPDOWN_OFFSET = 8;
-const MIN_DROPDOWN_WIDTH = 190;
+const MIN_DROPDOWN_WIDTH = 130;
 
 export interface DropdownItem {
   id: string | number;

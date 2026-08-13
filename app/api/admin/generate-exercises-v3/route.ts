@@ -69,7 +69,13 @@ const MAX_EXERCISE_REPAIR_ATTEMPTS = 2;
 
 type GeneratedExercise = z.infer<typeof GeneratedExerciseSchema>;
 type GeneratedFile = z.infer<typeof GeneratedFileSchema>;
-type CourseEnvironment = "html" | "css" | "react" | "python";
+type CourseEnvironment = "html" | "css" | "react" | "python" | "csharp";
+
+function isCSharpIdentity(identity: string) {
+  return /(?:^|[^a-z0-9])(?:c#|c[\s-]?sharp|dotnet|\.net)(?=$|[^a-z0-9])/.test(
+    identity,
+  );
+}
 
 function getCourseEnvironment(course: {
   title: string;
@@ -77,6 +83,7 @@ function getCourseEnvironment(course: {
 }): CourseEnvironment {
   const identity = `${course.title} ${course.tags ?? ""}`.toLowerCase();
 
+  if (isCSharpIdentity(identity)) return "csharp";
   if (/\bpython\b/.test(identity)) return "python";
   if (/\breact\b/.test(identity)) return "react";
   if (/\bcss\b/.test(identity)) return "css";
@@ -91,6 +98,13 @@ function validateEnvironmentFiles(
   const filenames = Object.keys(files).map((filename) =>
     filename.toLowerCase(),
   );
+
+  if (
+    environment === "csharp" &&
+    (filenames.length !== 1 || !filenames[0].endsWith("program.cs"))
+  ) {
+    throw new Error(`${label} must contain exactly one Program.cs file`);
+  }
 
   if (
     environment === "python" &&
@@ -147,6 +161,10 @@ hint requirements:
 
 starterFiles requirements:
 - Provide incomplete but runnable starter files.
+- The starter must omit at least one explicit task requirement that the student
+  has to implement. Never place a complete solution in starter code.
+- Add a short TODO at the exact place where the student should work, but never
+  include the finished implementation in comments.
 - Preserve proper indentation and line breaks.
 - The starter code must NOT already satisfy validationRegex.
 - Follow the supplied programmingEnvironment exactly.
@@ -154,6 +172,13 @@ starterFiles requirements:
 - css: use index.html plus styles.css. The HTML must already contain the elements the learner will style.
 - react: use a runnable Sandpack React project, normally App.js plus styles.css. Use JSX and React APIs.
 - python: use exactly one main.py file. Never generate HTML, CSS, JavaScript, package.json, or DOM code.
+- csharp: use exactly one Program.cs file containing a console application. Use modern beginner-friendly C# and never generate a project file, HTML, CSS, JavaScript, or DOM code.
+- For Python, starter code may contain setup data or function signatures, but it
+  must omit the required calculation, branch, loop, collection operation,
+  function body, class behavior, file action, or final output.
+- For C#, starter code may contain using directives, a Program entry point,
+  setup data, or method and class signatures, but it must omit the behavior
+  explicitly requested by the task.
 
 referenceFiles requirements:
 - Provide a complete private reference solution used only by the server to verify validationRegex.
@@ -170,7 +195,7 @@ validationRegex requirements:
 
 expectedOutput requirements:
 - For HTML, CSS, and React, return a short HTML example of the rendered result.
-- For Python, return terminal output wrapped in a <pre> element.
+- For Python and C#, return terminal output wrapped in a <pre> element.
 - It is a visual reference, not the only accepted answer.
 
 hintXp requirements:
@@ -198,21 +223,16 @@ const REGEX_REPAIR_INSTRUCTIONS = `
 You repair only the validationRegex of one CodeQuest exercise.
 
 The starterFiles and referenceFiles are fixed and must not be changed.
-
 Return one JavaScript-compatible regex source that:
-- fails for every starter file and their combined code;
-- passes for at least one reference file or their combined code;
+- fails for every starter file and for their combined code;
+- passes for at least one reference file or for their combined code;
 - checks the actual requested programming behavior;
-- accepts reasonable whitespace, quotes, variable names, and formatting differences.
+- accepts reasonable whitespace, quote, variable-name, and formatting differences.
 
 Use short positive lookaheads with [\\s\\S] when several requirements may appear
-in different parts of a file.
-
-Do not require exact prose or the entire reference solution.
-Return only validationRegex without Markdown fences, new RegExp(), or
-surrounding / delimiters.
-
-You may start it with (?i), (?s), or (?is).
+in different parts of a file. Do not require exact prose or the entire reference
+solution. Return only validationRegex without Markdown fences, new RegExp(), or
+surrounding / delimiters. You may start it with (?i), (?s), or (?is).
 `;
 
 function isRegexValidationError(message: string) {
@@ -511,7 +531,6 @@ export async function POST(request: Request) {
           id: coursesTable.id,
           title: coursesTable.title,
           desc: coursesTable.desc,
-          level: coursesTable.level,
           tags: coursesTable.tags,
         })
         .from(coursesTable)
@@ -586,7 +605,6 @@ export async function POST(request: Request) {
               course: {
                 title: course.title,
                 description: course.desc,
-                level: course.level,
                 tags: course.tags,
                 programmingEnvironment,
               },
@@ -618,104 +636,143 @@ export async function POST(request: Request) {
 
     const generatedBySlug = new Map<string, GeneratedExercise>();
 
-for (const generatedExercise of generatedChapter.exercises) {
-  if (generatedBySlug.has(generatedExercise.exerciseId)) {
-    console.warn(
-      `AI duplicated ${generatedExercise.exerciseId}; keeping the first result`,
-    );
+    for (const generatedExercise of generatedChapter.exercises) {
+      if (generatedBySlug.has(generatedExercise.exerciseId)) {
+        console.warn(`AI duplicated ${generatedExercise.exerciseId}; keeping the first result`);
+        continue;
+      }
 
-    continue;
-  }
+      generatedBySlug.set(generatedExercise.exerciseId, generatedExercise);
+    }
 
-  generatedBySlug.set(
-    generatedExercise.exerciseId,
-    generatedExercise,
-  );
-}
+    const validatedExercises: GeneratedExerciseRecord[] = [];
+    const validatedTaskKeys = new Set<string>();
+    const failedExercises: Array<{
+      exerciseId: string;
+      exerciseName: string;
+      error: string;
+    }> = [];
 
-const validatedExercises: GeneratedExerciseRecord[] = [];
-const validatedTaskKeys = new Set<string>();
+    for (const metadata of targetExercises) {
+      const initialGeneratedExercise = generatedBySlug.get(metadata.slug);
 
-const failedExercises: Array<{
-  exerciseId: string;
-  exerciseName: string;
-  error: string;
-}> = [];
+      if (!initialGeneratedExercise) {
+        failedExercises.push({
+          exerciseId: metadata.slug,
+          exerciseName: metadata.name,
+          error: `AI did not generate ${metadata.slug}`,
+        });
+        continue;
+      }
 
-for (const metadata of targetExercises) {
-  const initialGeneratedExercise = generatedBySlug.get(metadata.slug);
-
-  if (!initialGeneratedExercise) {
-    failedExercises.push({
-      exerciseId: metadata.slug,
-      exerciseName: metadata.name,
-      error: `AI did not generate ${metadata.slug}`,
-    });
-
-    continue;
-  }
-
-  try {
-    let generatedExercise = initialGeneratedExercise;
-    let validatedExercise: GeneratedExerciseRecord | null = null;
-    let validationError = "";
-
-    for (
-      let repairAttempt = 0;
-      repairAttempt <= MAX_EXERCISE_REPAIR_ATTEMPTS;
-      repairAttempt += 1
-    ) {
       try {
-        validatedExercise = validateGeneratedExercise(
-          generatedExercise,
-          metadata,
-          programmingEnvironment,
-        );
+        let generatedExercise = initialGeneratedExercise;
+        let validatedExercise: GeneratedExerciseRecord | null = null;
+        let validationError = "";
 
-        break;
-      } catch (error) {
-        validationError =
-          error instanceof Error
-            ? error.message
-            : `Unknown validation error for ${metadata.slug}`;
+        for (
+          let repairAttempt = 0;
+          repairAttempt <= MAX_EXERCISE_REPAIR_ATTEMPTS;
+          repairAttempt += 1
+        ) {
+          try {
+            validatedExercise = validateGeneratedExercise(
+              generatedExercise,
+              metadata,
+              programmingEnvironment,
+            );
+            break;
+          } catch (error) {
+            validationError =
+              error instanceof Error
+                ? error.message
+                : `Unknown validation error for ${metadata.slug}`;
 
-        if (repairAttempt === MAX_EXERCISE_REPAIR_ATTEMPTS) {
-          break;
-        }
+            if (repairAttempt === MAX_EXERCISE_REPAIR_ATTEMPTS) {
+              break;
+            }
 
-        console.warn(
-          `Repairing ${metadata.slug}, attempt ${
-            repairAttempt + 1
-          }/${MAX_EXERCISE_REPAIR_ATTEMPTS}:`,
-          validationError,
-        );
+            console.warn(
+              `Repairing ${metadata.slug}, attempt ${repairAttempt + 1}/${MAX_EXERCISE_REPAIR_ATTEMPTS}:`,
+              validationError,
+            );
 
-        if (isRegexValidationError(validationError)) {
-          const regexRepairResponse =
-            await openai.responses.parse({
+            if (isRegexValidationError(validationError)) {
+              const regexRepairResponse = await openai.responses.parse({
+                model,
+                input: [
+                  {
+                    role: "system",
+                    content: REGEX_REPAIR_INSTRUCTIONS,
+                  },
+                  {
+                    role: "user",
+                    content: JSON.stringify(
+                      {
+                        programmingEnvironment,
+                        chapter: {
+                          name: chapter.name,
+                          description: chapter.desc,
+                        },
+                        exerciseMetadata: metadata,
+                        task: generatedExercise.task,
+                        starterFiles: generatedExercise.starterFiles,
+                        referenceFiles: generatedExercise.referenceFiles,
+                        rejectedValidationRegex:
+                          generatedExercise.validationRegex,
+                        serverValidationError: validationError,
+                      },
+                      null,
+                      2,
+                    ),
+                  },
+                ],
+                text: {
+                  format: zodTextFormat(
+                    RepairedValidationRegexSchema,
+                    "repaired_validation_regex",
+                  ),
+                },
+              });
+
+              if (!regexRepairResponse.output_parsed) {
+                throw new Error(
+                  `AI did not return a repaired regex for ${metadata.slug}`,
+                );
+              }
+
+              generatedExercise = {
+                ...generatedExercise,
+                validationRegex:
+                  regexRepairResponse.output_parsed.validationRegex,
+              };
+              continue;
+            }
+
+            const repairResponse = await openai.responses.parse({
               model,
               input: [
                 {
                   role: "system",
-                  content: REGEX_REPAIR_INSTRUCTIONS,
+                  content: `${GENERATOR_INSTRUCTIONS}\n${REPAIR_INSTRUCTIONS}`,
                 },
                 {
                   role: "user",
                   content: JSON.stringify(
                     {
-                      programmingEnvironment,
+                      course: {
+                        title: course.title,
+                        description: course.desc,
+                        tags: course.tags,
+                        programmingEnvironment,
+                      },
                       chapter: {
+                        chapterId,
                         name: chapter.name,
                         description: chapter.desc,
                       },
                       exerciseMetadata: metadata,
-                      task: generatedExercise.task,
-                      starterFiles:
-                        generatedExercise.starterFiles,
-                      referenceFiles:
-                        generatedExercise.referenceFiles,
-                      rejectedValidationRegex:
-                        generatedExercise.validationRegex,
+                      rejectedExercise: generatedExercise,
                       serverValidationError: validationError,
                     },
                     null,
@@ -725,116 +782,48 @@ for (const metadata of targetExercises) {
               ],
               text: {
                 format: zodTextFormat(
-                  RepairedValidationRegexSchema,
-                  "repaired_validation_regex",
+                  RepairedExerciseSchema,
+                  "repaired_exercise",
                 ),
               },
             });
 
-          if (!regexRepairResponse.output_parsed) {
-            throw new Error(
-              `AI did not return a repaired regex for ${metadata.slug}`,
-            );
+            if (!repairResponse.output_parsed) {
+              throw new Error(`AI did not return repaired ${metadata.slug}`);
+            }
+
+            generatedExercise = repairResponse.output_parsed.exercise;
           }
-
-          generatedExercise = {
-            ...generatedExercise,
-            validationRegex:
-              regexRepairResponse.output_parsed.validationRegex,
-          };
-
-          continue;
         }
 
-        const repairResponse = await openai.responses.parse({
-          model,
-          input: [
-            {
-              role: "system",
-              content: `${GENERATOR_INSTRUCTIONS}\n${REPAIR_INSTRUCTIONS}`,
-            },
-            {
-              role: "user",
-              content: JSON.stringify(
-                {
-                  course: {
-                    title: course.title,
-                    description: course.desc,
-                    level: course.level,
-                    tags: course.tags,
-                    programmingEnvironment,
-                  },
-                  chapter: {
-                    chapterId,
-                    name: chapter.name,
-                    description: chapter.desc,
-                  },
-                  exerciseMetadata: metadata,
-                  rejectedExercise: generatedExercise,
-                  serverValidationError: validationError,
-                },
-                null,
-                2,
-              ),
-            },
-          ],
-          text: {
-            format: zodTextFormat(
-              RepairedExerciseSchema,
-              "repaired_exercise",
-            ),
-          },
-        });
-
-        if (!repairResponse.output_parsed) {
+        if (!validatedExercise) {
           throw new Error(
-            `AI did not return repaired ${metadata.slug}`,
+            `AI could not repair ${metadata.slug} after ${MAX_EXERCISE_REPAIR_ATTEMPTS} attempts. Last validation error: ${validationError}`,
           );
         }
 
-        generatedExercise =
-          repairResponse.output_parsed.exercise;
+        const taskKey = getNormalizedTaskKey(validatedExercise.task);
+
+        if (validatedTaskKeys.has(taskKey)) {
+          throw new Error(`AI generated a duplicate task for ${metadata.slug}`);
+        }
+
+        validatedTaskKeys.add(taskKey);
+        validatedExercises.push(validatedExercise);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : `Unknown generation error for ${metadata.slug}`;
+
+        console.error(`Skipping invalid exercise ${metadata.slug}:`, message);
+        failedExercises.push({
+          exerciseId: metadata.slug,
+          exerciseName: metadata.name,
+          error: message,
+        });
       }
     }
-
-    if (!validatedExercise) {
-      throw new Error(
-        `AI could not repair ${metadata.slug} after ` +
-          `${MAX_EXERCISE_REPAIR_ATTEMPTS} attempts. ` +
-          `Last validation error: ${validationError}`,
-      );
-    }
-
-    const taskKey = getNormalizedTaskKey(
-      validatedExercise.task,
-    );
-
-    if (validatedTaskKeys.has(taskKey)) {
-      throw new Error(
-        `AI generated a duplicate task for ${metadata.slug}`,
-      );
-    }
-
-    validatedTaskKeys.add(taskKey);
-    validatedExercises.push(validatedExercise);
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : `Unknown generation error for ${metadata.slug}`;
-
-    console.error(
-      `Skipping invalid exercise ${metadata.slug}:`,
-      message,
-    );
-
-    failedExercises.push({
-      exerciseId: metadata.slug,
-      exerciseName: metadata.name,
-      error: message,
-    });
-  }
-}
 
     for (const exercise of validatedExercises) {
       await db
@@ -873,18 +862,24 @@ for (const metadata of targetExercises) {
         });
     }
 
+    const hasFailures = failedExercises.length > 0;
+
     return NextResponse.json(
       {
         generated: validatedExercises.length,
+        failed: failedExercises.length,
         skipped: overwrite ? 0 : existingExercises.length,
         exercises: validatedExercises.map((exercise) => ({
           exerciseId: exercise.exerciseId,
           exerciseName: exercise.exerciseName,
         })),
+        failedExercises,
         generatorVersion: GENERATOR_ROUTE_VERSION,
-        message: `Generated ${validatedExercises.length} unique exercises`,
+        message: hasFailures
+          ? `Saved ${validatedExercises.length} exercises. ${failedExercises.length} exercise${failedExercises.length === 1 ? "" : "s"} remain missing and can be retried.`
+          : `Generated ${validatedExercises.length} unique exercises`,
       },
-      { status: 201 },
+      { status: hasFailures ? 207 : 201 },
     );
   } catch (error) {
     console.error("AI exercise generation error:", error);

@@ -11,19 +11,12 @@ import {
   SandpackProvider,
 } from "@codesandbox/sandpack-react";
 
-import {
-  ArrowRight,
-  ChevronDown,
-  Code2,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, Code2 } from "lucide-react";
 
 import { codeQuestSandpackTheme } from "@/app/sandpack/sandpackTheme";
 import { Button } from "@/components/ui/shadcn/button";
 
-type DemoId =
-  | "html"
-  | "react"
-  | "react-tailwind";
+type DemoId = "html" | "react" | "react-tailwind";
 
 const demos = {
   html: {
@@ -175,9 +168,7 @@ h1 { color: #ffd400; }
     template: "react" as const,
     activeFile: "/App.js",
     visibleFiles: ["/App.js"],
-    externalResources: [
-      "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4",
-    ],
+    externalResources: ["https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"],
     files: {
       "/App.js": {
         code: `export default function App() {
@@ -214,13 +205,8 @@ export default function PlaygroundPromo() {
   const demo = demos[demoId];
 
   return (
-    <section className="relative overflow-hidden bg-[#07080C] px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(63,86,189,0.18),transparent_34%),radial-gradient(circle_at_90%_80%,rgba(255,212,0,0.06),transparent_28%)]"
-      />
-
-      <div className="relative mx-auto max-w-7xl">
+    <section className="relative px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <p className="font-pixel text-sm uppercase tracking-[0.3em] text-[#899DFF]">

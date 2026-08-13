@@ -1,7 +1,8 @@
 "use client";
 
+import Footer from "@/app/_components/Footer";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Category = "All" | "General" | "Courses" | "Progress" | "Account" | "Playground";
 
@@ -154,14 +155,6 @@ export default function FAQPage() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(63,86,189,0.26),transparent_40%),radial-gradient(circle_at_85%_55%,rgba(255,212,0,0.08),transparent_32%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-30 opacity-[0.06] [background-image:linear-gradient(transparent_50%,#000_50%)] [background-size:100%_4px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-30 [background:radial-gradient(ellipse_at_center,transparent_48%,rgba(0,0,0,0.35)_82%,rgba(0,0,0,0.72)_100%)]"
       />
 
       <section className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 pt-12 sm:px-8 sm:pt-16 lg:px-10 lg:pt-20">
@@ -413,6 +406,7 @@ export default function FAQPage() {
           </div>
         </section>
       </section>
+      <Footer/>
     </main>
   );
 }

@@ -2,6 +2,7 @@ import {
   DATA as HTML_DATA,
   type ChapterSeed,
 } from "@/app/api/course-chapters/data";
+import { CSHARP_DATA } from "@/app/api/course-chapters/csharpData";
 
 const exercise = (
   name: string,
@@ -454,13 +455,27 @@ export const PYTHON_DATA: ChapterSeed[] = [
 interface CourseIdentity {
   title: string;
   tags?: string | null;
+  level?: string | null;
 }
 
 export function getCourseChapterData({
   title,
   tags,
+  level,
 }: CourseIdentity): ChapterSeed[] | null {
-  const identity = `${title} ${tags ?? ""}`.toLowerCase();
+  const identity = `${title} ${tags ?? ""} ${level ?? ""}`.toLowerCase();
+
+  if (!/\bbeginner\b/.test(identity)) {
+    return null;
+  }
+
+  if (
+    /(?:^|[^a-z0-9])(?:c#|c[\s-]?sharp|dotnet|\.net)(?=$|[^a-z0-9])/.test(
+      identity,
+    )
+  ) {
+    return CSHARP_DATA;
+  }
 
   if (/\bpython\b/.test(identity)) {
     return PYTHON_DATA;

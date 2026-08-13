@@ -1,15 +1,10 @@
-import {
-  BookOpen,
-  Code2,
-  Trophy,
-} from "lucide-react";
+import { BookOpen, Code2, Trophy } from "lucide-react";
 
 const steps = [
   {
     number: "01",
     title: "Choose a course",
-    description:
-      "Pick a learning path and begin at your current skill level.",
+    description: "Pick a learning path and begin at your current skill level.",
     icon: BookOpen,
   },
   {
@@ -30,18 +25,8 @@ const steps = [
 
 export default function HowCodeQuestWorks() {
   return (
-    <section className="relative overflow-hidden border-y border-white/10 bg-[#0C0E15] px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.045] [background-image:linear-gradient(to_right,#899DFF_1px,transparent_1px),linear-gradient(to_bottom,#899DFF_1px,transparent_1px)] [background-size:32px_32px]"
-      />
-
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(63,86,189,0.2),transparent_42%),radial-gradient(circle_at_85%_75%,rgba(255,212,0,0.06),transparent_28%)]"
-      />
-
-      <div className="relative mx-auto max-w-7xl">
+    <section className="relative px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
+      <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-2xl text-center">
           <p className="font-pixel text-sm uppercase tracking-[0.3em] text-[#899DFF]">
             Your journey

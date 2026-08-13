@@ -5,14 +5,10 @@ import {
   BookOpen,
   Code2,
   LayoutDashboard,
-  MessageCircle,
   Trophy,
 } from "lucide-react";
 
 export function UserMenu() {
-  const handleFeedback = () => {
-    console.log("Open feedback modal");
-  };
 
   return (
     <UserButton>
@@ -40,13 +36,6 @@ export function UserMenu() {
           label="Achievements"
           labelIcon={<Trophy size={16} />}
           href="/achievements"
-        />
-
-        {/* Кнопка, яка запускає функцію */}
-        <UserButton.Action
-          label="Send feedback"
-          labelIcon={<MessageCircle size={16} />}
-          onClick={handleFeedback}
         />
 
         {/* Стандартні кнопки Clerk */}

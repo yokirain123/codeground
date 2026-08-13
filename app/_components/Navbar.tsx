@@ -15,13 +15,12 @@ const homeItems: DropdownItem[] = [
 ];
 
 const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Projects", href: "/projects" },
+  { label: "Challenges", href: "/challenges" },
   { label: "Contact", href: "/contact" },
 ];
 
 const buttonStyles =
-  "group relative h-8 w-24 shrink-0 cursor-pointer justify-center overflow-hidden border bg-accent px-0 text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none";
+  "group relative h-8 w-auto shrink-0 cursor-pointer justify-center overflow-hidden border bg-accent px-2 text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none";
 
 function NavButton({
   label,

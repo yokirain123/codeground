@@ -32,6 +32,41 @@ const commands = [
   },
 ];
 
+interface HeroStats {
+  player: {
+    id: number;
+    name: string;
+    points: number;
+  } | null;
+  course: {
+    id: number;
+    title: string;
+  } | null;
+  activeQuest: {
+    title: string;
+    xp: number;
+    href: string;
+  } | null;
+  progress: {
+    completed: number;
+    total: number;
+    percent: number;
+  };
+  isCourseCompleted: boolean;
+}
+
+const emptyHeroStats: HeroStats = {
+  player: null,
+  course: null,
+  activeQuest: null,
+  progress: {
+    completed: 0,
+    total: 0,
+    percent: 0,
+  },
+  isCourseCompleted: false,
+};
+
 interface TypewriterTextProps {
   text: string;
   delay?: number;
@@ -122,6 +157,80 @@ function TypewriterText({
 
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
+  const [heroStats, setHeroStats] = useState<HeroStats>(emptyHeroStats);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadHeroStats = async () => {
+      try {
+        const response = await fetch("/api/hero-stats", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load hero stats");
+        }
+
+        const data: HeroStats = await response.json();
+        setHeroStats(data);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        setHeroStats(emptyHeroStats);
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsStatsLoading(false);
+        }
+      }
+    };
+
+    void loadHeroStats();
+
+    return () => controller.abort();
+  }, []);
+
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, heroStats.progress.percent),
+  );
+
+  const playerNumber = isStatsLoading
+    ? "--"
+    : heroStats.player
+      ? String(heroStats.player.id).padStart(2, "0")
+      : "GUEST";
+
+  const eyebrow = isStatsLoading
+    ? "Syncing quest log..."
+    : heroStats.course
+      ? `${heroStats.course.title} · ${
+          heroStats.isCourseCompleted ? "Course complete" : "Next quest"
+        }`
+      : "New adventure · Choose your first course";
+
+  const activeQuestTitle = isStatsLoading
+    ? "Loading quest..."
+    : (heroStats.activeQuest?.title ??
+      (heroStats.isCourseCompleted
+        ? "Course completed!"
+        : heroStats.course
+          ? "No exercises available yet"
+          : "Choose your first course"));
+
+  const activeQuestHref = heroStats.activeQuest?.href ?? "/courses";
+
+  const questXp = isStatsLoading
+    ? "-- XP"
+    : heroStats.activeQuest
+      ? `+${heroStats.activeQuest.xp} XP`
+      : heroStats.player
+        ? `${heroStats.player.points} XP TOTAL`
+        : "0 XP";
 
   return (
     <section className="relative isolate min-h-[calc(100svh-64px)] overflow-hidden bg-[#07080C] px-4 py-10 text-white md:px-8 md:py-14 lg:flex lg:items-center">
@@ -160,7 +269,7 @@ export default function Hero() {
         >
           <div className="mb-5 flex items-center gap-3 font-pixel text-sm uppercase tracking-[0.22em] text-[#899DFF] md:text-base">
             <span className="h-px w-10 bg-[#FFD400]" />
-            Chapter 01 · The first command
+            {eyebrow}
           </div>
 
           <h1 className="font-accent text-[clamp(4.5rem,11vw,9.5rem)] leading-[0.72] tracking-tight">
@@ -168,9 +277,7 @@ export default function Hero() {
               <BlurOutUp stagger={35}>CODE</BlurOutUp>
             </span>
 
-            <span
-              className="relative mt-4 block w-fit text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]"
-            >
+            <span className="relative mt-4 block w-fit text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
               <BlurOutUp delay={180} stagger={55}>
                 QUEST
               </BlurOutUp>
@@ -241,7 +348,12 @@ export default function Hero() {
 
                 <div className="text-right font-pixel">
                   <p className="text-xs text-white/40">PLAYER</p>
-                  <p className="text-lg text-[#FFD400]">01</p>
+                  <p
+                    className="max-w-24 truncate text-lg text-[#FFD400]"
+                    title={heroStats.player?.name}
+                  >
+                    {playerNumber}
+                  </p>
                 </div>
               </div>
 
@@ -299,18 +411,32 @@ export default function Hero() {
                     <p className="font-pixel text-xs tracking-[0.2em] text-[#899DFF]">
                       ACTIVE QUEST
                     </p>
-                    <p className="mt-1 font-pixel text-xl text-white">
-                      Hello, World!
-                    </p>
+                    <Link
+                      href={activeQuestHref}
+                      className="mt-1 block font-pixel text-xl text-white transition-colors hover:text-[#FFD400]"
+                    >
+                      {activeQuestTitle}
+                    </Link>
                   </div>
 
-                  <p className="font-pixel text-sm text-white/45">+100 XP</p>
+                  <p className="shrink-0 font-pixel text-sm text-white/45">
+                    {questXp}
+                  </p>
                 </div>
 
-                <div className="mt-3 h-2 border border-white/15 bg-black/40 p-px">
+                <div
+                  className="mt-3 h-2 border border-white/15 bg-black/40 p-px"
+                  role="progressbar"
+                  aria-label="Journey progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={isStatsLoading ? 0 : progressPercent}
+                >
                   <motion.div
                     initial={shouldReduceMotion ? false : { width: 0 }}
-                    animate={{ width: "28%" }}
+                    animate={{
+                      width: `${isStatsLoading ? 0 : progressPercent}%`,
+                    }}
                     transition={{ delay: 0.9, duration: 0.8 }}
                     className="h-full bg-[#FFD400]"
                   />
@@ -318,7 +444,11 @@ export default function Hero() {
 
                 <div className="mt-2 flex justify-between font-pixel text-xs text-white/35">
                   <span>Journey progress</span>
-                  <span>28%</span>
+                  <span>
+                    {isStatsLoading
+                      ? "--"
+                      : `${heroStats.progress.completed}/${heroStats.progress.total} · ${progressPercent}%`}
+                  </span>
                 </div>
               </div>
             </div>

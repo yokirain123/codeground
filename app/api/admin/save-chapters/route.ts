@@ -79,6 +79,7 @@ export async function POST(request: Request) {
         id: coursesTable.id,
         title: coursesTable.title,
         tags: coursesTable.tags,
+        level: coursesTable.level,
       })
       .from(coursesTable)
       .where(eq(coursesTable.id, courseId))
@@ -91,12 +92,20 @@ export async function POST(request: Request) {
     const courseData = getCourseChapterData(course);
 
     if (!courseData) {
+      const chapters = await db
+        .select()
+        .from(CourseChaptersTable)
+        .where(eq(CourseChaptersTable.courseId, courseId))
+        .orderBy(asc(CourseChaptersTable.chapterId));
+
       return NextResponse.json(
         {
-          error:
-            "No chapter template found. Include HTML, CSS, React, or Python in the course title or tags.",
+          message: `${course.title} was created without an automatic chapter template. You can add its curriculum separately.`,
+          templateApplied: false,
+          synchronized: 0,
+          chapters,
         },
-        { status: 400 },
+        { status: 200 },
       );
     }
 
@@ -133,6 +142,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message: `Synchronized ${syncedChapters.length} chapters for ${course.title}`,
+        templateApplied: true,
         synchronized: syncedChapters.length,
         chapters,
       },
