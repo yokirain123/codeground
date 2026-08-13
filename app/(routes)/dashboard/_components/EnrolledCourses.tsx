@@ -1,11 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
-import {
-  useEffect,
-  useState,
-} from "react";
 
 import bookCourses from "@/components/images/book.gif";
 
@@ -21,17 +19,13 @@ interface EnrolledCourse {
   enrolledAt: string;
 }
 
+interface EnrolledCoursesResponse {
+  error?: string;
+}
+
 export default function EnrolledCourses() {
-  const [
-    enrolledCourses,
-    setEnrolledCourses,
-  ] = useState<EnrolledCourse[]>([]);
-
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true);
-
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -39,58 +33,49 @@ export default function EnrolledCourses() {
 
     const getEnrolledCourses = async () => {
       try {
-        const response = await fetch(
-          "/api/enrolled-courses",
-          {
-            method: "GET",
-            cache: "no-store",
-            signal: controller.signal,
-          },
-        );
+        setError("");
 
-        const contentType =
-          response.headers.get(
-            "content-type",
-          );
+        const response = await fetch("/api/enrolled-courses", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
-        if (
-          !contentType?.includes(
-            "application/json",
-          )
-        ) {
-          throw new Error(
-            "The server returned an invalid response",
-          );
+        const contentType = response.headers.get("content-type");
+
+        if (!contentType?.includes("application/json")) {
+          throw new Error("The server returned an invalid response");
         }
 
-        const data = await response.json();
+        const data: EnrolledCourse[] | EnrolledCoursesResponse =
+          await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            data.error ||
-              "Failed to load enrolled courses",
-          );
+          const message = Array.isArray(data) ? undefined : data.error;
+          throw new Error(message || "Failed to load enrolled courses");
         }
 
-        setEnrolledCourses(data);
+        if (!Array.isArray(data)) {
+          throw new Error("The enrolled courses response has an invalid format");
+        }
+
+        if (!controller.signal.aborted) {
+          setEnrolledCourses(data);
+        }
       } catch (error) {
-        if (
-          error instanceof Error &&
-          error.name === "AbortError"
-        ) {
+        if (error instanceof Error && error.name === "AbortError") {
           return;
         }
 
-        console.error(
-          "Enrolled courses error:",
-          error,
-        );
+        console.error("Enrolled courses error:", error);
 
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load enrolled courses",
-        );
+        if (!controller.signal.aborted) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to load enrolled courses",
+          );
+        }
       } finally {
         if (!controller.signal.aborted) {
           setIsLoading(false);
@@ -106,129 +91,129 @@ export default function EnrolledCourses() {
   }, []);
 
   return (
-    <section className="flex flex-col">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="font-pixel text-4xl font-bold">
-          Your enrolled courses
-        </h2>
+    <section>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
+        <div>
+          <p className="font-pixel text-xs uppercase tracking-[0.22em] text-[#899DFF]">
+            Active quest lines
+          </p>
+          <h2 className="mt-1 font-pixel text-3xl font-bold text-white sm:text-4xl">
+            Your enrolled <span className="text-[#FFD400]">courses</span>
+          </h2>
+        </div>
 
         {enrolledCourses.length > 0 && (
           <Link
             href="/courses"
-            className="font-pixel text-xl text-accent transition-colors hover:text-accent-hover"
+            className="font-pixel text-base text-[#899DFF] transition-colors hover:text-[#FFD400] sm:text-lg"
           >
-            View all courses
+            View all courses →
           </Link>
         )}
       </div>
 
       {isLoading && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-5 xl:grid-cols-2" aria-label="Loading courses">
           {[1, 2].map((item) => (
             <div
               key={item}
-              className="h-32 animate-pulse border border-accent/40 bg-card"
+              className="h-44 animate-pulse border-2 border-[#899DFF]/20 bg-[#10152A]"
             />
           ))}
         </div>
       )}
 
       {!isLoading && error && (
-        <div className="border-2 border-red-500 bg-red-500/10 p-6">
-          <p className="font-pixel text-xl text-red-400">
-            {error}
-          </p>
+        <div className="border border-red-500/40 bg-red-500/10 p-5" role="alert">
+          <p className="font-pixel text-lg text-red-400">{error}</p>
         </div>
       )}
 
-      {!isLoading &&
-        !error &&
-        enrolledCourses.length === 0 && (
-          <div className="flex w-full flex-col items-center justify-center gap-3 border border-accent px-8 py-8 shadow-[4px_4px_0_0_#FF8C00]">
-            <Image
-              src={bookCourses}
-              width={90}
-              height={90}
-              alt="No enrolled courses"
-            />
+      {!isLoading && !error && enrolledCourses.length === 0 && (
+        <div className="flex w-full flex-col items-center justify-center gap-4 border-2 border-[#899DFF]/45 bg-[#10152A] px-6 py-8 text-center shadow-[5px_5px_0_#020307]">
+          <Image
+            src={bookCourses}
+            width={90}
+            height={90}
+            unoptimized
+            alt="An open course book"
+            className="[image-rendering:pixelated]"
+          />
 
-            <h3 className="text-center font-pixel text-3xl">
-              You have not enrolled in any
-              courses yet!
+          <div>
+            <h3 className="font-pixel text-2xl text-white sm:text-3xl">
+              Your quest log is empty
             </h3>
+            <p className="mt-2 font-sans text-sm text-white/50 sm:text-base">
+              Enroll in a course to begin earning XP and tracking your progress.
+            </p>
+          </div>
 
+          <Link
+            href="/courses"
+            className="group relative overflow-hidden border-2 border-black bg-[#FFD400] px-5 py-3 font-pixel text-xl text-black shadow-[4px_4px_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none sm:text-2xl"
+          >
+            <span
+              aria-hidden="true"
+              className="absolute top-full left-1/2 size-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#FF8C00] transition-transform duration-700 group-hover:scale-[18]"
+            />
+            <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
+              Browse all courses
+            </span>
+          </Link>
+        </div>
+      )}
+
+      {!isLoading && !error && enrolledCourses.length > 0 && (
+        <div className="grid gap-5 xl:grid-cols-2">
+          {enrolledCourses.map((course) => (
             <Link
-              href="/courses"
-              className="group relative overflow-hidden border bg-accent px-4 py-2 font-pixel text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+              key={course.enrollmentId}
+              href={`/courses/${course.courseId}`}
+              className="group flex min-h-44 flex-col overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] shadow-[5px_5px_0_#020307] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:border-[#FFD400]/70 hover:shadow-[3px_3px_0_#020307] sm:flex-row"
             >
-              <span
-                aria-hidden="true"
-                className="absolute top-full left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
-              />
+              <div className="relative aspect-video w-full shrink-0 overflow-hidden sm:aspect-auto sm:w-40">
+                {/* Native img permits dynamic banner hosts. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={course.bannerImage}
+                  alt={course.title}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#07080C]/75 to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-[#10152A]/35" />
+              </div>
 
-              <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-                Browse all courses
-              </span>
+              <div className="flex min-w-0 flex-1 flex-col justify-between p-4">
+                <div>
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <h3 className="line-clamp-1 font-pixel text-2xl font-bold text-white">
+                      {course.title}
+                    </h3>
+
+                    <span className="shrink-0 border border-[#FFD400]/35 bg-[#FFD400]/10 px-2 py-1 font-pixel text-xs text-[#FFD400]">
+                      {course.level}
+                    </span>
+                  </div>
+
+                  <p className="line-clamp-2 font-sans text-sm leading-6 text-white/55">
+                    {course.desc}
+                  </p>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                  <span className="font-pixel text-sm text-[#899DFF]">
+                    Continue course →
+                  </span>
+                  <span className="font-pixel text-base text-[#FFD400]">
+                    {Math.max(0, course.xpEarned)} XP
+                  </span>
+                </div>
+              </div>
             </Link>
-          </div>
-        )}
-
-      {!isLoading &&
-        !error &&
-        enrolledCourses.length > 0 && (
-          <div className="grid gap-5 md:grid-cols-2">
-            {enrolledCourses.map(
-              (course) => (
-                <Link
-                  key={course.enrollmentId}
-                  href={`/courses/${course.courseId}`}
-                  className="group flex min-h-32 overflow-hidden border-2 border-accent shadow-[4px_4px_0_0_#FF8C00]"
-                >
-                  <div className="relative w-32 shrink-0 overflow-hidden sm:w-40">
-                    {/* Native img permits dynamic banner hosts. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={course.bannerImage}
-                      alt={course.title}
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-
-                    <div className="absolute inset-0" />
-                  </div>
-
-                  <div className="flex min-w-0 flex-1 flex-col justify-between p-4">
-                    <div>
-                      <div className="mb-2 flex items-start justify-between gap-3">
-                        <h3 className="line-clamp-1 font-pixel text-2xl font-bold text-accent">
-                          {course.title}
-                        </h3>
-
-                        <span className="shrink-0 bg-accent px-2 py-1 font-pixel text-sm text-black">
-                          {course.level}
-                        </span>
-                      </div>
-
-                      <p className="line-clamp-2 font-pixel text-base text-foreground/60">
-                        {course.desc}
-                      </p>
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="font-pixel text-base text-foreground/50">
-                        Continue course
-                      </span>
-
-                      <span className="font-pixel text-lg text-accent">
-                        {course.xpEarned} XP
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ),
-            )}
-          </div>
-        )}
+          ))}
+        </div>
+      )}
     </section>
   );
 }

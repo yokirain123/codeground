@@ -222,7 +222,7 @@ export async function POST(request: Request) {
       },
     },
     {
-      status: 404,
+      status: 409,
     },
   );
 }

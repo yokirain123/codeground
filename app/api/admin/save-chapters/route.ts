@@ -1,12 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
-import {
-  asc,
-  eq,
-} from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
-import { DATA } from "@/app/api/course-chapters/data";
-
+import { getCourseChapterData } from "@/app/api/course-chapters/beginnerData";
 import { db } from "@/config/db";
 import {
   CourseChaptersTable,
@@ -17,11 +13,9 @@ import {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const courseId = Number(
-      url.searchParams.get("courseId"),
-    );
+    const courseId = Number(url.searchParams.get("courseId"));
 
-    if (!Number.isInteger(courseId)) {
+    if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
         { error: "Valid courseId is required" },
         { status: 400 },
@@ -31,15 +25,8 @@ export async function GET(request: Request) {
     const chapters = await db
       .select()
       .from(CourseChaptersTable)
-      .where(
-        eq(
-          CourseChaptersTable.courseId,
-          courseId,
-        ),
-      )
-      .orderBy(
-        asc(CourseChaptersTable.chapterId),
-      );
+      .where(eq(CourseChaptersTable.courseId, courseId))
+      .orderBy(asc(CourseChaptersTable.chapterId));
 
     return NextResponse.json(chapters);
   } catch (error) {
@@ -57,39 +44,30 @@ export async function POST(request: Request) {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const [currentUser] = await db
-      .select()
+      .select({ role: usersTable.role })
       .from(usersTable)
       .where(eq(usersTable.clerkId, userId))
       .limit(1);
 
     if (!currentUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     if (currentUser.role !== "admin") {
       return NextResponse.json(
-        {
-          error:
-            "Only admins can create course chapters",
-        },
+        { error: "Only admins can create course chapters" },
         { status: 403 },
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as { courseId?: unknown };
     const courseId = Number(body.courseId);
 
-    if (!Number.isInteger(courseId)) {
+    if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
         { error: "Valid courseId is required" },
         { status: 400 },
@@ -99,45 +77,77 @@ export async function POST(request: Request) {
     const [course] = await db
       .select({
         id: coursesTable.id,
+        title: coursesTable.title,
+        tags: coursesTable.tags,
       })
       .from(coursesTable)
       .where(eq(coursesTable.id, courseId))
       .limit(1);
 
     if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
+
+    const courseData = getCourseChapterData(course);
+
+    if (!courseData) {
       return NextResponse.json(
-        { error: "Course not found" },
-        { status: 404 },
+        {
+          error:
+            "No chapter template found. Include HTML, CSS, React, or Python in the course title or tags.",
+        },
+        { status: 400 },
       );
     }
 
-    const chapters = DATA.map((item) => ({
+    const chapterRows = courseData.map((chapter) => ({
       courseId,
-      chapterId: item.id,
-      name: item.name,
-      desc: item.desc,
-      exercises: item.exercises,
+      chapterId: chapter.id,
+      name: chapter.name,
+      desc: chapter.desc,
+      exercises: chapter.exercises,
     }));
 
-    const insertedChapters = await db
+    const syncedChapters = await db
       .insert(CourseChaptersTable)
-      .values(chapters)
-      .onConflictDoNothing()
+      .values(chapterRows)
+      .onConflictDoUpdate({
+        target: [
+          CourseChaptersTable.courseId,
+          CourseChaptersTable.chapterId,
+        ],
+        set: {
+          name: sql.raw('excluded."name"'),
+          desc: sql.raw('excluded."description"'),
+          exercises: sql.raw('excluded."exercises"'),
+        },
+      })
       .returning();
+
+    const chapters = await db
+      .select()
+      .from(CourseChaptersTable)
+      .where(eq(CourseChaptersTable.courseId, courseId))
+      .orderBy(asc(CourseChaptersTable.chapterId));
 
     return NextResponse.json(
       {
-        message: "Course chapters created",
-        inserted: insertedChapters.length,
-        chapters: insertedChapters,
+        message: `Synchronized ${syncedChapters.length} chapters for ${course.title}`,
+        synchronized: syncedChapters.length,
+        chapters,
       },
-      { status: 201 },
+      { status: 200 },
     );
   } catch (error) {
     console.error("Chapter creation error:", error);
 
     return NextResponse.json(
-      { error: "Failed to create chapters" },
+      {
+        error:
+          process.env.NODE_ENV === "development" && error instanceof Error
+            ? error.message
+            : "Failed to create chapters",
+      },
       { status: 500 },
     );
   }

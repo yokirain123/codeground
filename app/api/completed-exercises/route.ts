@@ -7,14 +7,22 @@ import {
   completedExercisesTable,
   courseEnrollmentsTable,
   CourseChaptersTable,
+  ExerciseTable,
   usersTable,
 } from "@/config/schema";
+import {
+  parseSubmissionFiles,
+  validateExerciseSubmission,
+} from "@/lib/server/validateExerciseSubmission";
+import { validateExerciseWithOpenAI } from "@/lib/server/validateExerciseWithOpenAI";
 
 interface CompleteExerciseBody {
   courseId?: unknown;
   chapterId?: unknown;
   exerciseSlug?: unknown;
   files?: unknown;
+  executionOutput?: unknown;
+  stdin?: unknown;
 }
 
 interface CourseChapterRecord {
@@ -46,7 +54,10 @@ function normalizeExerciseSlug(value: string) {
   }
 }
 
-function getExerciseKey(chapterDatabaseId: number, exerciseSlug: string) {
+function getExerciseKey(
+  chapterDatabaseId: number,
+  exerciseSlug: string,
+) {
   return `${chapterDatabaseId}:${exerciseSlug}`;
 }
 
@@ -64,7 +75,10 @@ function findNextExercise(
 ) {
   for (const chapter of chapters) {
     for (const exercise of chapter.exercises) {
-      const key = getExerciseKey(chapter.databaseId, exercise.slug);
+      const key = getExerciseKey(
+        chapter.databaseId,
+        exercise.slug,
+      );
 
       if (!completedKeys.has(key)) {
         return {
@@ -108,7 +122,9 @@ async function getCourseChapters(
   return chapters as CourseChapterRecord[];
 }
 
-async function getAllCompletions(clerkId: string): Promise<CompletionRecord[]> {
+async function getAllCompletions(
+  clerkId: string,
+): Promise<CompletionRecord[]> {
   const completions = await db
     .select({
       id: completedExercisesTable.id,
@@ -122,14 +138,20 @@ async function getAllCompletions(clerkId: string): Promise<CompletionRecord[]> {
     .from(completedExercisesTable)
     .innerJoin(
       CourseChaptersTable,
-      eq(completedExercisesTable.chapterId, CourseChaptersTable.id),
+      eq(
+        completedExercisesTable.chapterId,
+        CourseChaptersTable.id,
+      ),
     )
     .where(eq(completedExercisesTable.userId, clerkId));
 
   return completions as CompletionRecord[];
 }
 
-async function synchronizeXpTotals(clerkId: string, courseId: number) {
+async function synchronizeXpTotals(
+  clerkId: string,
+  courseId: number,
+) {
   const completions = await getAllCompletions(clerkId);
 
   let totalPoints = 0;
@@ -177,7 +199,10 @@ export async function GET(request: Request) {
     const { userId: clerkId } = await auth();
 
     if (!clerkId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const databaseUser = await getDatabaseUser(clerkId);
@@ -190,9 +215,16 @@ export async function GET(request: Request) {
     }
 
     const url = new URL(request.url);
-    const courseId = Number(url.searchParams.get("courseId"));
-    const chapterIdParameter = url.searchParams.get("chapterId");
-    const exerciseSlugParameter = url.searchParams.get("exerciseSlug");
+
+    const courseId = Number(
+      url.searchParams.get("courseId"),
+    );
+
+    const chapterIdParameter =
+      url.searchParams.get("chapterId");
+
+    const exerciseSlugParameter =
+      url.searchParams.get("exerciseSlug");
 
     if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
@@ -210,32 +242,38 @@ export async function GET(request: Request) {
       (completion) => completion.courseId === courseId,
     );
 
-    const completedExercises = courseCompletions.map((completion) => ({
-      id: completion.id,
-      chapterDatabaseId: completion.chapterDatabaseId,
-      chapterId: completion.chapterId,
-      exerciseSlug: completion.exerciseSlug,
-      completedAt: completion.completedAt,
-      xpEarned: getCompletionXp(completion),
-    }));
+    const completedExercises = courseCompletions.map(
+      (completion) => ({
+        id: completion.id,
+        chapterDatabaseId: completion.chapterDatabaseId,
+        chapterId: completion.chapterId,
+        exerciseSlug: completion.exerciseSlug,
+        completedAt: completion.completedAt,
+        xpEarned: getCompletionXp(completion),
+      }),
+    );
 
     const completedKeys = new Set(
       courseCompletions.map((completion) =>
-        getExerciseKey(completion.chapterDatabaseId, completion.exerciseSlug),
+        getExerciseKey(
+          completion.chapterDatabaseId,
+          completion.exerciseSlug,
+        ),
       ),
     );
 
-    /*
-     * Recalculate XP from completion rows. This is idempotent, prevents
-     * duplicate rewards and repairs counters created before XP syncing.
-     */
-    const xpSummary = await synchronizeXpTotals(clerkId, courseId);
+    const xpSummary = await synchronizeXpTotals(
+      clerkId,
+      courseId,
+    );
 
     let isCompleted = false;
 
     if (chapterIdParameter && exerciseSlugParameter) {
       const chapterNumber = Number(chapterIdParameter);
-      const exerciseSlug = normalizeExerciseSlug(exerciseSlugParameter);
+      const exerciseSlug = normalizeExerciseSlug(
+        exerciseSlugParameter,
+      );
 
       isCompleted = completedExercises.some(
         (completion) =>
@@ -249,27 +287,23 @@ export async function GET(request: Request) {
       completedExercises,
       courseXpEarned: xpSummary.courseXpEarned,
       totalPoints: xpSummary.totalPoints,
-      nextExercise: findNextExercise(chapters, completedKeys),
+      nextExercise: findNextExercise(
+        chapters,
+        completedKeys,
+      ),
     });
   } catch (error) {
-    const cause =
-      error instanceof Error && "cause" in error ? error.cause : undefined;
-
-    console.error("Completed exercises loading error:", error);
-    console.error("Database cause:", cause);
-
-    const message =
-      cause instanceof Error
-        ? cause.message
-        : error instanceof Error
-          ? error.message
-          : "Failed to load completed exercises";
+    console.error(
+      "Completed exercises loading error:",
+      error,
+    );
 
     return NextResponse.json(
       {
         error:
-          process.env.NODE_ENV === "development"
-            ? message
+          process.env.NODE_ENV === "development" &&
+          error instanceof Error
+            ? error.message
             : "Failed to load completed exercises",
       },
       { status: 500 },
@@ -282,7 +316,10 @@ export async function POST(request: Request) {
     const { userId: clerkId } = await auth();
 
     if (!clerkId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const databaseUser = await getDatabaseUser(clerkId);
@@ -295,17 +332,29 @@ export async function POST(request: Request) {
     }
 
     const body =
-  (await request.json()) as CompleteExerciseBody;
+      (await request.json()) as CompleteExerciseBody;
 
-const courseId = Number(body.courseId);
-const chapterNumber = Number(body.chapterId);
+    const courseId = Number(body.courseId);
+    const chapterNumber = Number(body.chapterId);
 
-const exerciseSlug =
-  typeof body.exerciseSlug === "string"
-    ? normalizeExerciseSlug(body.exerciseSlug)
-    : "";
+    const exerciseSlug =
+      typeof body.exerciseSlug === "string"
+        ? normalizeExerciseSlug(body.exerciseSlug)
+        : "";
 
-const submittedFiles = body.files;
+    const submittedFiles = parseSubmissionFiles(
+      body.files,
+    );
+
+    const executionOutput =
+      typeof body.executionOutput === "string"
+        ? body.executionOutput.slice(0, 20_000)
+        : "";
+
+    const stdin =
+      typeof body.stdin === "string"
+        ? body.stdin.slice(0, 10_000)
+        : "";
 
     if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
@@ -314,7 +363,10 @@ const submittedFiles = body.files;
       );
     }
 
-    if (!Number.isInteger(chapterNumber) || chapterNumber <= 0) {
+    if (
+      !Number.isInteger(chapterNumber) ||
+      chapterNumber <= 0
+    ) {
       return NextResponse.json(
         { error: "Valid chapterId is required" },
         { status: 400 },
@@ -328,20 +380,41 @@ const submittedFiles = body.files;
       );
     }
 
-    const [enrollment, chapters, completions] = await Promise.all([
-      db
-        .select({ id: courseEnrollmentsTable.id })
-        .from(courseEnrollmentsTable)
-        .where(
-          and(
-            eq(courseEnrollmentsTable.userId, clerkId),
-            eq(courseEnrollmentsTable.courseId, courseId),
-          ),
-        )
-        .limit(1),
-      getCourseChapters(courseId),
-      getAllCompletions(clerkId),
-    ]);
+    if (!submittedFiles) {
+      return NextResponse.json(
+        {
+          error:
+            "Valid submitted code files are required",
+        },
+        { status: 400 },
+      );
+    }
+
+    const [enrollment, chapters, completions] =
+      await Promise.all([
+        db
+          .select({
+            id: courseEnrollmentsTable.id,
+          })
+          .from(courseEnrollmentsTable)
+          .where(
+            and(
+              eq(
+                courseEnrollmentsTable.userId,
+                clerkId,
+              ),
+              eq(
+                courseEnrollmentsTable.courseId,
+                courseId,
+              ),
+            ),
+          )
+          .limit(1),
+
+        getCourseChapters(courseId),
+
+        getAllCompletions(clerkId),
+      ]);
 
     if (!enrollment[0]) {
       return NextResponse.json(
@@ -350,10 +423,15 @@ const submittedFiles = body.files;
       );
     }
 
-    const chapter = chapters.find((item) => item.chapterId === chapterNumber);
+    const chapter = chapters.find(
+      (item) => item.chapterId === chapterNumber,
+    );
 
     if (!chapter) {
-      return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Chapter not found" },
+        { status: 404 },
+      );
     }
 
     const exercise = chapter.exercises.find(
@@ -364,7 +442,44 @@ const submittedFiles = body.files;
       return NextResponse.json(
         {
           error: "Exercise not found",
-          availableExercises: chapter.exercises.map((item) => item.slug),
+          availableExercises: chapter.exercises.map(
+            (item) => item.slug,
+          ),
+        },
+        { status: 404 },
+      );
+    }
+
+    const [exerciseDefinition] = await db
+      .select({
+        exerciseName: ExerciseTable.exerciseName,
+        task: ExerciseTable.task,
+        starterCode: ExerciseTable.starterCode,
+        validationRegex:
+          ExerciseTable.validationRegex,
+        expectedOutput: ExerciseTable.expectedOutput,
+      })
+      .from(ExerciseTable)
+      .where(
+        and(
+          eq(ExerciseTable.courseId, courseId),
+          eq(
+            ExerciseTable.chapterId,
+            chapterNumber,
+          ),
+          eq(
+            ExerciseTable.exerciseId,
+            exerciseSlug,
+          ),
+        ),
+      )
+      .limit(1);
+
+    if (!exerciseDefinition) {
+      return NextResponse.json(
+        {
+          error:
+            "Exercise validation data was not found",
         },
         { status: 404 },
       );
@@ -373,34 +488,130 @@ const submittedFiles = body.files;
     const courseCompletions = completions.filter(
       (completion) => completion.courseId === courseId,
     );
+
     const completedKeys = new Set(
       courseCompletions.map((completion) =>
-        getExerciseKey(completion.chapterDatabaseId, completion.exerciseSlug),
+        getExerciseKey(
+          completion.chapterDatabaseId,
+          completion.exerciseSlug,
+        ),
       ),
     );
-    const requestedKey = getExerciseKey(chapter.databaseId, exerciseSlug);
-    const alreadyCompleted = completedKeys.has(requestedKey);
-    const nextExercise = findNextExercise(chapters, completedKeys);
+
+    const requestedKey = getExerciseKey(
+      chapter.databaseId,
+      exerciseSlug,
+    );
+
+    const alreadyCompleted =
+      completedKeys.has(requestedKey);
+
+    const nextExercise = findNextExercise(
+      chapters,
+      completedKeys,
+    );
 
     if (
       !alreadyCompleted &&
-      (nextExercise?.chapterId !== chapterNumber ||
-        nextExercise.exerciseSlug !== exerciseSlug)
+      (
+        nextExercise?.chapterId !== chapterNumber ||
+        nextExercise.exerciseSlug !== exerciseSlug
+      )
     ) {
       return NextResponse.json(
         {
-          error: "Complete the previous exercise first",
+          error:
+            "Complete the previous exercise first",
           nextExercise,
         },
         { status: 403 },
       );
     }
 
+    if (!alreadyCompleted) {
+      const deterministicValidation =
+        validateExerciseSubmission({
+          files: submittedFiles,
+          starterCode:
+            exerciseDefinition.starterCode,
+          validationRegex:
+            exerciseDefinition.validationRegex,
+        });
+
+      if (!deterministicValidation.valid) {
+        return NextResponse.json(
+          {
+            completed: false,
+            validationPassed: false,
+            error: deterministicValidation.message,
+          },
+          { status: 422 },
+        );
+      }
+
+      let aiValidation: Awaited<
+        ReturnType<
+          typeof validateExerciseWithOpenAI
+        >
+      >;
+
+      try {
+        aiValidation =
+          await validateExerciseWithOpenAI({
+            exerciseName:
+              exerciseDefinition.exerciseName,
+            task: exerciseDefinition.task,
+            expectedOutput:
+              exerciseDefinition.expectedOutput,
+            starterCode:
+              exerciseDefinition.starterCode,
+            submittedFiles,
+            executionOutput,
+            stdin,
+          });
+      } catch (error) {
+        console.error(
+          "OpenAI exercise validation failed:",
+          error,
+        );
+
+        return NextResponse.json(
+          {
+            completed: false,
+            validationPassed: false,
+            error:
+              "The AI validator is temporarily unavailable. No XP was awarded. Please try again.",
+          },
+          { status: 503 },
+        );
+      }
+
+      if (!aiValidation.valid) {
+        return NextResponse.json(
+          {
+            completed: false,
+            validationPassed: false,
+            starterCodeAlreadySolves:
+              aiValidation.starterCodeAlreadySolves,
+            error: aiValidation.feedback,
+          },
+          {
+            status:
+              aiValidation.starterCodeAlreadySolves
+                ? 409
+                : 422,
+          },
+        );
+      }
+    }
+
     let completion = courseCompletions.find(
       (item) =>
-        item.chapterDatabaseId === chapter.databaseId &&
+        item.chapterDatabaseId ===
+          chapter.databaseId &&
         item.exerciseSlug === exerciseSlug,
     );
+
     let wasAlreadyCompleted = alreadyCompleted;
 
     if (!completion) {
@@ -422,50 +633,56 @@ const submittedFiles = body.files;
           chapterId: chapter.chapterId,
           exercises: chapter.exercises,
         };
+
         completedKeys.add(requestedKey);
       } else {
-        /* Another request inserted the same unique row first. */
         wasAlreadyCompleted = true;
         completedKeys.add(requestedKey);
       }
     }
 
-    const xpSummary = await synchronizeXpTotals(clerkId, courseId);
+    const xpSummary = await synchronizeXpTotals(
+      clerkId,
+      courseId,
+    );
 
     return NextResponse.json(
       {
         completed: true,
+        validationPassed: true,
+        aiValidationPassed: true,
         alreadyCompleted: wasAlreadyCompleted,
         completion: completion ?? null,
-        xpEarned: wasAlreadyCompleted ? 0 : exercise.xp,
-        courseXpEarned: xpSummary.courseXpEarned,
+        xpEarned: wasAlreadyCompleted
+          ? 0
+          : exercise.xp,
+        courseXpEarned:
+          xpSummary.courseXpEarned,
         totalPoints: xpSummary.totalPoints,
-        nextExercise: findNextExercise(chapters, completedKeys),
+        nextExercise: findNextExercise(
+          chapters,
+          completedKeys,
+        ),
         message: wasAlreadyCompleted
           ? "Exercise was already completed"
           : `Exercise completed. You earned ${exercise.xp} XP.`,
       },
-      { status: wasAlreadyCompleted ? 200 : 201 },
+      {
+        status: wasAlreadyCompleted ? 200 : 201,
+      },
     );
   } catch (error) {
-    const cause =
-      error instanceof Error && "cause" in error ? error.cause : undefined;
-
-    console.error("Exercise completion error:", error);
-    console.error("Database cause:", cause);
-
-    const message =
-      cause instanceof Error
-        ? cause.message
-        : error instanceof Error
-          ? error.message
-          : "Failed to complete exercise";
+    console.error(
+      "Exercise completion error:",
+      error,
+    );
 
     return NextResponse.json(
       {
         error:
-          process.env.NODE_ENV === "development"
-            ? message
+          process.env.NODE_ENV === "development" &&
+          error instanceof Error
+            ? error.message
             : "Failed to complete exercise",
       },
       { status: 500 },

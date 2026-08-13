@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import PlaygroundLayout from "./_components/PlaygroundLayout";
 
 import type { ExerciseResponse } from "./_components/types";
+import TokenStateScreen from "@/components/TokenStateScreen";
 
 interface CourseExercise {
   name: string;
@@ -276,28 +277,26 @@ export default function Playground() {
 
   if (loading) {
     return (
-      <main className="flex h-[calc(100dvh-64px)] items-center justify-center">
-        <p className="font-pixel text-2xl text-accent">Loading exercise...</p>
-      </main>
+      <TokenStateScreen mode="loading" />
     );
   }
 
   if (error || !exerciseDetail) {
     return (
-      <main className="flex h-[calc(100dvh-64px)] items-center justify-center p-6">
-        <p className="font-pixel text-2xl text-red-400">
+      <main className="flex h-[calc(100dvh-64px)] items-center justify-center bg-[#07080C] p-6">
+        <p className="border border-red-400/30 bg-red-400/10 p-5 font-pixel text-2xl text-red-400">
           {error || "Exercise not found"}
         </p>
       </main>
     );
   }
   const navigationButtonStyles =
-  "group relative h-8 w-24 shrink-0 cursor-pointer overflow-hidden border bg-accent py-0 text-base text-black shadow-[3px_3px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-px hover:translate-y-px hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:pointer-events-none disabled:bg-accent disabled:text-black disabled:opacity-50 disabled:shadow-[3px_3px_0_0_#FF8C00]";
+  "group relative h-8 w-24 shrink-0 cursor-pointer overflow-hidden border-2 border-black bg-[#FFD400] py-0 text-base text-black shadow-[3px_3px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-px hover:translate-y-px hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:pointer-events-none disabled:bg-[#FFD400] disabled:text-black disabled:opacity-40 disabled:shadow-[3px_3px_0_0_#FF8C00]";
   return (
-    <main className="flex h-[calc(100dvh-64px)] min-h-0 flex-col overflow-hidden">
+    <main className="flex h-[calc(100dvh-64px)] min-h-0 flex-col overflow-hidden bg-[#07080C] text-white">
       <nav
         aria-label="Exercise navigation"
-        className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-3"
+        className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#10152A] px-4 py-3"
       >
         <Button
           type="button"
@@ -305,7 +304,7 @@ export default function Playground() {
           onClick={() => {
             router.push(`/courses/${courseId}`);
           }}
-          className="border-accent font-pixel text-lg text-accent hover:bg-accent hover:text-black"
+          className="border-[#899DFF]/45 bg-black/20 font-pixel text-lg text-[#899DFF] hover:border-[#FFD400]/70 hover:bg-[#FFD400]/10 hover:text-[#FFD400]"
         >
           <Library className="size-4" />
           All chapters
@@ -328,7 +327,7 @@ export default function Playground() {
           >
             <span
               aria-hidden="true"
-              className="absolute top-full left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
+              className="absolute top-full left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#FF8C00] transition-transform duration-700 ease-in-out group-hover:scale-[18]"
             />
 
             <span className="relative z-10 flex items-center justify-center transition-colors duration-500 group-hover:text-white">
@@ -355,7 +354,7 @@ export default function Playground() {
           >
             <span
               aria-hidden="true"
-              className="absolute top-full left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
+              className="absolute top-full left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#FF8C00] transition-transform duration-700 ease-in-out group-hover:scale-[18]"
             />
 
             <span className="relative z-10 flex items-center justify-center gap-2 transition-colors duration-500 group-hover:text-white">

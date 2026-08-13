@@ -63,8 +63,11 @@ export default function AdminExerciseGenerator({
 }: AdminExerciseGeneratorProps) {
   const router = useRouter();
 
-  const [activeChapterKey, setActiveChapterKey] = useState<string | null>(null);
+  const [openCourseId, setOpenCourseId] = useState<number | null>(
+    courses[0]?.id ?? null,
+  );
 
+  const [activeChapterKey, setActiveChapterKey] = useState<string | null>(null);
   const [activeCourseId, setActiveCourseId] = useState<number | null>(null);
 
   const [courseProgress, setCourseProgress] = useState<{
@@ -72,104 +75,83 @@ export default function AdminExerciseGenerator({
     total: number;
   } | null>(null);
 
-  const generateChapter = async ({
-  courseId,
-  chapterId,
-  overwrite,
-  showToast = true,
-}: {
-  courseId: number;
-  chapterId: number;
-  overwrite: boolean;
-  showToast?: boolean;
-}) => {
-  const endpoint =
-    "/api/admin/generate-exercises-v3";
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CodeQuest-Generator":
-        "focused-repair-v3",
-    },
-    body: JSON.stringify({
-      courseId,
-      chapterId,
-      overwrite,
-    }),
-  });
-
-  const responseText =
-    await response.text();
-
-  const contentType =
-    response.headers.get(
-      "content-type",
+  const toggleCourse = (courseId: number) => {
+    setOpenCourseId((currentId) =>
+      currentId === courseId ? null : courseId,
     );
+  };
 
-  if (
-    !contentType?.includes(
-      "application/json",
-    )
-  ) {
-    console.error(
-      "Generator returned HTML instead of JSON:",
-      {
+  const generateChapter = async ({
+    courseId,
+    chapterId,
+    overwrite,
+    showToast = true,
+  }: {
+    courseId: number;
+    chapterId: number;
+    overwrite: boolean;
+    showToast?: boolean;
+  }) => {
+    const endpoint = "/api/admin/generate-exercises-v3";
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CodeQuest-Generator": "focused-repair-v3",
+      },
+      body: JSON.stringify({
+        courseId,
+        chapterId,
+        overwrite,
+      }),
+    });
+
+    const responseText = await response.text();
+    const contentType = response.headers.get("content-type");
+
+    if (!contentType?.includes("application/json")) {
+      console.error("Generator returned HTML instead of JSON:", {
         endpoint,
         status: response.status,
-        statusText:
-          response.statusText,
-        response:
-          responseText.slice(0, 500),
-      },
-    );
+        statusText: response.statusText,
+        response: responseText.slice(0, 500),
+      });
 
-    throw new Error(
-      `Generator API returned ${response.status} ${response.statusText}. Check the terminal for the server error.`,
-    );
-  }
-
-  let data: GenerateResponse;
-
-  try {
-    data = JSON.parse(
-      responseText,
-    ) as GenerateResponse;
-  } catch {
-    throw new Error(
-      `Generator API returned invalid JSON with status ${response.status}.`,
-    );
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      data.error ||
-        "Failed to generate exercises",
-    );
-  }
-
-  if (showToast) {
-    if ((data.generated ?? 0) > 0) {
-      toast.success(
-        "Exercises generated!",
-        {
-          description: `${data.generated} exercises were saved.`,
-        },
-      );
-    } else {
-      toast.info(
-        "Nothing to generate",
-        {
-          description: data.message,
-        },
+      throw new Error(
+        `Generator API returned ${response.status} ${response.statusText}. Check the terminal for the server error.`,
       );
     }
-  }
 
-  return data;
-};
+    let data: GenerateResponse;
+
+    try {
+      data = JSON.parse(responseText) as GenerateResponse;
+    } catch {
+      throw new Error(
+        `Generator API returned invalid JSON with status ${response.status}.`,
+      );
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to generate exercises");
+    }
+
+    if (showToast) {
+      if ((data.generated ?? 0) > 0) {
+        toast.success("Exercises generated!", {
+          description: `${data.generated} exercises were saved.`,
+        });
+      } else {
+        toast.info("Nothing to generate", {
+          description: data.message,
+        });
+      }
+    }
+
+    return data;
+  };
 
   const handleChapterGeneration = async (
     courseId: number,
@@ -228,11 +210,15 @@ export default function AdminExerciseGenerator({
       toast.info("Course is ready", {
         description: "Every exercise already has generated content.",
       });
+
       return;
     }
 
+    setOpenCourseId(course.id);
+
     try {
       setActiveCourseId(course.id);
+
       setCourseProgress({
         current: 0,
         total: chaptersToGenerate.length,
@@ -263,6 +249,7 @@ export default function AdminExerciseGenerator({
             `Failed to generate chapter ${chapter.chapterId}:`,
             error,
           );
+
           failedChapters.push(chapter.name);
         }
       }
@@ -289,7 +276,9 @@ export default function AdminExerciseGenerator({
   if (courses.length === 0) {
     return (
       <section className="border-2 border-accent p-8 text-center shadow-[6px_6px_0_0_#FF8C00]">
-        <h2 className="font-pixel text-3xl text-accent">No courses yet</h2>
+        <h2 className="font-pixel text-3xl text-accent">
+          No courses yet
+        </h2>
 
         <p className="mt-2 text-xl text-foreground/60">
           Create a course and its chapters before generating exercises.
@@ -299,7 +288,7 @@ export default function AdminExerciseGenerator({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       {courses.map((course) => {
         const totalExercises = course.chapters.reduce(
           (total, chapter) => total + chapter.totalCount,
@@ -311,45 +300,84 @@ export default function AdminExerciseGenerator({
           0,
         );
 
+        const isOpen = openCourseId === course.id;
         const isGeneratingCourse = activeCourseId === course.id;
+        const isCourseReady =
+          totalExercises > 0 && readyExercises === totalExercises;
+
+        const contentId = `course-content-${course.id}`;
 
         return (
           <section
             key={course.id}
             className="border-2 border-accent bg-background shadow-[7px_7px_0_0_#FF8C00]"
           >
-            <header className="flex flex-col gap-5 border-b border-accent/40 bg-card p-6 xl:flex-row xl:items-center xl:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h2 className="font-pixel text-3xl text-accent md:text-4xl">
-                    {course.title}
-                  </h2>
+            <header
+              className={`flex flex-col gap-5 bg-card p-5 lg:flex-row lg:items-center lg:justify-between md:p-6 ${
+                isOpen ? "border-b border-accent/40" : ""
+              }`}
+            >
+              <button
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={contentId}
+                onClick={() => toggleCourse(course.id)}
+                className="group flex min-w-0 flex-1 cursor-pointer items-start gap-4 text-left"
+              >
+                <span className="mt-1 flex size-10 shrink-0 items-center justify-center border border-accent bg-background text-accent transition-colors group-hover:bg-accent group-hover:text-black">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={`size-6 transition-transform duration-300 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    <path
+                      d="m6 9 6 6 6-6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
 
-                  <span className="border border-border px-2 py-1 text-sm uppercase text-foreground/50">
-                    {course.level}
-                  </span>
-
-                  {course.tags && (
-                    <span className="border border-border px-2 py-1 text-sm text-foreground/50">
-                      {course.tags}
+                <span className="min-w-0">
+                  <span className="flex flex-wrap items-center gap-3">
+                    <span className="font-pixel text-3xl text-accent md:text-4xl">
+                      {course.title}
                     </span>
-                  )}
-                </div>
 
-                <p className="mt-2 max-w-4xl text-lg text-foreground/55">
-                  {course.desc}
-                </p>
+                    <span className="border border-border px-2 py-1 text-sm uppercase text-foreground/50">
+                      {course.level}
+                    </span>
 
-                <p className="mt-3 text-lg">
-                  <span className="text-green-400">{readyExercises} ready</span>
-                  <span className="text-foreground/35">
-                    {" "}
-                    / {totalExercises}
+                    {course.tags && (
+                      <span className="border border-border px-2 py-1 text-sm text-foreground/50">
+                        {course.tags}
+                      </span>
+                    )}
                   </span>
-                </p>
-              </div>
 
-              <div className="flex flex-wrap items-center gap-4">
+                  <span className="mt-2 block max-w-4xl text-lg text-foreground/55">
+                    {course.desc}
+                  </span>
+
+                  <span className="mt-3 block text-lg">
+                    <span className="text-green-400">
+                      {readyExercises} ready
+                    </span>
+
+                    <span className="text-foreground/35">
+                      {" "}
+                      / {totalExercises}
+                    </span>
+                  </span>
+                </span>
+              </button>
+
+              <div className="flex shrink-0 flex-wrap items-center gap-4 pl-14 lg:pl-0">
                 <Link
                   href={`/courses/${course.id}`}
                   className="border border-border bg-secondary px-4 py-2 text-lg transition-colors hover:border-accent hover:text-accent"
@@ -361,7 +389,8 @@ export default function AdminExerciseGenerator({
                   disabled={
                     activeChapterKey !== null ||
                     activeCourseId !== null ||
-                    readyExercises === totalExercises
+                    isCourseReady ||
+                    totalExercises === 0
                   }
                   onClick={() => {
                     void handleCourseGeneration(course);
@@ -369,135 +398,149 @@ export default function AdminExerciseGenerator({
                 >
                   {isGeneratingCourse && courseProgress
                     ? `Generating ${courseProgress.current}/${courseProgress.total}`
-                    : readyExercises === totalExercises
+                    : isCourseReady
                       ? "Course ready"
                       : "Generate entire course"}
                 </PixelButton>
               </div>
             </header>
 
-            <div className="divide-y divide-border">
-              {course.chapters.length === 0 ? (
-                <p className="p-6 text-xl text-foreground/50">
-                  This course does not have chapters yet.
-                </p>
-              ) : (
-                course.chapters.map((chapter) => {
-                  const chapterKey = `${course.id}:${chapter.chapterId}`;
-                  const isGeneratingChapter = activeChapterKey === chapterKey;
-                  const isChapterReady =
-                    chapter.readyCount === chapter.totalCount;
+            {isOpen && (
+              <div
+                id={contentId}
+                className="divide-y divide-border"
+              >
+                {course.chapters.length === 0 ? (
+                  <p className="p-6 text-xl text-foreground/50">
+                    This course does not have chapters yet.
+                  </p>
+                ) : (
+                  course.chapters.map((chapter) => {
+                    const chapterKey = `${course.id}:${chapter.chapterId}`;
 
-                  return (
-                    <article key={chapter.databaseId} className="p-6">
-                      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-3">
-                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border text-xl">
-                              {chapter.chapterId}
-                            </span>
+                    const isGeneratingChapter =
+                      activeChapterKey === chapterKey;
 
-                            <div>
-                              <h3 className="font-pixel text-2xl text-foreground">
-                                {chapter.name}
-                              </h3>
+                    const isChapterReady =
+                      chapter.totalCount > 0 &&
+                      chapter.readyCount === chapter.totalCount;
 
-                              <p
-                                className={
-                                  isChapterReady
-                                    ? "text-green-400"
-                                    : "text-orange-400"
-                                }
-                              >
-                                {chapter.readyCount}/{chapter.totalCount}{" "}
-                                exercises ready
-                              </p>
+                    return (
+                      <article
+                        key={chapter.databaseId}
+                        className="p-5 md:p-6"
+                      >
+                        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-3">
+                              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border text-xl">
+                                {chapter.chapterId}
+                              </span>
+
+                              <div>
+                                <h3 className="font-pixel text-2xl text-foreground">
+                                  {chapter.name}
+                                </h3>
+
+                                <p
+                                  className={
+                                    isChapterReady
+                                      ? "text-green-400"
+                                      : "text-orange-400"
+                                  }
+                                >
+                                  {chapter.readyCount}/{chapter.totalCount}{" "}
+                                  exercises ready
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-5 grid gap-2 md:grid-cols-2 2xl:grid-cols-3">
+                              {chapter.exercises.map((exercise) => (
+                                <div
+                                  key={exercise.slug}
+                                  className="flex min-w-0 items-center justify-between gap-3 border border-border bg-card/50 px-3 py-2"
+                                >
+                                  <div className="min-w-0">
+                                    <p className="truncate text-lg">
+                                      {exercise.name}
+                                    </p>
+
+                                    <p
+                                      className={`text-xs uppercase ${difficultyColor(
+                                        exercise.difficulty,
+                                      )}`}
+                                    >
+                                      {exercise.difficulty} · {exercise.xp} XP
+                                    </p>
+                                  </div>
+
+                                  <span
+                                    className={`shrink-0 text-sm ${
+                                      exercise.isReady
+                                        ? "text-green-400"
+                                        : "text-foreground/35"
+                                    }`}
+                                  >
+                                    {exercise.isReady ? "READY" : "MISSING"}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
                           </div>
 
-                          <div className="mt-5 grid gap-2 md:grid-cols-2 2xl:grid-cols-3">
-                            {chapter.exercises.map((exercise) => (
-                              <div
-                                key={exercise.slug}
-                                className="flex min-w-0 items-center justify-between gap-3 border border-border bg-card/50 px-3 py-2"
-                              >
-                                <div className="min-w-0">
-                                  <p className="truncate text-lg">
-                                    {exercise.name}
-                                  </p>
+                          <div className="flex shrink-0 flex-wrap gap-3">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={
+                                isGeneratingChapter ||
+                                activeChapterKey !== null ||
+                                activeCourseId !== null ||
+                                chapter.totalCount === 0
+                              }
+                              onClick={() => {
+                                void handleChapterGeneration(
+                                  course.id,
+                                  chapter.chapterId,
+                                  true,
+                                );
+                              }}
+                              className="cursor-pointer border-border bg-secondary px-3 py-2 text-lg hover:border-red-400 hover:bg-red-400/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
+                            >
+                              Regenerate all
+                            </Button>
 
-                                  <p
-                                    className={`text-xs uppercase ${difficultyColor(
-                                      exercise.difficulty,
-                                    )}`}
-                                  >
-                                    {exercise.difficulty} · {exercise.xp} XP
-                                  </p>
-                                </div>
-
-                                <span
-                                  className={`shrink-0 text-sm ${
-                                    exercise.isReady
-                                      ? "text-green-400"
-                                      : "text-foreground/35"
-                                  }`}
-                                >
-                                  {exercise.isReady ? "READY" : "MISSING"}
-                                </span>
-                              </div>
-                            ))}
+                            <PixelButton
+                              disabled={
+                                isGeneratingChapter ||
+                                activeChapterKey !== null ||
+                                activeCourseId !== null ||
+                                isChapterReady ||
+                                chapter.totalCount === 0
+                              }
+                              onClick={() => {
+                                void handleChapterGeneration(
+                                  course.id,
+                                  chapter.chapterId,
+                                  false,
+                                );
+                              }}
+                            >
+                              {isGeneratingChapter
+                                ? "Generating..."
+                                : isChapterReady
+                                  ? "Chapter ready"
+                                  : "Generate missing"}
+                            </PixelButton>
                           </div>
                         </div>
-
-                        <div className="flex shrink-0 flex-wrap gap-3">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            disabled={
-                              isGeneratingChapter ||
-                              activeChapterKey !== null ||
-                              activeCourseId !== null
-                            }
-                            onClick={() => {
-                              void handleChapterGeneration(
-                                course.id,
-                                chapter.chapterId,
-                                true,
-                              );
-                            }}
-                            className="cursor-pointer border-border bg-secondary px-3 py-2 text-lg hover:border-red-400 hover:bg-red-400/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
-                          >
-                            Regenerate all
-                          </Button>
-
-                          <PixelButton
-                            disabled={
-                              isGeneratingChapter ||
-                              activeChapterKey !== null ||
-                              activeCourseId !== null ||
-                              isChapterReady
-                            }
-                            onClick={() => {
-                              void handleChapterGeneration(
-                                course.id,
-                                chapter.chapterId,
-                                false,
-                              );
-                            }}
-                          >
-                            {isGeneratingChapter
-                              ? "Generating..."
-                              : isChapterReady
-                                ? "Chapter ready"
-                                : "Generate missing"}
-                          </PixelButton>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })
-              )}
-            </div>
+                      </article>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </section>
         );
       })}

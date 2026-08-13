@@ -1,27 +1,31 @@
-"use client"
+import Footer from "@/app/_components/Footer";
 
-import React from 'react'
-import WelcomeBanner from './_components/WelcomeBanner'
-import EnrolledCourses from './_components/EnrolledCourses'
-import ExploreMore from './_components/ExploreMore'
-import InviteFriend from './_components/InviteFriend'
-import UserStatus from './_components/UserStatus'
+import EnrolledCourses from "./_components/EnrolledCourses";
+import ExploreMore from "./_components/ExploreMore";
+import InviteFriend from "./_components/InviteFriend";
+import UserStatus from "./_components/UserStatus";
+import WelcomeBanner from "./_components/WelcomeBanner";
 
-function Dashboard() {
+export default function Dashboard() {
   return (
-    <div className='p-10 md:px-20 lg:px-32 xl:px-48'>
-      <div className='grid grid-cols-3 gap-7'>
-        <div className='col-span-2 flex gap-8 flex-col'>
-          <WelcomeBanner/>
-          <EnrolledCourses/>
-          <ExploreMore/>
-          <InviteFriend/>
-          </div>
-          <div><UserStatus/></div>
-      </div>
-      
-    </div>
-  )
-}
+    <main className="min-h-[calc(100svh-64px)] bg-[#07080C] text-white">
+      <div className="mx-auto w-full max-w-7xl px-6 py-10 md:px-10 lg:px-12 lg:py-14">
+        <WelcomeBanner />
 
-export default Dashboard
+        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+          <div className="flex min-w-0 flex-col gap-12">
+            <EnrolledCourses />
+            <ExploreMore />
+            <InviteFriend />
+          </div>
+
+          <div className="min-w-0 lg:sticky lg:top-24">
+            <UserStatus />
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </main>
+  );
+}

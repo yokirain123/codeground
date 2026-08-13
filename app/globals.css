@@ -288,45 +288,6 @@
   }
 }
 
-.glint-title {
-  position: relative;
-  display: inline-block;
-  white-space: nowrap;
-}
-
-.glint-title::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-
-  background-image: linear-gradient(
-    110deg,
-    transparent 38%,
-    rgb(255 255 255 / 35%) 45%,
-    #ffffff 50%,
-    rgb(255 255 255 / 35%) 55%,
-    transparent 62%
-  );
-
-  background-size: 260% 100%;
-  background-position: 160% center;
-  background-clip: text;
-  -webkit-background-clip: text;
-
-  text-shadow: none;
-
-  animation:
-    glint-sweep
-    4s
-    ease-in-out
-    infinite;
-}
-
 /* CodeMirror autocomplete */
 
 .sp-wrapper

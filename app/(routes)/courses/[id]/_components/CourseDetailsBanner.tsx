@@ -1,13 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import axios from "axios";
 import Image from "next/image";
-import {
-  useEffect,
-  useState,
-} from "react";
 import { toast } from "sonner";
 
+import TokenStateScreen from "@/components/TokenStateScreen";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Course {
@@ -21,9 +20,7 @@ interface Course {
 interface CourseDetailsBannerProps {
   loading?: boolean;
   course: Course | null;
-  onEnrollmentChange?: (
-    isEnrolled: boolean,
-  ) => void;
+  onEnrollmentChange?: (isEnrolled: boolean) => void;
 }
 
 interface EnrollmentState {
@@ -31,15 +28,17 @@ interface EnrollmentState {
   isEnrolled: boolean;
 }
 
-function getErrorMessage(
-  error: unknown,
-  fallback: string,
-) {
-  if (axios.isAxiosError(error)) {
-    return (
-      error.response?.data?.error ??
-      fallback
-    );
+interface ApiErrorResponse {
+  error?: string;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return error.response?.data?.error ?? fallback;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
   }
 
   return fallback;
@@ -50,35 +49,20 @@ export default function CourseDetailsBanner({
   loading = false,
   onEnrollmentChange,
 }: CourseDetailsBannerProps) {
-  const [
-    isEnrolling,
-    setIsEnrolling,
-  ] = useState(false);
-
-  const [
-    isLeaving,
-    setIsLeaving,
-  ] = useState(false);
-
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const [error, setError] = useState("");
-
-  const [
-    enrollmentState,
-    setEnrollmentState,
-  ] = useState<EnrollmentState>({
+  const [enrollmentState, setEnrollmentState] = useState<EnrollmentState>({
     courseId: null,
     isEnrolled: false,
   });
 
   const courseId = course?.id;
-
   const isCheckingEnrollment =
-    courseId !== undefined &&
-    enrollmentState.courseId !== courseId;
-
+    courseId !== undefined && enrollmentState.courseId !== courseId;
   const isEnrolled =
-    enrollmentState.courseId === courseId &&
-    enrollmentState.isEnrolled;
+    enrollmentState.courseId === courseId && enrollmentState.isEnrolled;
+  const isBusy = isCheckingEnrollment || isEnrolling || isLeaving;
 
   useEffect(() => {
     if (!courseId) {
@@ -89,41 +73,44 @@ export default function CourseDetailsBanner({
 
     const checkEnrollment = async () => {
       try {
-        const response = await axios.get<{
-          isEnrolled: boolean;
-        }>("/api/enroll-course", {
-          params: {
-            courseId,
-          },
-          signal: controller.signal,
-        });
+        setError("");
 
-        const enrollmentValue =
-          response.data.isEnrolled;
+        const response = await axios.get<{ isEnrolled: boolean }>(
+          "/api/enroll-course",
+          {
+            params: { courseId },
+            signal: controller.signal,
+          },
+        );
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        const enrollmentValue = response.data.isEnrolled;
 
         setEnrollmentState({
           courseId,
           isEnrolled: enrollmentValue,
         });
-
-        onEnrollmentChange?.(
-          enrollmentValue,
-        );
+        onEnrollmentChange?.(enrollmentValue);
       } catch (error) {
-        if (axios.isCancel(error)) {
+        if (axios.isCancel(error) || controller.signal.aborted) {
           return;
         }
 
-        console.error(
-          "Enrollment check error:",
+        console.error("Enrollment check error:", error);
+
+        const errorMessage = getErrorMessage(
           error,
+          "Could not check your enrollment status",
         );
 
         setEnrollmentState({
           courseId,
           isEnrolled: false,
         });
-
+        setError(errorMessage);
         onEnrollmentChange?.(false);
       }
     };
@@ -133,19 +120,10 @@ export default function CourseDetailsBanner({
     return () => {
       controller.abort();
     };
-  }, [
-    courseId,
-    onEnrollmentChange,
-  ]);
+  }, [courseId, onEnrollmentChange]);
 
   const enrollCourse = async () => {
-    if (
-      !course ||
-      isCheckingEnrollment ||
-      isEnrolling ||
-      isLeaving ||
-      isEnrolled
-    ) {
+    if (!course || isBusy || isEnrolled) {
       return;
     }
 
@@ -160,36 +138,28 @@ export default function CourseDetailsBanner({
         courseId: course.id,
       });
 
-      const enrollmentValue =
-        response.data.isEnrolled;
+      if (!response.data.isEnrolled) {
+        throw new Error(response.data.message || "Failed to enroll in course");
+      }
 
       setEnrollmentState({
         courseId: course.id,
-        isEnrolled: enrollmentValue,
+        isEnrolled: true,
       });
-
-      onEnrollmentChange?.(
-        enrollmentValue,
-      );
+      onEnrollmentChange?.(true);
 
       toast.success("Course enrolled!", {
-        description:
-          "The exercises are now unlocked.",
+        description: "The exercises are now unlocked.",
       });
     } catch (error) {
-      console.error(
-        "Course enrollment error:",
+      console.error("Course enrollment error:", error);
+
+      const errorMessage = getErrorMessage(
         error,
+        "Failed to enroll in course",
       );
 
-      const errorMessage =
-        getErrorMessage(
-          error,
-          "Failed to enroll in course",
-        );
-
       setError(errorMessage);
-
       toast.error("Enrollment failed", {
         description: errorMessage,
       });
@@ -199,13 +169,7 @@ export default function CourseDetailsBanner({
   };
 
   const leaveCourse = async () => {
-    if (
-      !course ||
-      isCheckingEnrollment ||
-      isEnrolling ||
-      isLeaving ||
-      !isEnrolled
-    ) {
+    if (!course || isBusy || !isEnrolled) {
       return;
     }
 
@@ -221,105 +185,79 @@ export default function CourseDetailsBanner({
       setIsLeaving(true);
       setError("");
 
-      await axios.delete(
-        "/api/enroll-course",
-        {
-          params: {
-            courseId: course.id,
-          },
-        },
-      );
+      await axios.delete("/api/enroll-course", {
+        params: { courseId: course.id },
+      });
 
       setEnrollmentState({
         courseId: course.id,
         isEnrolled: false,
       });
-
       onEnrollmentChange?.(false);
 
-      toast.success(
-        "You left the course",
-        {
-          description:
-            "The exercises are now locked.",
-        },
-      );
+      toast.success("You left the course", {
+        description: "The exercises are now locked.",
+      });
     } catch (error) {
-      console.error(
-        "Course unenrollment error:",
-        error,
-      );
+      console.error("Course unenrollment error:", error);
 
-      const errorMessage =
-        getErrorMessage(
-          error,
-          "Failed to leave course",
-        );
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to leave course",
+      );
 
       setError(errorMessage);
-
-      toast.error(
-        "Could not leave course",
-        {
-          description: errorMessage,
-        },
-      );
+      toast.error("Could not leave course", {
+        description: errorMessage,
+      });
     } finally {
       setIsLeaving(false);
     }
   };
 
   if (loading || !course) {
-    return (
-      <section className="flex min-h-[calc(40svh-50px)] items-center justify-center">
-        <p className="font-pixel text-3xl text-accent">
-          Loading course...
-        </p>
-      </section>
-    );
+    return <TokenStateScreen mode="loading" />;
   }
 
   return (
-    <section className="relative flex min-h-[calc(40svh-50px)] items-center justify-start overflow-hidden">
+    <section className="relative flex min-h-[calc(46svh-50px)] items-center justify-start overflow-hidden bg-[#07080C] text-white">
       <Image
         src={course.bannerImage}
         alt={course.title}
         fill
         priority
-        className="object-cover"
+        sizes="100vw"
+        className="object-cover opacity-70 saturate-[0.88]"
       />
 
-      <div className="absolute inset-0 bg-[linear-gradient(to_left,transparent_0%,rgba(0,0,0,0.4)_30%,rgba(0,0,0,0.85)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_left,rgba(16,21,42,0.08)_0%,rgba(7,8,12,0.55)_40%,rgba(7,8,12,0.97)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(7,8,12,0.18)_0%,transparent_45%,rgba(7,8,12,0.88)_100%)]" />
 
-      <div className="relative z-10 flex max-w-3xl flex-col items-start px-6 text-left md:px-10 lg:px-14">
-        <span className="mb-3 bg-accent px-3 py-1 font-pixel text-xl text-black">
+      <div className="relative z-10 flex w-full max-w-3xl flex-col items-start px-6 py-12 text-left md:px-10 lg:px-14">
+        <span className="mb-4 border-2 border-black bg-[#FFD400] px-3 py-1 font-pixel text-lg text-black shadow-[3px_3px_0_#FF8C00] md:text-xl">
           {course.level}
         </span>
 
-        <h1 className="font-pixel text-4xl font-bold text-accent [text-shadow:2px_2px_0_#000] md:text-7xl">
+        <h1 className="font-pixel text-4xl font-bold text-white [text-shadow:4px_4px_0_#28336B] md:text-7xl">
           {course.title}
         </h1>
 
-        <p className="mt-4 font-pixel text-xl text-white/80 [text-shadow:2px_2px_0_#000] md:text-2xl">
+        <p className="mt-5 max-w-2xl font-sans text-base leading-7 text-white/65 md:text-xl md:leading-8">
           {course.desc}
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4">
+        <div className="mt-7 flex flex-wrap items-center gap-4">
           {!isEnrolled ? (
             <Button
               type="button"
               variant="default"
               onClick={enrollCourse}
-              disabled={
-                isCheckingEnrollment ||
-                isEnrolling ||
-                isLeaving
-              }
-              className="group relative cursor-pointer overflow-hidden border bg-accent p-6 text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-70"
+              disabled={isBusy}
+              className="group relative h-auto cursor-pointer overflow-hidden border-2 border-black bg-[#FFD400] px-6 py-3 font-pixel text-xl text-black shadow-[4px_4px_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 md:text-2xl"
             >
               <span
                 aria-hidden="true"
-                className="absolute top-full left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-accent-hover transition-transform duration-700 ease-in-out group-hover:scale-[18]"
+                className="absolute top-full left-1/2 size-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#FF8C00] transition-transform duration-700 ease-in-out group-hover:scale-[18]"
               />
 
               <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
@@ -332,31 +270,28 @@ export default function CourseDetailsBanner({
             </Button>
           ) : (
             <>
-              <Button
-                type="button"
-                disabled
-                className="border border-accent bg-accent p-6 font-pixel text-3xl text-black shadow-[4px_4px_0_0_#FF8C00] disabled:opacity-100"
-              >
-                Enrolled
-              </Button>
+              <div className="border-2 border-[#6FFFA2]/50 bg-[#6FFFA2]/10 px-6 py-3 font-pixel text-xl text-[#6FFFA2] md:text-2xl">
+                Enrolled ✓
+              </div>
 
               <Button
                 type="button"
                 variant="outline"
                 onClick={leaveCourse}
                 disabled={isLeaving}
-                className="cursor-pointer border-2 border-red-500 bg-background px-4 py-6 font-pixel text-3xl text-red-400 shadow-[4px_4px_0_0_#991B1B] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_0_#991B1B] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-70"
+                className="h-auto cursor-pointer border-2 border-red-500/70 bg-[#07080C]/80 px-5 py-3 font-pixel text-xl text-red-400 shadow-[4px_4px_0_#7F1D1D] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_#7F1D1D] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 md:text-2xl"
               >
-                {isLeaving
-                  ? "Leaving..."
-                  : "Leave course"}
+                {isLeaving ? "Leaving..." : "Leave course"}
               </Button>
             </>
           )}
         </div>
 
         {error && (
-          <p className="mt-4 font-pixel text-xl text-red-400">
+          <p
+            role="alert"
+            className="mt-5 border border-red-400/30 bg-red-400/10 px-4 py-3 font-pixel text-base text-red-400 md:text-lg"
+          >
             {error}
           </p>
         )}

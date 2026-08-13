@@ -1,36 +1,30 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+
+import { useParams } from "next/navigation";
 
 import type { Course } from "@/app/_components/CreateCourseButton";
 
 import CourseChapters, {
-  type CourseProgressData,
   type Chapter,
+  type CourseProgressData,
 } from "./_components/CourseChapter";
 import CourseDetailsBanner from "./_components/CourseDetailsBanner";
 import CourseProgress from "./_components/CourseProgress";
 
 export default function CoursePage() {
-  const params = useParams<{
-    id: string;
-  }>();
+  const params = useParams<{ id: string }>();
 
   const [courseProgress, setCourseProgress] = useState<CourseProgressData>({
     completedChapters: 0,
     completedExercises: 0,
     earnedXp: 0,
   });
-
   const [course, setCourse] = useState<Course | null>(null);
-
   const [chapters, setChapters] = useState<Chapter[]>([]);
-
   const [isEnrolled, setIsEnrolled] = useState(false);
-
   const [isLoading, setIsLoading] = useState(true);
-
   const [error, setError] = useState("");
 
   const courseId = params.id;
@@ -64,7 +58,6 @@ export default function CoursePage() {
             cache: "no-store",
             signal: controller.signal,
           }),
-
           fetch(`/api/admin/save-chapters?courseId=${courseId}`, {
             cache: "no-store",
             signal: controller.signal,
@@ -80,9 +73,7 @@ export default function CoursePage() {
         }
 
         const coursesData: Course[] = await coursesResponse.json();
-
         const chaptersData: Chapter[] = await chaptersResponse.json();
-
         const currentCourse = coursesData.find(
           (item) => item.id === Number(courseId),
         );
@@ -99,7 +90,6 @@ export default function CoursePage() {
         }
 
         console.error("Course loading error:", error);
-
         setError(
           error instanceof Error ? error.message : "Failed to load course",
         );
@@ -119,16 +109,18 @@ export default function CoursePage() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-96 items-center justify-center">
-        <p className="font-pixel text-2xl text-accent">Loading course...</p>
+      <main className="flex min-h-[calc(100svh-64px)] items-center justify-center bg-[#07080C]">
+        <p className="font-pixel text-2xl text-[#FFD400]">
+          Loading course...
+        </p>
       </main>
     );
   }
 
   if (error || !course) {
     return (
-      <main className="flex min-h-96 items-center justify-center p-8">
-        <p className="font-pixel text-2xl text-red-400">
+      <main className="flex min-h-[calc(100svh-64px)] items-center justify-center bg-[#07080C] p-8">
+        <p className="border border-red-400/30 bg-red-400/10 p-5 font-pixel text-2xl text-red-400">
           {error || "Course not found"}
         </p>
       </main>
@@ -136,14 +128,14 @@ export default function CoursePage() {
   }
 
   return (
-    <main>
+    <main className="min-h-[calc(100svh-64px)] bg-[#07080C] text-white">
       <CourseDetailsBanner
         key={course.id}
         course={course}
         onEnrollmentChange={handleEnrollmentChange}
       />
 
-      <section className="w-full px-6 py-12 md:px-10 lg:px-16">
+      <section className="w-full border-t border-white/10 bg-[#07080C] px-6 py-12 md:px-10 lg:px-16">
         <div className="grid items-start gap-10 lg:grid-cols-3">
           <CourseChapters
             chapters={chapters}

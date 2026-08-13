@@ -13,9 +13,9 @@ export interface Exercise {
 type Difficulty = "easy" | "medium" | "hard";
 
 const difficultyColors: Record<Difficulty, string> = {
-  easy: "text-green-500",
-  medium: "text-orange-500",
-  hard: "text-red-500",
+  easy: "text-[#6FFFA2]",
+  medium: "text-[#FFD400]",
+  hard: "text-red-400",
 };
 
 export interface Chapter {
@@ -110,42 +110,42 @@ function CourseChapterItem({
       onToggle={(event) => {
         setIsOpen(event.currentTarget.open);
       }}
-      className="group border-b border-border last:border-b-0"
+      className="group border-b border-white/10 last:border-b-0"
     >
-      <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 transition-all duration-500 hover:bg-accent/10 [&::-webkit-details-marker]:hidden">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border font-pixel text-xl">
+      <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 outline-none transition-all duration-300 hover:bg-[#899DFF]/5 focus-visible:bg-[#899DFF]/10 [&::-webkit-details-marker]:hidden">
+        <span className="flex size-9 shrink-0 items-center justify-center border border-[#899DFF]/35 bg-[#899DFF]/5 font-pixel text-xl text-[#899DFF]">
           {chapter.chapterId}
         </span>
 
-        <h3 className="min-w-0 flex-1 font-pixel text-2xl font-bold text-foreground">
+        <h3 className="min-w-0 flex-1 font-pixel text-2xl font-bold text-white">
           {chapter.name}
         </h3>
 
-        <span className="hidden font-pixel text-lg text-foreground/50 sm:block">
+        <span className="hidden font-pixel text-lg text-white/45 sm:block">
           {chapter.exercises.length} exercises
         </span>
 
         <ChevronIcon />
       </summary>
 
-      <div className="border px-8 py-5">
-        <p className="mb-5 font-pixel text-lg text-foreground/70">
+      <div className="border-t border-white/10 bg-black/15 px-5 py-5 sm:px-8">
+        <p className="mb-5 font-sans text-base leading-7 text-white/60">
           {chapter.desc}
         </p>
 
         {!isEnrolled && (
-          <div className="mb-5 flex items-center gap-3 border border-accent bg-accent/10 px-4 py-3">
+          <div className="mb-5 flex items-center gap-3 border border-[#FFD400]/35 bg-[#FFD400]/5 px-4 py-3 text-[#FFD400]">
             <LockIcon />
 
-            <p className="font-pixel text-lg text-accent">
+            <p className="font-pixel text-lg">
               Enroll in this course to unlock exercises.
             </p>
           </div>
         )}
 
         {isEnrolled && !isCompletedDataReady && (
-          <div className="mb-5 border border-border bg-secondary/20 px-4 py-3">
-            <p className="font-pixel text-lg text-foreground/60">
+          <div className="mb-5 border border-[#899DFF]/25 bg-[#899DFF]/5 px-4 py-3">
+            <p className="font-pixel text-lg text-[#899DFF]">
               Loading your progress...
             </p>
           </div>
@@ -169,18 +169,18 @@ function CourseChapterItem({
             return (
               <div
                 key={exercise.slug}
-                className={`grid gap-3 border-t px-3 border-border/60 py-3 first:border-t-0 sm:grid-cols-[90px_1fr_auto_auto] sm:items-center sm:gap-4 ${
-                  isCompleted ? "bg-accent/5" : ""
+                className={`grid gap-3 border-t border-white/10 px-3 py-3 first:border-t-0 sm:grid-cols-[90px_1fr_auto_auto] sm:items-center sm:gap-4 ${
+                  isCompleted ? "bg-[#6FFFA2]/[0.035]" : ""
                 }`}
               >
-                <span className="font-pixel text-sm text-foreground/50">
+                <span className="font-pixel text-sm text-white/40">
                   Exercise {exerciseIndex + 1}
                 </span>
 
                 <div>
                   <p
                     className={`font-pixel text-lg ${
-                      isCompleted ? "text-accent" : "text-foreground"
+                      isCompleted ? "text-[#6FFFA2]" : "text-white"
                     }`}
                   >
                     {exercise.name}
@@ -189,7 +189,7 @@ function CourseChapterItem({
                   <p
                     className={`font-pixel text-xs uppercase ${
                       isCompleted
-                        ? "text-accent"
+                        ? "text-[#6FFFA2]"
                         : difficultyColors[exercise.difficulty]
                     }`}
                   >
@@ -199,16 +199,18 @@ function CourseChapterItem({
 
                 <span
                   className={`font-pixel text-lg ${
-                    isCompleted || canStart
-                      ? "text-accent"
-                      : "text-foreground/30"
+                    isCompleted
+                      ? "text-[#6FFFA2]"
+                      : canStart
+                        ? "text-[#FFD400]"
+                        : "text-white/25"
                   }`}
                 >
                   +{exercise.xp} XP
                 </span>
                 {isCompleted || canStart ? (
                   <Link
-                    href={`/courses/${chapter.courseId}/${chapter.chapterId}/${exercise.slug}`}
+                    href={`/courses/${chapter.courseId}/${chapter.chapterId}/${encodeURIComponent(exercise.slug)}`}
                     title={
                       isCompleted
                         ? `Open ${exercise.name}`
@@ -219,10 +221,10 @@ function CourseChapterItem({
                         ? `Open completed exercise ${exercise.name}`
                         : `Start ${exercise.name}`
                     }
-                    className={`flex size-9 items-center justify-center border transition-all duration-500 ${
+                    className={`flex size-9 items-center justify-center border transition-all duration-300 ${
                       isCompleted
-                        ? "border-accent bg-accent text-black"
-                        : "border-border bg-secondary text-foreground hover:border-accent hover:bg-accent hover:text-black"
+                        ? "border-[#6FFFA2] bg-[#6FFFA2] text-black"
+                        : "border-[#FFD400] bg-[#FFD400] text-black shadow-[3px_3px_0_#FF8C00] hover:translate-x-px hover:translate-y-px hover:shadow-none"
                     }`}
                   >
                     {isCompleted ? <CompletedIcon /> : <PlayIcon />}
@@ -239,7 +241,7 @@ function CourseChapterItem({
                           : "Complete the previous exercise first"
                     }
                     aria-label={`${exercise.name} is locked`}
-                    className="flex size-9 cursor-not-allowed items-center justify-center border border-border bg-secondary/30 text-foreground/20"
+                    className="flex size-9 cursor-not-allowed items-center justify-center border border-white/10 bg-white/[0.025] text-white/20"
                   >
                     <LockIcon />
                   </button>
@@ -270,6 +272,15 @@ export default function CourseChapters({
 
   const courseId = chapters[0]?.courseId;
 
+  const orderedChapters = useMemo(
+    () =>
+      [...chapters].sort(
+        (firstChapter, secondChapter) =>
+          firstChapter.chapterId - secondChapter.chapterId,
+      ),
+    [chapters],
+  );
+
   const isCompletedDataReady =
     isEnrolled && loadedCompletedCourseId === courseId;
 
@@ -281,11 +292,6 @@ export default function CourseChapters({
     if (!isCompletedDataReady) {
       return null;
     }
-
-    const orderedChapters = [...chapters].sort(
-      (firstChapter, secondChapter) =>
-        firstChapter.chapterId - secondChapter.chapterId,
-    );
 
     for (const chapter of orderedChapters) {
       for (const exercise of chapter.exercises) {
@@ -302,7 +308,7 @@ export default function CourseChapters({
     }
 
     return null;
-  }, [chapters, completedExerciseKeys, isCompletedDataReady]);
+  }, [orderedChapters, completedExerciseKeys, isCompletedDataReady]);
 
   const nextExerciseKey = nextExercise?.key ?? null;
 
@@ -311,10 +317,16 @@ export default function CourseChapters({
    */
   useEffect(() => {
     if (!isEnrolled || !courseId) {
+      setCompletedExerciseKeys(new Set());
+      setLoadedCompletedCourseId(null);
+      setLoadingError("");
       return;
     }
 
     const controller = new AbortController();
+
+    setLoadedCompletedCourseId(null);
+    setLoadingError("");
 
     const loadCompletedExercises = async () => {
       try {
@@ -342,15 +354,15 @@ export default function CourseChapters({
           ),
         );
 
-        setCompletedExerciseKeys(loadedExerciseKeys);
+        if (!controller.signal.aborted) {
+          setCompletedExerciseKeys(loadedExerciseKeys);
+          setLoadedCompletedCourseId(courseId);
+          setLoadingError("");
 
-        setLoadedCompletedCourseId(courseId);
-
-        setLoadingError("");
-
-        onProgressChange?.(
-          calculateCourseProgress(chapters, loadedExerciseKeys),
-        );
+          onProgressChange?.(
+            calculateCourseProgress(orderedChapters, loadedExerciseKeys),
+          );
+        }
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;
@@ -358,11 +370,15 @@ export default function CourseChapters({
 
         console.error("Completed exercises loading error:", error);
 
-        setLoadingError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load completed exercises",
-        );
+        if (!controller.signal.aborted) {
+          setCompletedExerciseKeys(new Set());
+          setLoadedCompletedCourseId(null);
+          setLoadingError(
+            error instanceof Error
+              ? error.message
+              : "Failed to load completed exercises",
+          );
+        }
       }
     };
 
@@ -371,29 +387,33 @@ export default function CourseChapters({
     return () => {
       controller.abort();
     };
-  }, [courseId, chapters, isEnrolled, onProgressChange]);
+  }, [courseId, isEnrolled, onProgressChange, orderedChapters]);
 
   return (
-    <div className="col-span-2 min-w-0">
-      <h2 className="mb-6 font-pixel text-4xl text-accent md:text-5xl">
-        Course chapters
+    <div className="min-w-0 lg:col-span-2">
+      <p className="font-pixel text-sm uppercase tracking-[0.25em] text-[#899DFF]">
+        Quest log
+      </p>
+
+      <h2 className="mb-6 mt-2 font-pixel text-4xl text-white [text-shadow:3px_3px_0_#28336B] md:text-5xl">
+        Course <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">chapters</span>
       </h2>
 
       {isEnrolled && isCompletedDataReady && nextExercise && courseId && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border border-accent bg-accent/10 p-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-2 border-[#899DFF]/45 bg-[#10152A] p-4 shadow-[5px_5px_0_#020307]">
           <div>
-            <p className="font-pixel text-sm uppercase text-foreground/50">
+            <p className="font-pixel text-sm uppercase tracking-[0.16em] text-[#899DFF]">
               Next available exercise
             </p>
 
-            <p className="font-pixel text-2xl text-accent">
+            <p className="mt-1 font-pixel text-2xl text-white">
               {nextExercise.exercise.name}
             </p>
           </div>
 
           <Link
-            href={`/courses/${courseId}/${nextExercise.chapterId}/${nextExercise.exercise.slug}`}
-            className="border bg-accent px-4 py-2 font-pixel text-xl text-black shadow-[3px_3px_0_0_#FF8C00] transition-all hover:translate-x-px hover:translate-y-px hover:bg-accent-hover hover:text-white hover:shadow-[2px_2px_0_0_#FF8C00]"
+            href={`/courses/${courseId}/${nextExercise.chapterId}/${encodeURIComponent(nextExercise.exercise.slug)}`}
+            className="border-2 border-black bg-[#FFD400] px-4 py-2 font-pixel text-xl text-black shadow-[3px_3px_0_#FF8C00] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-none"
           >
             Start next exercise
           </Link>
@@ -404,8 +424,8 @@ export default function CourseChapters({
         isCompletedDataReady &&
         !nextExercise &&
         chapters.length > 0 && (
-          <div className="mb-6 border border-green-500 bg-green-500/10 p-4">
-            <p className="font-pixel text-xl text-green-400">
+          <div className="mb-6 border border-[#6FFFA2]/40 bg-[#6FFFA2]/5 p-4">
+            <p className="font-pixel text-xl text-[#6FFFA2]">
               Course completed! Every exercise is finished.
             </p>
           </div>
@@ -418,14 +438,14 @@ export default function CourseChapters({
       )}
 
       {chapters.length === 0 ? (
-        <div className="border-2 border-accent p-6 text-center shadow-[5px_5px_0_0_#FF8C00]">
-          <p className="font-pixel text-2xl text-foreground/70">
+        <div className="border-2 border-[#899DFF]/45 bg-[#10152A] p-6 text-center shadow-[5px_5px_0_#020307]">
+          <p className="font-pixel text-2xl text-white/60">
             This course does not have any chapters yet.
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden border-2 border-accent bg-background">
-          {chapters.map((chapter) => (
+        <div className="overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] shadow-[7px_7px_0_#020307]">
+          {orderedChapters.map((chapter) => (
             <CourseChapterItem
               key={chapter.id}
               chapter={chapter}

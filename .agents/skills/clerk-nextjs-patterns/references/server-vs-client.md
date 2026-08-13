@@ -52,7 +52,7 @@ export function UserDashboard() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useAuth();
 
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <TokenStateScreen mode="loading" />;
   if (!isSignedIn) return <div>Not signed in</div>;
 
   return (

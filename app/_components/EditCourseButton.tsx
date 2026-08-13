@@ -2,12 +2,16 @@
 
 import {
   type FormEvent,
+  type MouseEvent,
+  useEffect,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { Pencil } from "lucide-react";
 
-import type { Course } from "./CreateCourseButton";
 import { Button } from "@/components/ui/shadcn/button";
+
+import type { Course } from "./CreateCourseButton";
 
 interface EditCourseButtonProps {
   course: Course;
@@ -36,47 +40,96 @@ export default function EditCourseButton({
     getInitialForm(course),
   );
 
-const openModal = () => {
-  setForm(getInitialForm(course));
-  setError("");
-  setIsOpen(true);
-};
+  const openModal = (
+    event: MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setForm(getInitialForm(course));
+    setError("");
+    setIsOpen(true);
+  };
 
   const closeModal = () => {
+    if (isSubmitting) {
+      return;
+    }
+
     setIsOpen(false);
     setError("");
     setForm(getInitialForm(course));
   };
 
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (
+      event: KeyboardEvent,
+    ) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown,
+    );
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown,
+      );
+    };
+  }, [isOpen, isSubmitting]);
+
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    event.stopPropagation();
 
     try {
       setIsSubmitting(true);
       setError("");
 
-      const response = await fetch("/api/courses", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "/api/courses",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id: course.id,
+            title: form.title,
+            desc: form.desc,
+            bannerImage: form.bannerImage,
+            level: form.level,
+            tags: form.tags,
+          }),
         },
-        body: JSON.stringify({
-          id: course.id,
-          title: form.title,
-          desc: form.desc,
-          bannerImage: form.bannerImage,
-          level: form.level,
-          tags: form.tags,
-        }),
-      });
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.error || "Failed to edit course",
+          data.error ||
+            "Failed to edit course",
         );
       }
 
@@ -93,36 +146,45 @@ const openModal = () => {
     }
   };
 
-  return (
-    <>
-      <Button
-        type="button"
-        onClick={openModal}
-        className="border bg-accent px-3 py-2 font-pixel text-lg text-black shadow-[3px_3px_0_0_#FF8C00] hover:bg-accent-hover hover:text-white"
-      >
-        <Pencil className="size-4" />
-        Edit
-      </Button>
-
-      {isOpen && (
+  const modal = isOpen
+    ? createPortal(
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          aria-labelledby={`edit-course-${course.id}`}
+          onClick={(event) => {
+            event.stopPropagation();
+
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              closeModal();
+            }
+          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm"
         >
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-xl border-2 border-accent bg-background p-6 shadow-[8px_8px_0_0_#FF8C00]"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            className="my-auto w-full max-w-xl border-2 border-accent bg-background p-6 text-foreground shadow-[8px_8px_0_0_#FF8C00]"
           >
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-pixel text-4xl text-accent">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h2
+                id={`edit-course-${course.id}`}
+                className="font-pixel text-4xl text-accent"
+              >
                 Edit course
               </h2>
 
               <button
                 type="button"
                 onClick={closeModal}
-                className="font-pixel text-3xl hover:text-accent"
+                disabled={isSubmitting}
+                aria-label="Close modal"
+                className="cursor-pointer font-pixel text-3xl transition-colors hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
               >
                 ×
               </button>
@@ -133,10 +195,11 @@ const openModal = () => {
                 required
                 value={form.title}
                 onChange={(event) =>
-                  setForm({
-                    ...form,
-                    title: event.target.value,
-                  })
+                  setForm((current) => ({
+                    ...current,
+                    title:
+                      event.target.value,
+                  }))
                 }
                 placeholder="Course title"
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
@@ -147,10 +210,10 @@ const openModal = () => {
                 rows={5}
                 value={form.desc}
                 onChange={(event) =>
-                  setForm({
-                    ...form,
+                  setForm((current) => ({
+                    ...current,
                     desc: event.target.value,
-                  })
+                  }))
                 }
                 placeholder="Course description"
                 className="resize-none border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
@@ -161,11 +224,11 @@ const openModal = () => {
                 type="url"
                 value={form.bannerImage}
                 onChange={(event) =>
-                  setForm({
-                    ...form,
+                  setForm((current) => ({
+                    ...current,
                     bannerImage:
                       event.target.value,
-                  })
+                  }))
                 }
                 placeholder="Banner image URL"
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
@@ -174,21 +237,20 @@ const openModal = () => {
               <select
                 value={form.level}
                 onChange={(event) =>
-                  setForm({
-                    ...form,
-                    level: event.target.value,
-                  })
+                  setForm((current) => ({
+                    ...current,
+                    level:
+                      event.target.value,
+                  }))
                 }
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               >
                 <option value="Beginner">
                   Beginner
                 </option>
-
                 <option value="Intermediate">
                   Intermediate
                 </option>
-
                 <option value="Advanced">
                   Advanced
                 </option>
@@ -197,10 +259,10 @@ const openModal = () => {
               <input
                 value={form.tags}
                 onChange={(event) =>
-                  setForm({
-                    ...form,
+                  setForm((current) => ({
+                    ...current,
                     tags: event.target.value,
-                  })
+                  }))
                 }
                 placeholder="Tags separated by commas"
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
@@ -234,8 +296,23 @@ const openModal = () => {
               </Button>
             </div>
           </form>
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <>
+      <Button
+        type="button"
+        onClick={openModal}
+        className="border bg-accent px-3 py-2 font-pixel text-lg text-black shadow-[3px_3px_0_0_#FF8C00] hover:bg-accent-hover hover:text-white"
+      >
+        <Pencil className="size-4" />
+        Edit
+      </Button>
+
+      {modal}
     </>
   );
 }

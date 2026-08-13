@@ -15,6 +15,7 @@ const homeItems: DropdownItem[] = [
 ];
 
 const navItems = [
+  { label: "Home", href: "/" },
   { label: "Projects", href: "/projects" },
   { label: "Contact", href: "/contact" },
 ];
