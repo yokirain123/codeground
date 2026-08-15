@@ -2,6 +2,7 @@ import Footer from "@/app/_components/Footer";
 
 import EnrolledCourses from "./_components/EnrolledCourses";
 import ExploreMore from "./_components/ExploreMore";
+import FriendsSummary from "./_components/FriendsSummary";
 import InviteFriend from "./_components/InviteFriend";
 import UserStatus from "./_components/UserStatus";
 import WelcomeBanner from "./_components/WelcomeBanner";
@@ -20,7 +21,10 @@ export default function Dashboard() {
           </div>
 
           <div className="min-w-0 lg:sticky lg:top-24">
-            <UserStatus />
+            <div className="flex flex-col gap-6">
+              <UserStatus />
+              <FriendsSummary />
+            </div>
           </div>
         </div>
       </div>

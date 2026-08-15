@@ -1,46 +1,47 @@
-import Image, { type StaticImageData } from "next/image";
-
-import degreeIcon from "@/components/images/degree.png";
-import flaskIcon from "@/components/images/flask.png";
-import lightningBoltIcon from "@/components/images/lightning-bolt.png";
-import treeIcon from "@/components/images/tree.png";
+import Image from "next/image";
+import Link from "next/link";
 
 interface ExploreOption {
   id: number;
   title: string;
   description: string;
   category: string;
-  icon: StaticImageData;
+  icon: string;
+  href: string;
 }
 
 const exploreMoreOptions: ExploreOption[] = [
   {
     id: 1,
-    title: "Quiz Pack",
-    description: "Test what you learned with short coding quizzes.",
-    category: "Practice",
-    icon: lightningBoltIcon,
+    title: "Git Sandbox",
+    description: "Practice Git without breaking a real project.",
+    category: "Version control",
+    icon: "/labs/git-sandbox.svg",
+    href: "/git-sandbox",
   },
   {
     id: 2,
-    title: "Video Courses",
-    description: "Follow guided lessons at your own pace.",
-    category: "Learn",
-    icon: flaskIcon,
+    title: "Refactor Lab",
+    description: "Turn working code into clean and readable code.",
+    category: "Improve",
+    icon: "/labs/refactor-lab.svg",
+    href: "/refactor-lab",
   },
   {
     id: 3,
-    title: "Community Project",
-    description: "Build something together with other learners.",
-    category: "Build",
-    icon: degreeIcon,
+    title: "Bug Hunt",
+    description: "Find and fix bugs hidden inside broken code.",
+    category: "Debug",
+    icon: "/labs/bug-hunt.svg",
+    href: "/bug-hunt",
   },
   {
     id: 4,
-    title: "Explore Apps",
-    description: "Discover projects made with the skills you are learning.",
-    category: "Discover",
-    icon: treeIcon,
+    title: "Error Decoder",
+    description: "Turn confusing error messages into clear solutions.",
+    category: "Diagnose",
+    icon: "/labs/error-decoder.svg",
+    href: "/error-decoder",
   },
 ];
 
@@ -58,11 +59,12 @@ export default function ExploreMore() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {exploreMoreOptions.map((option) => (
-          <article
+          <Link
             key={option.id}
-            className="group flex min-w-0 items-center gap-4 border-2 border-[#899DFF]/30 bg-[#10152A] p-4 shadow-[4px_4px_0_#020307] transition-colors hover:border-[#FFD400]/60"
+            href={option.href}
+            className="group flex min-w-0 items-center gap-4 border-2 border-[#899DFF]/30 bg-[#10152A] p-4 shadow-[4px_4px_0_#020307] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FFD400]/70 hover:shadow-[4px_6px_0_#020307] focus-visible:border-[#FFD400] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD400]/35"
           >
-            <div className="flex size-16 shrink-0 items-center justify-center border border-[#899DFF]/25 bg-black/20">
+            <div className="flex size-16 shrink-0 items-center justify-center border border-[#899DFF]/25 bg-black/20 transition-colors group-hover:border-[#FFD400]/40 group-hover:bg-[#FFD400]/5">
               <Image
                 src={option.icon}
                 alt=""
@@ -72,18 +74,26 @@ export default function ExploreMore() {
               />
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-pixel text-[10px] uppercase tracking-[0.18em] text-[#899DFF]">
                 {option.category}
               </p>
-              <h3 className="mt-1 font-pixel text-xl text-white sm:text-2xl">
-                {option.title}
-              </h3>
+              <div className="mt-1 flex items-center gap-2">
+                <h3 className="truncate font-pixel text-xl text-white sm:text-2xl">
+                  {option.title}
+                </h3>
+                <span
+                  aria-hidden="true"
+                  className="ml-auto font-pixel text-sm text-[#FFD400] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+                >
+                  ▶
+                </span>
+              </div>
               <p className="mt-1 line-clamp-2 font-sans text-sm leading-5 text-white/50">
                 {option.description}
               </p>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
     </section>

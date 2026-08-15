@@ -1,37 +1,22 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import Image from "next/image";
-
-import Mail from "@/components/images/mail.png";
-import { Button } from "@/components/ui/shadcn/button";
-import { Input } from "@/components/ui/shadcn/input";
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { Search, UsersRound } from "lucide-react";
 
 export default function InviteFriend() {
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const [query, setQuery] = useState("");
 
-  const inviteFriend = (event: FormEvent<HTMLFormElement>) => {
+  const findPlayers = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const normalizedEmail = email.trim();
-
-    if (!emailPattern.test(normalizedEmail)) {
-      setError("Enter a valid email address.");
-      return;
-    }
-
-    setError("");
-
-    const subject = encodeURIComponent("Join me on CodeQuest");
-    const body = encodeURIComponent(
-      "I have been learning programming on CodeQuest. Join me and start your first coding quest!",
+    const normalizedQuery = query.trim();
+    router.push(
+      normalizedQuery
+        ? `/friends?q=${encodeURIComponent(normalizedQuery)}`
+        : "/friends",
     );
-
-    window.location.href = `mailto:${normalizedEmail}?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -41,76 +26,44 @@ export default function InviteFriend() {
         className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-[#899DFF]/10 blur-3xl"
       />
 
-      <div className="relative flex flex-col items-center gap-6 md:flex-row">
-        <div className="flex size-24 shrink-0 items-center justify-center border border-[#899DFF]/25 bg-black/20">
-          <Image
-            src={Mail}
-            alt=""
-            width={72}
-            height={72}
-            className="[image-rendering:pixelated]"
-          />
+      <div className="relative grid gap-7 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+        <div className="flex size-20 items-center justify-center border border-[#899DFF]/25 bg-[#899DFF]/5 text-[#899DFF] sm:size-24">
+          <UsersRound className="size-10 sm:size-12" />
         </div>
 
-        <div className="min-w-0 flex-1 text-center md:text-left">
+        <div className="min-w-0">
           <p className="font-pixel text-xs uppercase tracking-[0.22em] text-[#899DFF]">
-            Party invitation
+            Social quest
           </p>
+
           <h2 className="mt-1 font-pixel text-3xl text-white sm:text-4xl">
-            Invite a <span className="text-[#FFD400]">friend</span>
+            Build your <span className="text-[#FFD400]">party</span>
           </h2>
           <p className="mt-2 font-sans text-sm leading-6 text-white/55 sm:text-base">
-            Learning is better with a party. Open a ready-to-send invitation in
-            your email app.
+            Find CodeQuest players, send requests and compare your learning
+            progress.
           </p>
 
-          <form
-            onSubmit={inviteFriend}
-            className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row"
-            noValidate
-          >
-            <div className="min-w-0 flex-1">
-              <label htmlFor="friend-email" className="sr-only">
-                Friend&apos;s email
-              </label>
-              <Input
-                id="friend-email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  if (error) setError("");
-                }}
-                aria-invalid={Boolean(error)}
-                aria-describedby={error ? "friend-email-error" : undefined}
-                placeholder="friend@example.com"
-                className="h-12 rounded-none border-[#899DFF]/35 bg-black/25 font-sans text-white placeholder:text-white/25 focus-visible:border-[#FFD400] focus-visible:ring-[#FFD400]/25"
+          <form onSubmit={findPlayers} className="mt-5 flex gap-2">
+            <label htmlFor="dashboard-player-search" className="sr-only">
+              Search CodeQuest players
+            </label>
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#899DFF]" />
+              <input
+                id="dashboard-player-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Player name or email"
+                className="h-12 w-full border border-[#899DFF]/35 bg-black/25 pl-10 pr-3 font-sans text-white outline-none placeholder:text-white/25 focus:border-[#FFD400]"
               />
-              {error && (
-                <p
-                  id="friend-email-error"
-                  role="alert"
-                  className="mt-2 text-sm text-red-400"
-                >
-                  {error}
-                </p>
-              )}
             </div>
-
-            <Button
+            <button
               type="submit"
-              className="group relative h-12 cursor-pointer overflow-hidden rounded-none border-2 border-black bg-[#FFD400] px-6 font-pixel text-xl text-black shadow-[4px_4px_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none"
+              className="flex h-12 cursor-pointer items-center justify-center border-2 border-black bg-[#FFD400] px-4 font-pixel text-lg text-black shadow-[4px_4px_0_#FF8C00] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00]"
             >
-              <span
-                aria-hidden="true"
-                className="absolute top-full left-1/2 size-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#FF8C00] transition-transform duration-700 group-hover:scale-[18]"
-              />
-              <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-                Invite
-              </span>
-            </Button>
+              Find
+            </button>
           </form>
         </div>
       </div>

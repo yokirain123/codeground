@@ -19,7 +19,6 @@ const footerLinks = [
   {
     title: "CodeQuest",
     links: [
-      { label: "About", href: "/about" },
       { label: "FAQ", href: "/faq" },
       { label: "Contact", href: "/contact" },
     ],
@@ -90,11 +89,6 @@ export default function Footer() {
               <li>
                 <Link href="/documentation" className={linkStyles}>
                   Documentation
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className={linkStyles}>
-                  FAQ
                 </Link>
               </li>
               <li>
