@@ -15,6 +15,21 @@ import type {
   FriendRequestsResponse,
   PublicPlayer,
 } from "@/lib/friends/types";
+import {
+  createFriendAcceptedNotification,
+  createFriendRequestNotification,
+  dismissNotificationByEntity,
+} from "@/lib/notifications/server";
+
+async function runNotificationEffects(effects: Promise<unknown>[]) {
+  const results = await Promise.allSettled(effects);
+
+  for (const result of results) {
+    if (result.status === "rejected") {
+      console.error("Friend notification side effect failed:", result.reason);
+    }
+  }
+}
 
 export async function GET() {
   try {
@@ -43,8 +58,8 @@ export async function GET() {
       )
       .orderBy(desc(friendshipsTable.createdAt));
 
-    const playerIds = requests.map((request) =>
-      getOtherUserId(request, userId),
+    const playerIds = requests.map((friendRequest) =>
+      getOtherUserId(friendRequest, userId),
     );
 
     if (playerIds.length === 0) {
@@ -72,13 +87,13 @@ export async function GET() {
     const incoming: FriendRequestItem[] = [];
     const outgoing: FriendRequestItem[] = [];
 
-    for (const request of requests) {
-      const otherUserId = getOtherUserId(request, userId);
+    for (const friendRequest of requests) {
+      const otherUserId = getOtherUserId(friendRequest, userId);
       const player = playerMap.get(otherUserId);
 
       if (!player) continue;
 
-      const isIncoming = request.addresseeId === userId;
+      const isIncoming = friendRequest.addresseeId === userId;
       const publicPlayer: PublicPlayer = {
         userId: player.userId,
         name: player.name,
@@ -86,12 +101,12 @@ export async function GET() {
         avatarUrl: avatarMap.get(player.userId) ?? null,
         joinedAt: player.joinedAt.toISOString(),
         relationship: isIncoming ? "incoming_pending" : "outgoing_pending",
-        relationshipId: request.id,
+        relationshipId: friendRequest.id,
       };
 
       const item: FriendRequestItem = {
-        requestId: request.id,
-        createdAt: request.createdAt.toISOString(),
+        requestId: friendRequest.id,
+        createdAt: friendRequest.createdAt.toISOString(),
         player: publicPlayer,
       };
 
@@ -180,9 +195,25 @@ export async function POST(request: Request) {
           )
           .returning({ id: friendshipsTable.id });
 
+        const friendshipId = accepted?.id ?? existing.id;
+
+        await runNotificationEffects([
+          dismissNotificationByEntity({
+            userId,
+            type: "friend_request",
+            entityType: "friendship",
+            entityId: String(friendshipId),
+          }),
+          createFriendAcceptedNotification({
+            friendshipId,
+            actorId: userId,
+            recipientId: existing.requesterId,
+          }),
+        ]);
+
         return NextResponse.json({
           status: "accepted",
-          relationshipId: accepted?.id ?? existing.id,
+          relationshipId: friendshipId,
           autoAccepted: true,
         });
       }
@@ -205,13 +236,21 @@ export async function POST(request: Request) {
       .returning({ id: friendshipsTable.id });
 
     if (created) {
+      await runNotificationEffects([
+        createFriendRequestNotification({
+          requestId: created.id,
+          requesterId: userId,
+          addresseeId: targetUserId,
+        }),
+      ]);
+
       return NextResponse.json(
         { status: "pending", relationshipId: created.id },
         { status: 201 },
       );
     }
 
-    // Handles two users sending a request at the exact same time.
+    // Handles two players sending requests at the exact same time.
     const [racedRequest] = await db
       .select()
       .from(friendshipsTable)
@@ -233,9 +272,25 @@ export async function POST(request: Request) {
         )
         .returning({ id: friendshipsTable.id });
 
+      const friendshipId = accepted?.id ?? racedRequest.id;
+
+      await runNotificationEffects([
+        dismissNotificationByEntity({
+          userId,
+          type: "friend_request",
+          entityType: "friendship",
+          entityId: String(friendshipId),
+        }),
+        createFriendAcceptedNotification({
+          friendshipId,
+          actorId: userId,
+          recipientId: racedRequest.requesterId,
+        }),
+      ]);
+
       return NextResponse.json({
         status: "accepted",
-        relationshipId: accepted?.id ?? racedRequest.id,
+        relationshipId: friendshipId,
         autoAccepted: true,
       });
     }

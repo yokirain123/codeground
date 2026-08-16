@@ -7,24 +7,25 @@ import Navbar from "@/app/_components/Navbar";
 import { Button } from "@/components/ui/button";
 
 import { UserMenu } from "./user-menu";
+import NotificationBell from "./NotificationBell";
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#899DFF]/25 bg-[#07080C]/95 text-white backdrop-blur-md">
-      <div className="grid h-16 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-4 md:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 md:gap-5 md:px-6 lg:px-8">
         <Link
           href="/"
           aria-label="CodeQuest home"
-          className="justify-self-start"
+          className="flex shrink-0 items-center"
         >
           <Logo />
         </Link>
 
-        <div className="min-w-0 justify-self-center">
+        <div className="min-w-0 flex-1">
           <Navbar />
         </div>
 
-        <div className="flex shrink-0 items-center justify-self-end gap-3 border-l border-[#899DFF]/20 pl-3 sm:gap-4 sm:pl-4">
+        <div className="flex shrink-0 items-center gap-3 border-l border-[#899DFF]/20 pl-3 sm:gap-4 sm:pl-4">
           <Show when="signed-out">
             <Button
               variant="default"
@@ -44,6 +45,7 @@ export function Header() {
           </Show>
 
           <Show when="signed-in">
+            <NotificationBell/>
             <UserMenu />
           </Show>
         </div>

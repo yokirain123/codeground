@@ -29,7 +29,6 @@ function Provider({
       try {
         const result = await axios.post("/api/user");
 
-        console.log("Database user:", result.data);
         setUserDetail(result.data);
       } catch (error) {
         console.error("Failed to save user:", error);

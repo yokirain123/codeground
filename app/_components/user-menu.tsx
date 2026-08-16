@@ -20,27 +20,15 @@ export function UserMenu() {
         />
 
         <UserButton.Link
-          label="Playground"
-          labelIcon={<Code2 size={16} />}
-          href="/playground"
-        />
-
-        <UserButton.Link
-          label="Courses"
-          labelIcon={<BookOpen size={16} />}
-          href="/courses"
+          label="Friends"
+          labelIcon={<UsersRound size={16} />}
+          href="/friends"
         />
 
         <UserButton.Link
           label="Achievements"
           labelIcon={<Trophy size={16} />}
           href="/achievements"
-        />
-
-        <UserButton.Link
-          label="Friends"
-          labelIcon={<UsersRound size={16} />}
-          href="/friends"
         />
 
         <UserButton.Action label="manageAccount" />

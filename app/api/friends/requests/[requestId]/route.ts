@@ -4,9 +4,23 @@ import { NextResponse } from "next/server";
 
 import { db } from "@/config/db";
 import { friendshipsTable } from "@/lib/friends/schema";
+import {
+  createFriendAcceptedNotification,
+  dismissNotificationByEntity,
+} from "@/lib/notifications/server";
 
 interface RouteContext {
   params: Promise<{ requestId: string }>;
+}
+
+async function runNotificationEffects(effects: Promise<unknown>[]) {
+  const results = await Promise.allSettled(effects);
+
+  for (const result of results) {
+    if (result.status === "rejected") {
+      console.error("Friend notification side effect failed:", result.reason);
+    }
+  }
 }
 
 export async function PATCH(request: Request, { params }: RouteContext) {
@@ -51,6 +65,15 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         );
       }
 
+      await runNotificationEffects([
+        dismissNotificationByEntity({
+          userId,
+          type: "friend_request",
+          entityType: "friendship",
+          entityId: String(deleted.id),
+        }),
+      ]);
+
       return NextResponse.json({ status: "declined" });
     }
 
@@ -58,7 +81,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       .update(friendshipsTable)
       .set({ status: "accepted", respondedAt: new Date() })
       .where(ownershipCondition)
-      .returning({ id: friendshipsTable.id });
+      .returning({
+        id: friendshipsTable.id,
+        requesterId: friendshipsTable.requesterId,
+      });
 
     if (!accepted) {
       return NextResponse.json(
@@ -66,6 +92,20 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         { status: 404 },
       );
     }
+
+    await runNotificationEffects([
+      dismissNotificationByEntity({
+        userId,
+        type: "friend_request",
+        entityType: "friendship",
+        entityId: String(accepted.id),
+      }),
+      createFriendAcceptedNotification({
+        friendshipId: accepted.id,
+        actorId: userId,
+        recipientId: accepted.requesterId,
+      }),
+    ]);
 
     return NextResponse.json({
       status: "accepted",
@@ -103,7 +143,10 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
           eq(friendshipsTable.status, "pending"),
         ),
       )
-      .returning({ id: friendshipsTable.id });
+      .returning({
+        id: friendshipsTable.id,
+        addresseeId: friendshipsTable.addresseeId,
+      });
 
     if (!deleted) {
       return NextResponse.json(
@@ -111,6 +154,15 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
         { status: 404 },
       );
     }
+
+    await runNotificationEffects([
+      dismissNotificationByEntity({
+        userId: deleted.addresseeId,
+        type: "friend_request",
+        entityType: "friendship",
+        entityId: String(deleted.id),
+      }),
+    ]);
 
     return NextResponse.json({ status: "cancelled" });
   } catch (error) {

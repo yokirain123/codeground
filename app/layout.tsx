@@ -1,5 +1,5 @@
 import { ClerkProvider } from "@/components/clerk-provider";
-import { Header } from "@/components/header";
+import { Header } from "@/app/_components/Header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
