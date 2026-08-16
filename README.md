@@ -291,16 +291,3 @@ public/                     # Fonts, workers, lab artwork, and Pyodide assets
 
 Bug reports and feature requests are welcome in
 [GitHub Issues](https://github.com/yokirain123/codeground/issues).
-
-## Roadmap
-
-- English and Ukrainian localization with an in-app language switcher.
-- More courses, challenges, achievements, and Git missions.
-- Automated tests and continuous integration.
-- Additional runtime hardening and production observability.
-- Improved mobile editing experience.
-
-## License
-
-This repository does not currently include an open-source license. Unless a
-license is added, all rights remain with the repository owner.
