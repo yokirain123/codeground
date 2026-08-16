@@ -1,5 +1,6 @@
 "use client";
 
+import CppCodeEditor from "./CppCodeEditor";
 import CSharpCodeEditor from "./CSharpCodeEditor";
 import PythonCodeEditor from "./PythonCodeEditor";
 import type { ExerciseData } from "./types";
@@ -12,6 +13,14 @@ interface CodeEditorProps {
 }
 
 export default function CodeEditor(props: CodeEditorProps) {
+  const isCppExercise = Object.keys(props.exercise.starterCode).some(
+    (filename) => /\.(?:cpp|cc|cxx)$/.test(filename.toLowerCase()),
+  );
+
+  if (isCppExercise) {
+    return <CppCodeEditor key={props.exercise.id} {...props} />;
+  }
+
   const isCSharpExercise = Object.keys(props.exercise.starterCode).some(
     (filename) => filename.toLowerCase().endsWith(".cs"),
   );

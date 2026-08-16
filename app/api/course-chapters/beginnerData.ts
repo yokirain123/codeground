@@ -2,6 +2,7 @@ import {
   DATA as HTML_DATA,
   type ChapterSeed,
 } from "@/app/api/course-chapters/data";
+import { CPP_DATA } from "@/app/api/course-chapters/cppData";
 import { CSHARP_DATA } from "@/app/api/course-chapters/csharpData";
 
 const exercise = (
@@ -44,7 +45,12 @@ export const CSS_DATA: ChapterSeed[] = [
       exercise("Color Palette Quest", "color-palette-quest", 25, "easy"),
       exercise("Alpha Overlay", "alpha-overlay", 30, "easy"),
       exercise("Rem Unit Upgrade", "rem-unit-upgrade", 35, "medium"),
-      exercise("Fluid Percentage Panel", "fluid-percentage-panel", 40, "medium"),
+      exercise(
+        "Fluid Percentage Panel",
+        "fluid-percentage-panel",
+        40,
+        "medium",
+      ),
       exercise("Gradient Hero", "gradient-hero", 50, "medium"),
     ],
   },
@@ -55,7 +61,12 @@ export const CSS_DATA: ChapterSeed[] = [
     exercises: [
       exercise("Choose a Font Stack", "choose-a-font-stack", 25, "easy"),
       exercise("Readable Type Scale", "readable-type-scale", 30, "easy"),
-      exercise("Comfortable Line Height", "comfortable-line-height", 35, "medium"),
+      exercise(
+        "Comfortable Line Height",
+        "comfortable-line-height",
+        35,
+        "medium",
+      ),
       exercise("Style the Quest Copy", "style-the-quest-copy", 40, "medium"),
       exercise("Responsive Hero Type", "responsive-hero-type", 50, "hard"),
     ],
@@ -69,7 +80,12 @@ export const CSS_DATA: ChapterSeed[] = [
       exercise("Pad the Profile", "pad-the-profile", 25, "easy"),
       exercise("Separate the Cards", "separate-the-cards", 30, "easy"),
       exercise("Predictable Sizing", "predictable-sizing", 40, "medium"),
-      exercise("Profile Card Dimensions", "profile-card-dimensions", 45, "medium"),
+      exercise(
+        "Profile Card Dimensions",
+        "profile-card-dimensions",
+        45,
+        "medium",
+      ),
     ],
   },
   {
@@ -116,7 +132,12 @@ export const CSS_DATA: ChapterSeed[] = [
       exercise("Mobile Stack", "mobile-stack", 45, "medium"),
       exercise("Responsive Navigation", "responsive-navigation", 55, "medium"),
       exercise("Fluid Card Grid", "fluid-card-grid", 55, "medium"),
-      exercise("Visible Keyboard Focus", "visible-keyboard-focus", 45, "medium"),
+      exercise(
+        "Visible Keyboard Focus",
+        "visible-keyboard-focus",
+        45,
+        "medium",
+      ),
       exercise("Respect Reduced Motion", "respect-reduced-motion", 60, "hard"),
     ],
   },
@@ -126,10 +147,25 @@ export const CSS_DATA: ChapterSeed[] = [
     desc: "Use states, transitions, transforms, and custom properties to build a polished final interface.",
     exercises: [
       exercise("Interactive Button", "interactive-button", 30, "easy"),
-      exercise("Smooth Card Transition", "smooth-card-transition", 40, "medium"),
+      exercise(
+        "Smooth Card Transition",
+        "smooth-card-transition",
+        40,
+        "medium",
+      ),
       exercise("Transform the Badge", "transform-the-badge", 45, "medium"),
-      exercise("Theme with CSS Variables", "theme-with-css-variables", 55, "medium"),
-      exercise("Final Responsive Quest Page", "final-responsive-quest-page", 90, "hard"),
+      exercise(
+        "Theme with CSS Variables",
+        "theme-with-css-variables",
+        55,
+        "medium",
+      ),
+      exercise(
+        "Final Responsive Quest Page",
+        "final-responsive-quest-page",
+        90,
+        "hard",
+      ),
     ],
   },
 ];
@@ -153,10 +189,25 @@ export const REACT_DATA: ChapterSeed[] = [
     desc: "Split an interface into focused function components and connect them with imports and exports.",
     exercises: [
       exercise("Your First Component", "your-first-component", 25, "easy"),
-      exercise("Name Components Correctly", "name-components-correctly", 25, "easy"),
+      exercise(
+        "Name Components Correctly",
+        "name-components-correctly",
+        25,
+        "easy",
+      ),
       exercise("Split the Interface", "split-the-interface", 35, "medium"),
-      exercise("Export the Player Card", "export-the-player-card", 35, "medium"),
-      exercise("Assemble the Dashboard", "assemble-the-dashboard", 45, "medium"),
+      exercise(
+        "Export the Player Card",
+        "export-the-player-card",
+        35,
+        "medium",
+      ),
+      exercise(
+        "Assemble the Dashboard",
+        "assemble-the-dashboard",
+        45,
+        "medium",
+      ),
     ],
   },
   {
@@ -168,7 +219,12 @@ export const REACT_DATA: ChapterSeed[] = [
       exercise("Multiple Player Props", "multiple-player-props", 30, "easy"),
       exercise("Default Badge Value", "default-badge-value", 35, "medium"),
       exercise("Reusable Quest Card", "reusable-quest-card", 45, "medium"),
-      exercise("Configure the Action Button", "configure-the-action-button", 50, "medium"),
+      exercise(
+        "Configure the Action Button",
+        "configure-the-action-button",
+        50,
+        "medium",
+      ),
     ],
   },
   {
@@ -191,7 +247,12 @@ export const REACT_DATA: ChapterSeed[] = [
       exercise("Render a Quest List", "render-a-quest-list", 30, "easy"),
       exercise("Stable Item Keys", "stable-item-keys", 35, "medium"),
       exercise("Empty State", "empty-state", 30, "easy"),
-      exercise("Conditional Rank Badge", "conditional-rank-badge", 40, "medium"),
+      exercise(
+        "Conditional Rank Badge",
+        "conditional-rank-badge",
+        40,
+        "medium",
+      ),
       exercise("Filtered Inventory", "filtered-inventory", 50, "medium"),
     ],
   },
@@ -214,8 +275,18 @@ export const REACT_DATA: ChapterSeed[] = [
     exercises: [
       exercise("XP Counter", "xp-counter", 40, "medium"),
       exercise("Toggle the Hint", "toggle-the-hint", 40, "medium"),
-      exercise("Choose a Character Class", "choose-a-character-class", 40, "medium"),
-      exercise("Functional Counter Update", "functional-counter-update", 50, "medium"),
+      exercise(
+        "Choose a Character Class",
+        "choose-a-character-class",
+        40,
+        "medium",
+      ),
+      exercise(
+        "Functional Counter Update",
+        "functional-counter-update",
+        50,
+        "medium",
+      ),
       exercise("Reset the Quest State", "reset-the-quest-state", 50, "medium"),
     ],
   },
@@ -226,7 +297,12 @@ export const REACT_DATA: ChapterSeed[] = [
     exercises: [
       exercise("Update an Object", "update-an-object", 45, "medium"),
       exercise("Add an Inventory Item", "add-an-inventory-item", 45, "medium"),
-      exercise("Remove a Completed Quest", "remove-a-completed-quest", 50, "medium"),
+      exercise(
+        "Remove a Completed Quest",
+        "remove-a-completed-quest",
+        50,
+        "medium",
+      ),
       exercise("Edit a Party Member", "edit-a-party-member", 55, "hard"),
       exercise("Inventory State", "inventory-state", 65, "hard"),
     ],
@@ -237,8 +313,18 @@ export const REACT_DATA: ChapterSeed[] = [
     desc: "Read, validate, and submit text, select, checkbox, and multi-field input using React state.",
     exercises: [
       exercise("Controlled Player Name", "controlled-player-name", 35, "easy"),
-      exercise("Character Class Select", "character-class-select", 40, "medium"),
-      exercise("Accept the Quest Checkbox", "accept-the-quest-checkbox", 40, "medium"),
+      exercise(
+        "Character Class Select",
+        "character-class-select",
+        40,
+        "medium",
+      ),
+      exercise(
+        "Accept the Quest Checkbox",
+        "accept-the-quest-checkbox",
+        40,
+        "medium",
+      ),
       exercise("Validate the Form", "validate-the-form", 55, "medium"),
       exercise("Create a Quest Form", "create-a-quest-form", 65, "hard"),
     ],
@@ -251,8 +337,18 @@ export const REACT_DATA: ChapterSeed[] = [
       exercise("Document Title Effect", "document-title-effect", 40, "easy"),
       exercise("Effect Dependencies", "effect-dependencies", 45, "medium"),
       exercise("Save Player Settings", "save-player-settings", 50, "medium"),
-      exercise("Quest Countdown Cleanup", "quest-countdown-cleanup", 55, "medium"),
-      exercise("Remove the Unnecessary Effect", "remove-the-unnecessary-effect", 60, "hard"),
+      exercise(
+        "Quest Countdown Cleanup",
+        "quest-countdown-cleanup",
+        55,
+        "medium",
+      ),
+      exercise(
+        "Remove the Unnecessary Effect",
+        "remove-the-unnecessary-effect",
+        60,
+        "hard",
+      ),
     ],
   },
   {
@@ -263,8 +359,18 @@ export const REACT_DATA: ChapterSeed[] = [
       exercise("Loading State", "loading-state", 40, "easy"),
       exercise("Fetch the Quest Log", "fetch-the-quest-log", 50, "medium"),
       exercise("Data State Trio", "data-state-trio", 55, "medium"),
-      exercise("Retry the Failed Request", "retry-the-failed-request", 60, "hard"),
-      exercise("Search with Request Cleanup", "search-with-request-cleanup", 70, "hard"),
+      exercise(
+        "Retry the Failed Request",
+        "retry-the-failed-request",
+        60,
+        "hard",
+      ),
+      exercise(
+        "Search with Request Cleanup",
+        "search-with-request-cleanup",
+        70,
+        "hard",
+      ),
     ],
   },
   {
@@ -273,9 +379,19 @@ export const REACT_DATA: ChapterSeed[] = [
     desc: "Lift state, pass callbacks, avoid duplicated state, and extract reusable behavior into a custom hook.",
     exercises: [
       exercise("Pass a Callback", "pass-a-callback", 40, "medium"),
-      exercise("Lift the Selected Quest", "lift-the-selected-quest", 50, "medium"),
+      exercise(
+        "Lift the Selected Quest",
+        "lift-the-selected-quest",
+        50,
+        "medium",
+      ),
       exercise("Shared Party Score", "shared-party-score", 55, "medium"),
-      exercise("Derive the Visible Quests", "derive-the-visible-quests", 55, "medium"),
+      exercise(
+        "Derive the Visible Quests",
+        "derive-the-visible-quests",
+        55,
+        "medium",
+      ),
       exercise("Extract a Toggle Hook", "extract-a-toggle-hook", 70, "hard"),
     ],
   },
@@ -284,7 +400,12 @@ export const REACT_DATA: ChapterSeed[] = [
     name: "React Final Project",
     desc: "Combine components, props, lists, state, forms, effects, and shared logic in a complete application.",
     exercises: [
-      exercise("Plan the Component Tree", "plan-the-component-tree", 40, "easy"),
+      exercise(
+        "Plan the Component Tree",
+        "plan-the-component-tree",
+        40,
+        "easy",
+      ),
       exercise("Build the Quest List", "build-the-quest-list", 50, "medium"),
       exercise("Add Quest Controls", "add-quest-controls", 55, "medium"),
       exercise("Add and Filter Quests", "add-and-filter-quests", 65, "hard"),
@@ -301,9 +422,24 @@ export const PYTHON_DATA: ChapterSeed[] = [
     exercises: [
       exercise("Hello, CodeQuest!", "hello-codequest", 20, "easy"),
       exercise("Hero Variables", "hero-variables", 25, "easy"),
-      exercise("Print a Character Sheet", "print-a-character-sheet", 30, "easy"),
-      exercise("Comment the Battle Plan", "comment-the-battle-plan", 25, "easy"),
-      exercise("Inspect the Value Types", "inspect-the-value-types", 35, "medium"),
+      exercise(
+        "Print a Character Sheet",
+        "print-a-character-sheet",
+        30,
+        "easy",
+      ),
+      exercise(
+        "Comment the Battle Plan",
+        "comment-the-battle-plan",
+        25,
+        "easy",
+      ),
+      exercise(
+        "Inspect the Value Types",
+        "inspect-the-value-types",
+        35,
+        "medium",
+      ),
     ],
   },
   {
@@ -314,7 +450,12 @@ export const PYTHON_DATA: ChapterSeed[] = [
       exercise("Ask the Adventurer", "ask-the-adventurer", 25, "easy"),
       exercise("XP Calculator", "xp-calculator", 30, "easy"),
       exercise("Damage Formula", "damage-formula", 35, "medium"),
-      exercise("Convert the Level Input", "convert-the-level-input", 40, "medium"),
+      exercise(
+        "Convert the Level Input",
+        "convert-the-level-input",
+        40,
+        "medium",
+      ),
       exercise("Split the Gold Reward", "split-the-gold-reward", 45, "medium"),
     ],
   },
@@ -324,8 +465,18 @@ export const PYTHON_DATA: ChapterSeed[] = [
     desc: "Build, format, inspect, slice, and transform text using strings and their methods.",
     exercises: [
       exercise("Player Status Message", "player-status-message", 25, "easy"),
-      exercise("Format the Battle Report", "format-the-battle-report", 35, "easy"),
-      exercise("Normalize the Hero Name", "normalize-the-hero-name", 40, "medium"),
+      exercise(
+        "Format the Battle Report",
+        "format-the-battle-report",
+        35,
+        "easy",
+      ),
+      exercise(
+        "Normalize the Hero Name",
+        "normalize-the-hero-name",
+        40,
+        "medium",
+      ),
       exercise("Slice the Secret Code", "slice-the-secret-code", 45, "medium"),
       exercise("Count the Rune Words", "count-the-rune-words", 50, "medium"),
     ],
@@ -363,7 +514,12 @@ export const PYTHON_DATA: ChapterSeed[] = [
       exercise("Update the Backpack", "update-the-backpack", 40, "medium"),
       exercise("Slice the Party", "slice-the-party", 40, "medium"),
       exercise("Highest Quest Reward", "highest-quest-reward", 50, "medium"),
-      exercise("Immutable Map Coordinates", "immutable-map-coordinates", 50, "medium"),
+      exercise(
+        "Immutable Map Coordinates",
+        "immutable-map-coordinates",
+        50,
+        "medium",
+      ),
     ],
   },
   {
@@ -383,11 +539,21 @@ export const PYTHON_DATA: ChapterSeed[] = [
     name: "Functions & Scope",
     desc: "Package logic into reusable functions with parameters, return values, scope, and clear responsibilities.",
     exercises: [
-      exercise("Create a Greeting Function", "create-a-greeting-function", 35, "easy"),
+      exercise(
+        "Create a Greeting Function",
+        "create-a-greeting-function",
+        35,
+        "easy",
+      ),
       exercise("Calculate Rank", "calculate-rank", 45, "medium"),
       exercise("Default Potion Amount", "default-potion-amount", 45, "medium"),
       exercise("Build a Battle Helper", "build-a-battle-helper", 60, "hard"),
-      exercise("Return Multiple Rewards", "return-multiple-rewards", 55, "medium"),
+      exercise(
+        "Return Multiple Rewards",
+        "return-multiple-rewards",
+        55,
+        "medium",
+      ),
     ],
   },
   {
@@ -396,8 +562,18 @@ export const PYTHON_DATA: ChapterSeed[] = [
     desc: "Transform and filter collections using concise comprehensions, sorting, and small data pipelines.",
     exercises: [
       exercise("Double the XP Rewards", "double-the-xp-rewards", 40, "easy"),
-      exercise("Filter Available Quests", "filter-available-quests", 45, "medium"),
-      exercise("Build a Rank Dictionary", "build-a-rank-dictionary", 50, "medium"),
+      exercise(
+        "Filter Available Quests",
+        "filter-available-quests",
+        45,
+        "medium",
+      ),
+      exercise(
+        "Build a Rank Dictionary",
+        "build-a-rank-dictionary",
+        50,
+        "medium",
+      ),
       exercise("Sort the Leaderboard", "sort-the-leaderboard", 55, "medium"),
       exercise("Quest Summary Pipeline", "quest-summary-pipeline", 65, "hard"),
     ],
@@ -408,10 +584,30 @@ export const PYTHON_DATA: ChapterSeed[] = [
     desc: "Validate data, handle expected failures, raise useful exceptions, and keep programs reliable.",
     exercises: [
       exercise("Safe Number Input", "safe-number-input", 40, "medium"),
-      exercise("Raise an Invalid Level", "raise-an-invalid-level", 50, "medium"),
-      exercise("Catch a Missing Player", "catch-a-missing-player", 50, "medium"),
-      exercise("Always Close the Portal", "always-close-the-portal", 55, "medium"),
-      exercise("Validate a Quest Record", "validate-a-quest-record", 65, "hard"),
+      exercise(
+        "Raise an Invalid Level",
+        "raise-an-invalid-level",
+        50,
+        "medium",
+      ),
+      exercise(
+        "Catch a Missing Player",
+        "catch-a-missing-player",
+        50,
+        "medium",
+      ),
+      exercise(
+        "Always Close the Portal",
+        "always-close-the-portal",
+        55,
+        "medium",
+      ),
+      exercise(
+        "Validate a Quest Record",
+        "validate-a-quest-record",
+        65,
+        "hard",
+      ),
     ],
   },
   {
@@ -419,11 +615,21 @@ export const PYTHON_DATA: ChapterSeed[] = [
     name: "Modules & Files",
     desc: "Organize code with imports and read or write small text and JSON files in Python's filesystem.",
     exercises: [
-      exercise("Import the Math Toolkit", "import-the-math-toolkit", 35, "easy"),
+      exercise(
+        "Import the Math Toolkit",
+        "import-the-math-toolkit",
+        35,
+        "easy",
+      ),
       exercise("Random Loot Drop", "random-loot-drop", 45, "medium"),
       exercise("Write the Quest Log", "write-the-quest-log", 50, "medium"),
       exercise("Read the Saved Party", "read-the-saved-party", 55, "medium"),
-      exercise("Store Player Data as JSON", "store-player-data-as-json", 65, "hard"),
+      exercise(
+        "Store Player Data as JSON",
+        "store-player-data-as-json",
+        65,
+        "hard",
+      ),
     ],
   },
   {
@@ -432,7 +638,12 @@ export const PYTHON_DATA: ChapterSeed[] = [
     desc: "Model related state and behavior with simple classes, instances, methods, and inheritance.",
     exercises: [
       exercise("Create a Hero Class", "create-a-hero-class", 40, "easy"),
-      exercise("Initialize Player Stats", "initialize-player-stats", 45, "medium"),
+      exercise(
+        "Initialize Player Stats",
+        "initialize-player-stats",
+        45,
+        "medium",
+      ),
       exercise("Add a Level Up Method", "add-a-level-up-method", 50, "medium"),
       exercise("Show the Hero Summary", "show-the-hero-summary", 55, "medium"),
       exercise("Specialized Mage Class", "specialized-mage-class", 70, "hard"),
@@ -444,9 +655,19 @@ export const PYTHON_DATA: ChapterSeed[] = [
     desc: "Combine input, collections, functions, files, errors, and objects in a complete command-line application.",
     exercises: [
       exercise("Plan the Quest Manager", "plan-the-quest-manager", 40, "easy"),
-      exercise("Adventure Report Builder", "adventure-report-builder", 55, "medium"),
+      exercise(
+        "Adventure Report Builder",
+        "adventure-report-builder",
+        55,
+        "medium",
+      ),
       exercise("Add Quest Commands", "add-quest-commands", 60, "medium"),
-      exercise("Save and Restore Progress", "save-and-restore-progress", 70, "hard"),
+      exercise(
+        "Save and Restore Progress",
+        "save-and-restore-progress",
+        70,
+        "hard",
+      ),
       exercise("Final Quest Manager", "final-quest-manager", 95, "hard"),
     ],
   },
@@ -467,6 +688,10 @@ export function getCourseChapterData({
 
   if (!/\bbeginner\b/.test(identity)) {
     return null;
+  }
+
+  if (/(?:^|[^a-z0-9])(?:c\+\+|cpp|cplusplus)(?=$|[^a-z0-9])/.test(identity)) {
+    return CPP_DATA;
   }
 
   if (

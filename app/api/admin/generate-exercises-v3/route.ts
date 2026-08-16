@@ -64,12 +64,16 @@ const RepairedValidationRegexSchema = z.object({
   validationRegex: z.string(),
 });
 
-const GENERATOR_ROUTE_VERSION = "multilanguage-partial-repair-v5";
+const GENERATOR_ROUTE_VERSION = "multilanguage-cpp-partial-repair-v6";
 const MAX_EXERCISE_REPAIR_ATTEMPTS = 2;
 
 type GeneratedExercise = z.infer<typeof GeneratedExerciseSchema>;
 type GeneratedFile = z.infer<typeof GeneratedFileSchema>;
-type CourseEnvironment = "html" | "css" | "react" | "python" | "csharp";
+type CourseEnvironment = "html" | "css" | "react" | "python" | "csharp" | "cpp";
+
+function isCppIdentity(identity: string) {
+  return /(?:^|[^a-z0-9])(?:c\+\+|cpp|cplusplus)(?=$|[^a-z0-9])/.test(identity);
+}
 
 function isCSharpIdentity(identity: string) {
   return /(?:^|[^a-z0-9])(?:c#|c[\s-]?sharp|dotnet|\.net)(?=$|[^a-z0-9])/.test(
@@ -83,6 +87,7 @@ function getCourseEnvironment(course: {
 }): CourseEnvironment {
   const identity = `${course.title} ${course.tags ?? ""}`.toLowerCase();
 
+  if (isCppIdentity(identity)) return "cpp";
   if (isCSharpIdentity(identity)) return "csharp";
   if (/\bpython\b/.test(identity)) return "python";
   if (/\breact\b/.test(identity)) return "react";
@@ -100,6 +105,13 @@ function validateEnvironmentFiles(
   );
 
   if (
+    environment === "cpp" &&
+    (filenames.length !== 1 || !/(?:^|\/)main\.cpp$/.test(filenames[0]))
+  ) {
+    throw new Error(`${label} must contain exactly one main.cpp file`);
+  }
+
+  if (
     environment === "csharp" &&
     (filenames.length !== 1 || !filenames[0].endsWith("program.cs"))
   ) {
@@ -115,9 +127,7 @@ function validateEnvironmentFiles(
 
   if (
     environment === "react" &&
-    !filenames.some((filename) =>
-      /(?:^|\/)app\.(?:jsx?|tsx?)$/.test(filename),
-    )
+    !filenames.some((filename) => /(?:^|\/)app\.(?:jsx?|tsx?)$/.test(filename))
   ) {
     throw new Error(`${label} must contain a React App file`);
   }
@@ -173,12 +183,17 @@ starterFiles requirements:
 - react: use a runnable Sandpack React project, normally App.js plus styles.css. Use JSX and React APIs.
 - python: use exactly one main.py file. Never generate HTML, CSS, JavaScript, package.json, or DOM code.
 - csharp: use exactly one Program.cs file containing a console application. Use modern beginner-friendly C# and never generate a project file, HTML, CSS, JavaScript, or DOM code.
+- cpp: use exactly one main.cpp file containing a standard console application. Use portable C++17, include every standard-library header the program needs, and never generate project files, HTML, CSS, JavaScript, or DOM code.
 - For Python, starter code may contain setup data or function signatures, but it
   must omit the required calculation, branch, loop, collection operation,
   function body, class behavior, file action, or final output.
 - For C#, starter code may contain using directives, a Program entry point,
   setup data, or method and class signatures, but it must omit the behavior
   explicitly requested by the task.
+- For C++, starter code may contain #include directives, a main function,
+  setup data, or function and class declarations, but it must omit the behavior
+  explicitly requested by the task. Prefer explicit std:: names, RAII, nullptr,
+  std::vector, and other safe C++17 patterns over C-style alternatives.
 
 referenceFiles requirements:
 - Provide a complete private reference solution used only by the server to verify validationRegex.
@@ -195,7 +210,7 @@ validationRegex requirements:
 
 expectedOutput requirements:
 - For HTML, CSS, and React, return a short HTML example of the rendered result.
-- For Python and C#, return terminal output wrapped in a <pre> element.
+- For Python, C#, and C++, return terminal output wrapped in a <pre> element.
 - It is a visual reference, not the only accepted answer.
 
 hintXp requirements:
@@ -638,7 +653,9 @@ export async function POST(request: Request) {
 
     for (const generatedExercise of generatedChapter.exercises) {
       if (generatedBySlug.has(generatedExercise.exerciseId)) {
-        console.warn(`AI duplicated ${generatedExercise.exerciseId}; keeping the first result`);
+        console.warn(
+          `AI duplicated ${generatedExercise.exerciseId}; keeping the first result`,
+        );
         continue;
       }
 

@@ -1,9 +1,5 @@
 import Link from "next/link";
-import {
-  FaGithub,
-  FaSteam,
-  FaTelegram,
-} from "react-icons/fa";
+import { FaGithub, FaSteam, FaTelegram } from "react-icons/fa";
 
 import Logo from "./Logo";
 
@@ -12,6 +8,7 @@ const footerLinks = [
     title: "Explore",
     links: [
       { label: "Courses", href: "/courses" },
+      { label: "Challenges", href: "/challenges" },
       { label: "Playground", href: "/playground" },
       { label: "Dashboard", href: "/dashboard" },
     ],
@@ -19,6 +16,7 @@ const footerLinks = [
   {
     title: "CodeQuest",
     links: [
+      { label: "About", href: "/about" },
       { label: "FAQ", href: "/faq" },
       { label: "Contact", href: "/contact" },
     ],
@@ -87,8 +85,13 @@ export default function Footer() {
 
             <ul className="space-y-3">
               <li>
-                <Link href="/documentation" className={linkStyles}>
-                  Documentation
+                <Link href="/cheat-sheets" className={linkStyles}>
+                  Cheat Sheets
+                </Link>
+              </li>
+              <li>
+                <Link href="/code-glossary" className={linkStyles}>
+                  Code Glossary
                 </Link>
               </li>
               <li>
