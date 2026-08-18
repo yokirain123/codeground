@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import {
   CHALLENGE_DIFFICULTIES,
   CHALLENGE_LANGUAGES,
@@ -48,15 +49,12 @@ const difficultyStyles: Record<ChallengeDifficulty, string> = {
   hard: "text-[#FF667D]",
 };
 
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 export default function ChallengesCatalog({
   challenges,
   dailySlug,
   completions,
 }: ChallengesCatalogProps) {
+  const { t, formatNumber } = useI18n();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [language, setLanguage] = useState<ChallengeLanguage | "all">("all");
@@ -175,39 +173,40 @@ export default function ChallengesCatalog({
           <div>
             <div className="inline-flex items-center gap-2 border border-[#FFD400]/40 bg-[#FFD400]/5 px-3 py-2 font-pixel text-xs uppercase tracking-[0.2em] text-[#FFD400]">
               <Zap className="size-4" />
-              Challenge Arena
+              {t("Challenge Arena")}
             </div>
 
             <h1 className="mt-5 max-w-4xl font-pixel text-5xl leading-[0.9] sm:text-6xl lg:text-7xl">
-              TEST YOUR <span className="text-[#FFD400]">SKILLS</span>
+              {t("TEST YOUR")} <span className="text-[#FFD400]">{t("SKILLS")}</span>
             </h1>
 
             <p className="mt-5 max-w-2xl font-sans text-base leading-7 text-white/60 sm:text-lg">
-              Take standalone coding challenges, sharpen what you learned, and
-              earn extra XP outside your courses.
+              {t(
+                "Take standalone coding challenges, sharpen what you learned, and earn extra XP outside your courses.",
+              )}
             </p>
           </div>
 
           <div className="grid grid-cols-3 border-2 border-[#899DFF]/35 bg-[#10152A] shadow-[6px_6px_0_0_#020307]">
             <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
               <p className="font-pixel text-3xl text-[#FFD400]">
-                {completions.length}
+                {formatNumber(completions.length)}
               </p>
               <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-white/40">
-                Cleared
+                {t("Cleared")}
               </p>
             </div>
             <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
               <p className="font-pixel text-3xl text-[#62FB60]">
-                {activeDraftCount}
+                {formatNumber(activeDraftCount)}
               </p>
               <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-white/40">
-                Active
+                {t("Active")}
               </p>
             </div>
             <div className="min-w-24 p-4 text-center">
               <p className="font-pixel text-3xl text-[#899DFF]">
-                {completedXp}
+                {formatNumber(completedXp)}
               </p>
               <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-white/40">
                 XP
@@ -230,7 +229,7 @@ export default function ChallengesCatalog({
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center gap-2 bg-[#FFD400] px-3 py-1.5 font-pixel text-xs uppercase tracking-widest text-[#07080C]">
                     <Sparkles className="size-4" />
-                    Daily Challenge
+                    {t("Daily Challenge")}
                   </span>
                   <span
                     className={`border px-2.5 py-1 font-pixel text-xs ${languageStyles[dailyChallenge.language]}`}
@@ -240,7 +239,11 @@ export default function ChallengesCatalog({
                   <span
                     className={`font-pixel text-xs uppercase ${difficultyStyles[dailyChallenge.difficulty]}`}
                   >
-                    {dailyChallenge.difficulty}
+                    {dailyChallenge.difficulty === "easy"
+                      ? t("easy")
+                      : dailyChallenge.difficulty === "medium"
+                        ? t("medium")
+                        : t("hard")}
                   </span>
                 </div>
 
@@ -254,15 +257,17 @@ export default function ChallengesCatalog({
                 <div className="mt-5 flex flex-wrap gap-5 font-pixel text-sm text-white/50">
                   <span className="flex items-center gap-2">
                     <Clock3 className="size-4 text-[#899DFF]" />
-                    {dailyChallenge.estimatedMinutes} min
+                    {t("{count} min", {
+                      count: formatNumber(dailyChallenge.estimatedMinutes),
+                    })}
                   </span>
                   <span className="flex items-center gap-2">
                     <Trophy className="size-4 text-[#FFD400]" />+
-                    {dailyChallenge.xp} XP
+                    {formatNumber(dailyChallenge.xp)} XP
                   </span>
                   {completedSlugs.has(dailyChallenge.slug) && (
                     <span className="flex items-center gap-2 text-[#62FB60]">
-                      <Check className="size-4" /> Completed
+                      <Check className="size-4" /> {t("Completed")}
                     </span>
                   )}
                 </div>
@@ -273,10 +278,10 @@ export default function ChallengesCatalog({
               >
                 <Link href={`/challenges/${dailyChallenge.slug}`}>
                   {completedSlugs.has(dailyChallenge.slug)
-                    ? "Play again"
+                    ? t("Play again")
                     : draftSlugs.has(dailyChallenge.slug)
-                      ? "Continue"
-                      : "Start daily"}
+                      ? t("Continue")
+                      : t("Start daily")}
                 </Link>
               </Button>
             </div>
@@ -287,10 +292,10 @@ export default function ChallengesCatalog({
           <div className="flex flex-col gap-5 border-b border-[#899DFF]/20 pb-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="font-pixel text-xs uppercase tracking-[0.2em] text-[#899DFF]">
-                Quest board
+                {t("Quest board")}
               </p>
               <h2 className="mt-1 font-pixel text-4xl sm:text-5xl">
-                All <span className="text-[#FFD400]">Challenges</span>
+                {t("All")} <span className="text-[#FFD400]">{t("Challenges")}</span>
               </h2>
             </div>
 
@@ -301,50 +306,54 @@ export default function ChallengesCatalog({
               className="h-11 cursor-pointer rounded-none border-[#899DFF] bg-transparent px-5 font-pixel text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C]"
             >
               <Shuffle className="size-4" />
-              Random challenge
+              {t("Random challenge")}
             </Button>
           </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(240px,1fr)_auto_auto]">
             <label className="flex h-11 items-center gap-3 border border-[#899DFF]/40 bg-[#10152A] px-4 focus-within:border-[#FFD400]">
               <Search className="size-4 shrink-0 text-[#899DFF]" />
-              <span className="sr-only">Search challenges</span>
+              <span className="sr-only">{t("Search challenges")}</span>
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search challenges..."
+                placeholder={t("Search challenges...")}
                 className="min-w-0 flex-1 bg-transparent font-sans text-sm text-white outline-none placeholder:text-white/30"
               />
             </label>
 
             <select
-              aria-label="Difficulty"
+              aria-label={t("Difficulty")}
               value={difficulty}
               onChange={(event) =>
                 setDifficulty(event.target.value as ChallengeDifficulty | "all")
               }
               className="h-11 border border-[#899DFF]/40 bg-[#10152A] px-4 font-pixel text-sm text-white outline-none focus:border-[#FFD400]"
             >
-              <option value="all">All difficulties</option>
+              <option value="all">{t("All difficulties")}</option>
               {CHALLENGE_DIFFICULTIES.map((item) => (
                 <option key={item} value={item}>
-                  {capitalize(item)}
+                  {item === "easy"
+                    ? t("easy")
+                    : item === "medium"
+                      ? t("medium")
+                      : t("hard")}
                 </option>
               ))}
             </select>
 
             <select
-              aria-label="Progress status"
+              aria-label={t("Progress status")}
               value={status}
               onChange={(event) =>
                 setStatus(event.target.value as StatusFilter)
               }
               className="h-11 border border-[#899DFF]/40 bg-[#10152A] px-4 font-pixel text-sm text-white outline-none focus:border-[#FFD400]"
             >
-              <option value="all">All progress</option>
-              <option value="not-started">Not started</option>
-              <option value="in-progress">In progress</option>
-              <option value="completed">Completed</option>
+              <option value="all">{t("All progress")}</option>
+              <option value="not-started">{t("Not started")}</option>
+              <option value="in-progress">{t("In progress")}</option>
+              <option value="completed">{t("Completed")}</option>
             </select>
           </div>
 
@@ -358,7 +367,7 @@ export default function ChallengesCatalog({
                   : "border-[#899DFF]/35 bg-[#10152A] text-white/55 hover:border-[#899DFF] hover:text-white"
               }`}
             >
-              All languages
+              {t("All languages")}
             </button>
 
             {CHALLENGE_LANGUAGES.map((item) => (
@@ -401,11 +410,11 @@ export default function ChallengesCatalog({
 
                       {challengeStatus === "completed" ? (
                         <span className="flex items-center gap-1 font-pixel text-xs text-[#62FB60]">
-                          <Check className="size-4" /> Cleared
+                          <Check className="size-4" /> {t("Cleared")}
                         </span>
                       ) : challengeStatus === "in-progress" ? (
                         <span className="flex items-center gap-1 font-pixel text-xs text-[#FFD400]">
-                          <Flame className="size-4" /> Active
+                          <Flame className="size-4" /> {t("Active")}
                         </span>
                       ) : (
                         <Code2 className="size-5 text-[#899DFF]/50" />
@@ -417,11 +426,17 @@ export default function ChallengesCatalog({
                         <span
                           className={`font-pixel text-xs uppercase tracking-widest ${difficultyStyles[challenge.difficulty]}`}
                         >
-                          {challenge.difficulty}
+                          {challenge.difficulty === "easy"
+                            ? t("easy")
+                            : challenge.difficulty === "medium"
+                              ? t("medium")
+                              : t("hard")}
                         </span>
                         <span className="flex items-center gap-1.5 font-pixel text-xs text-white/35">
                           <Clock3 className="size-3.5" />
-                          {challenge.estimatedMinutes} min
+                          {t("{count} min", {
+                            count: formatNumber(challenge.estimatedMinutes),
+                          })}
                         </span>
                       </div>
 
@@ -446,10 +461,10 @@ export default function ChallengesCatalog({
                       <div className="mt-auto flex items-end justify-between gap-4 pt-6">
                         <div>
                           <p className="font-pixel text-[10px] uppercase tracking-widest text-white/30">
-                            Reward
+                            {t("Reward")}
                           </p>
                           <p className="mt-1 font-pixel text-xl text-[#FFD400]">
-                            +{challenge.xp} XP
+                            +{formatNumber(challenge.xp)} XP
                           </p>
                         </div>
 
@@ -458,10 +473,10 @@ export default function ChallengesCatalog({
                           className="flex h-10 items-center gap-2 border border-[#899DFF] px-4 font-pixel text-sm text-[#AAB6FF] transition-all hover:border-[#FFD400] hover:bg-[#FFD400] hover:text-[#07080C]"
                         >
                           {challengeStatus === "completed"
-                            ? "Replay"
+                            ? t("Replay")
                             : challengeStatus === "in-progress"
-                              ? "Continue"
-                              : "Start"}
+                              ? t("Continue")
+                              : t("Start")}
                           <ChevronRight className="size-4" />
                         </Link>
                       </div>
@@ -474,10 +489,10 @@ export default function ChallengesCatalog({
             <div className="mt-7 border-2 border-dashed border-[#899DFF]/30 bg-[#10152A]/50 px-6 py-16 text-center">
               <Search className="mx-auto size-9 text-[#899DFF]/50" />
               <h3 className="mt-4 font-pixel text-3xl text-white">
-                No challenges found
+                {t("No challenges found")}
               </h3>
               <p className="mt-2 font-sans text-sm text-white/45">
-                Change the filters or try another search.
+                {t("Change the filters or try another search.")}
               </p>
             </div>
           )}

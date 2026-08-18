@@ -7,6 +7,7 @@ import { usersTable } from "@/config/schema";
 import { getChallengeBySlug } from "@/lib/challenges/catalog";
 import { challengeCompletionsTable } from "@/lib/challenges/schema";
 import { validateChallengeSubmission } from "@/lib/challenges/validation";
+import { getServerI18n } from "@/lib/i18n/server";
 
 interface CompleteChallengeBody {
   files?: unknown;
@@ -21,23 +22,25 @@ interface RouteContext {
 }
 
 export async function POST(request: Request, { params }: RouteContext) {
+  const { locale, t } = await getServerI18n();
+
   try {
     const { userId: clerkId } = await auth();
 
     if (!clerkId) {
       return NextResponse.json(
-        { error: "Sign in to complete challenges and earn XP." },
+        { error: t("Sign in to complete challenges and earn XP.") },
         { status: 401 },
       );
     }
 
     const { slug: rawSlug } = await params;
     const slug = decodeURIComponent(rawSlug).trim();
-    const challenge = getChallengeBySlug(slug);
+    const challenge = getChallengeBySlug(slug, locale);
 
     if (!challenge) {
       return NextResponse.json(
-        { error: "Challenge not found." },
+        { error: t("Challenge not found.") },
         { status: 404 },
       );
     }
@@ -52,7 +55,9 @@ export async function POST(request: Request, { params }: RouteContext) {
       return NextResponse.json(
         {
           error:
-            "Your CodeQuest profile is not ready yet. Refresh the page and try again.",
+            t(
+              "Your CodeQuest profile is not ready yet. Refresh the page and try again.",
+            ),
         },
         { status: 404 },
       );
@@ -88,7 +93,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       Array.isArray(body.files)
     ) {
       return NextResponse.json(
-        { error: "Submit your current challenge files." },
+        { error: t("Submit your current challenge files.") },
         { status: 400 },
       );
     }
@@ -100,6 +105,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       slug,
       body.files as Record<string, unknown>,
       executionOutput,
+      locale,
     );
 
     if (!validation.valid) {
@@ -107,7 +113,7 @@ export async function POST(request: Request, { params }: RouteContext) {
         {
           error:
             validation.errors[0] ??
-            "The challenge requirements are not complete yet.",
+            t("The challenge requirements are not complete yet."),
           validationErrors: validation.errors,
         },
         { status: 422 },
@@ -166,7 +172,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     console.error("Challenge completion error:", error);
 
     return NextResponse.json(
-      { error: "Failed to complete the challenge." },
+      { error: t("Failed to complete the challenge.") },
       { status: 500 },
     );
   }

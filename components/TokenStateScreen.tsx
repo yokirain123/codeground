@@ -10,6 +10,7 @@ import {
 
 import Token from "@/components/images/Token.png";
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 type TokenStateMode =
   | "loading"
@@ -24,6 +25,7 @@ export default function TokenStateScreen({
 }: TokenStateScreenProps) {
   const shouldReduceMotion =
     useReducedMotion();
+  const { t } = useI18n();
 
   const isLoading = mode === "loading";
 
@@ -76,7 +78,7 @@ export default function TokenStateScreen({
         <div className="border-4 border-accent bg-[#111111] p-1">
           <div className="relative flex flex-col items-center border-2 border-white/15 px-6 py-9 text-center md:px-10">
             <span className="absolute -top-5 left-1/2 -translate-x-1/2 border-2 border-black bg-accent px-4 py-1 font-pixel text-xl whitespace-nowrap text-black shadow-[3px_3px_0_0_#FF8C00]">
-              Quest Master
+              {t("Quest Master")}
             </span>
 
             {!isLoading && (
@@ -144,7 +146,7 @@ export default function TokenStateScreen({
             >
               <Image
                 src={Token}
-                alt="Token, the Quest Master"
+                alt={t("Token, the Quest Master")}
                 fill
                 priority
                 unoptimized
@@ -180,8 +182,8 @@ export default function TokenStateScreen({
               className="mt-6 font-pixel text-3xl text-accent [text-shadow:2px_2px_0_#000] md:text-4xl"
             >
               {isLoading
-                ? "Preparing your quest..."
-                : "This path isn't on the map"}
+                ? t("Preparing your quest...")
+                : t("This path isn't on the map")}
             </motion.h1>
 
             <motion.p
@@ -201,8 +203,12 @@ export default function TokenStateScreen({
               className="mt-3 max-w-md font-pixel text-xl leading-relaxed text-white/65 md:text-2xl"
             >
               {isLoading
-                ? "Token is gathering everything you need for the next adventure."
-                : "It looks like this area hasn't been unlocked, or the path no longer exists."}
+                ? t(
+                    "Token is gathering everything you need for the next adventure.",
+                  )
+                : t(
+                    "It looks like this area hasn't been unlocked, or the path no longer exists.",
+                  )}
             </motion.p>
 
             {isLoading ? (
@@ -298,7 +304,7 @@ export default function TokenStateScreen({
                     />
 
                     <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-                      Return home
+                      {t("Return home")}
                     </span>
                   </Link>
                 </Button>
@@ -308,7 +314,7 @@ export default function TokenStateScreen({
                   className="h-auto cursor-pointer border-2 border-white/20 bg-black px-5 py-3 font-pixel text-2xl text-white shadow-[4px_4px_0_0_#333] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:border-accent hover:bg-accent/10 hover:text-accent hover:shadow-[2px_2px_0_0_#FF8C00]"
                 >
                   <Link href="/courses">
-                    View courses
+                    {t("View courses")}
                   </Link>
                 </Button>
               </motion.div>

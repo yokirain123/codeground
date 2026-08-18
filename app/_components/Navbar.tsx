@@ -7,17 +7,7 @@ import BasicDropdown, {
   type DropdownItem,
 } from "./BasicDropdown";
 import { Button } from "@/components/ui/shadcn/button";
-
-const homeItems: DropdownItem[] = [
-  { id: "/courses", label: "Courses" },
-  { id: "/playground", label: "Playground" },
-
-];
-
-const navItems = [
-  { label: "Challenges", href: "/challenges" },
-  { label: "Contact", href: "/contact" },
-];
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 const buttonStyles =
   "group relative h-8 w-auto shrink-0 cursor-pointer justify-center overflow-hidden border bg-accent px-2 text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none";
@@ -47,11 +37,20 @@ function NavButton({
 
 function Navbar() {
   const router = useRouter();
+  const { t } = useI18n();
+  const homeItems: DropdownItem[] = [
+    { id: "/courses", label: t("Courses") },
+    { id: "/playground", label: t("Playground") },
+  ];
+  const navItems = [
+    { label: t("Challenges"), href: "/challenges" },
+    { label: t("Contact"), href: "/contact" },
+  ];
 
   return (
     <nav className="flex items-center gap-4">
       <BasicDropdown
-        label="Explore"
+        label={t("Explore")}
         items={homeItems}
         onChange={(item) => router.push(String(item.id))}
       />

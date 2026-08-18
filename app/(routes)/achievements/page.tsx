@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import Footer from "@/app/_components/Footer";
 import TokenStateScreen from "@/components/TokenStateScreen";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface Achievement {
   id: number;
@@ -27,6 +28,7 @@ interface AchievementsResponse {
 }
 
 export default function AchievementsPage() {
+  const { locale, t, formatNumber, translateMessage } = useI18n();
   const [data, setData] = useState<AchievementsResponse | null>(null);
   const [error, setError] = useState("");
 
@@ -44,7 +46,7 @@ export default function AchievementsPage() {
         const json = await response.json();
 
         if (!response.ok) {
-          throw new Error(json.error || "Failed to load stats");
+          throw new Error(json.error || t("Failed to load stats"));
         }
 
         if (!controller.signal.aborted) {
@@ -59,7 +61,9 @@ export default function AchievementsPage() {
 
         if (!controller.signal.aborted) {
           setError(
-            error instanceof Error ? error.message : "Failed to load stats",
+            error instanceof Error
+              ? translateMessage(error.message)
+              : t("Failed to load stats"),
           );
         }
       }
@@ -70,7 +74,7 @@ export default function AchievementsPage() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [t, translateMessage]);
 
   if (error) {
     return (
@@ -88,29 +92,65 @@ export default function AchievementsPage() {
 
   const { stats, achievements } = data;
 
+  const achievementCopy = (achievement: Achievement) => {
+    if (locale === "en") {
+      return {
+        name: achievement.name,
+        description: achievement.description,
+      };
+    }
+
+    const count = formatNumber(achievement.target);
+
+    if (achievement.metric === "points_earned") {
+      return {
+        name: t("XP milestone · {count}", { count }),
+        description: t("Earn {count} XP.", { count }),
+      };
+    }
+
+    if (achievement.metric === "streak") {
+      return {
+        name: t("Streak milestone · {count}", { count }),
+        description: t("Keep a {count}-day learning streak.", { count }),
+      };
+    }
+
+    return {
+      name: t("Exercise milestone · {count}", { count }),
+      description: t("Complete {count} coding exercises.", { count }),
+    };
+  };
+
   return (
     <main className="min-h-[calc(100svh-64px)] bg-[#07080C] text-white">
       <section className="mx-auto w-full max-w-7xl px-6 py-12 md:px-10 lg:px-12">
         <div className="mb-8 flex items-end justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <p className="font-pixel text-sm uppercase tracking-[0.25em] text-[#899DFF]">
-              Trophy archive
+              {t("Trophy archive")}
             </p>
             <h1 className="mt-2 font-pixel text-4xl text-white [text-shadow:3px_3px_0_#28336B] md:text-5xl">
-              Your <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">achievements</span>
+              {t("Your")} {" "}
+              <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">
+                {t("achievements")}
+              </span>
             </h1>
           </div>
 
           <span className="border border-[#899DFF]/45 bg-[#10152A] px-4 py-2 font-pixel text-lg text-[#FFD400]">
-            {stats.badges}/{achievements.length}
+            {formatNumber(stats.badges)}/{formatNumber(achievements.length)}
           </span>
         </div>
 
         <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {achievements.map((achievement) => (
-            <article
+          {achievements.map((achievement) => {
+            const copy = achievementCopy(achievement);
+
+            return (
+              <article
               key={achievement.id}
-              title={achievement.description}
+              title={copy.description}
               className={`border-2 p-4 shadow-[5px_5px_0_0_#020307] transition-all ${
                 achievement.isUnlocked
                   ? "border-[#899DFF]/45 bg-[#10152A] hover:border-[#FFD400]/70"
@@ -128,16 +168,17 @@ export default function AchievementsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
                     <h4 className="truncate font-pixel text-xl text-white">
-                      {achievement.name}
+                      {copy.name}
                     </h4>
 
                     <span className="shrink-0 font-pixel text-sm text-[#899DFF]">
-                      {achievement.currentValue}/{achievement.target}
+                      {formatNumber(achievement.currentValue)}/
+                      {formatNumber(achievement.target)}
                     </span>
                   </div>
 
                   <p className="mt-1 font-sans text-sm text-white/50">
-                    {achievement.description}
+                    {copy.description}
                   </p>
 
                   <div className="mt-3 h-2 overflow-hidden border border-white/15 bg-black/40 p-px">
@@ -152,8 +193,9 @@ export default function AchievementsPage() {
                   </div>
                 </div>
               </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </section>
 

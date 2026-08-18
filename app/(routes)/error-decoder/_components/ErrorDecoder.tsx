@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   labLanguageLabels,
@@ -78,6 +79,7 @@ function HighlightedCode({
 }
 
 export default function ErrorDecoder() {
+  const { t, formatNumber, translateMessage } = useI18n();
   const router = useRouter();
   const [language, setLanguage] = useState<LabLanguage>("javascript");
   const [code, setCode] = useState(DEFAULT_CODE);
@@ -137,13 +139,17 @@ export default function ErrorDecoder() {
         | ErrorResponse;
 
       if (!response.ok || "error" in data) {
-        throw new Error((data as ErrorResponse).error || "Could not decode the error.");
+        throw new Error(
+          (data as ErrorResponse).error || t("Could not decode the error."),
+        );
       }
 
       setResult(data as DecoderResult);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Could not decode the error.",
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Could not decode the error."),
       );
     } finally {
       setIsLoading(false);
@@ -155,9 +161,9 @@ export default function ErrorDecoder() {
 
     try {
       await navigator.clipboard.writeText(result.fixedCode);
-      toast.success("Fixed code copied");
+      toast.success(t("Fixed code copied"));
     } catch {
-      toast.error("Could not copy the code");
+      toast.error(t("Could not copy the code"));
     }
   };
 
@@ -166,9 +172,9 @@ export default function ErrorDecoder() {
 
     try {
       await navigator.clipboard.writeText(result.fixedCode);
-      toast.success("Fixed code copied. Paste it into the Playground.");
+      toast.success(t("Fixed code copied. Paste it into the Playground."));
     } catch {
-      toast.error("Playground opened, but the code could not be copied.");
+      toast.error(t("Playground opened, but the code could not be copied."));
     }
 
     router.push("/playground");
@@ -180,12 +186,12 @@ export default function ErrorDecoder() {
         <section className="min-w-0 border-2 border-[#899DFF]/35 bg-[#10152A] shadow-[6px_6px_0_#020307]">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 p-4">
             <div className="flex items-center gap-2 font-pixel text-xl text-white">
-              <Code2 className="size-5 text-[#FFD400]" /> Broken code
+              <Code2 className="size-5 text-[#FFD400]" /> {t("Broken code")}
             </div>
             <select
               value={language}
               onChange={(event) => setLanguage(event.target.value as LabLanguage)}
-              aria-label="Programming language"
+              aria-label={t("Programming language")}
               className="h-10 cursor-pointer border border-[#899DFF]/45 bg-[#07080C] px-3 font-pixel text-base text-[#FFD400] outline-none focus:border-[#FFD400]"
             >
               {labLanguages.map((item) => (
@@ -197,7 +203,7 @@ export default function ErrorDecoder() {
           </div>
 
           <label htmlFor="decoder-code" className="sr-only">
-            Code with an error
+            {t("Code with an error")}
           </label>
           <textarea
             id="decoder-code"
@@ -215,7 +221,7 @@ export default function ErrorDecoder() {
               htmlFor="decoder-error"
               className="flex items-center gap-2 font-pixel text-sm text-[#FF9B9B]"
             >
-              <Terminal className="size-4" /> Exact error message
+              <Terminal className="size-4" /> {t("Exact error message")}
             </label>
             <textarea
               id="decoder-error"
@@ -241,7 +247,7 @@ export default function ErrorDecoder() {
               ) : (
                 <SearchCode className="size-5" />
               )}
-              {isLoading ? "Decoding..." : "Decode error"}
+              {isLoading ? t("Decoding...") : t("Decode error")}
             </Button>
           </div>
         </section>
@@ -257,19 +263,25 @@ export default function ErrorDecoder() {
                 )}
               </div>
               <h2 className="mt-5 font-pixel text-3xl text-white">
-                {isLoading ? "Reading the stack trace" : "Diagnostic output"}
+                {isLoading
+                  ? t("Reading the stack trace")
+                  : t("Diagnostic output")}
               </h2>
               <p className="mt-3 max-w-sm font-sans leading-6 text-white/45">
                 {isLoading
-                  ? "Tracing the likely cause and preparing the smallest useful fix."
-                  : "Your explanation, suspicious line and corrected code will appear here."}
+                  ? t(
+                      "Tracing the likely cause and preparing the smallest useful fix.",
+                    )
+                  : t(
+                      "Your explanation, suspicious line and corrected code will appear here.",
+                    )}
               </p>
             </div>
           ) : (
             <div>
               <div className="border-b border-white/10 p-5">
                 <p className="font-pixel text-xs uppercase tracking-[0.2em] text-[#899DFF]">
-                  Diagnosis
+                  {t("Diagnosis")}
                 </p>
                 <h2 className="mt-2 font-pixel text-3xl text-[#FFD400]">
                   {result.headline}
@@ -282,8 +294,12 @@ export default function ErrorDecoder() {
               <div className="space-y-5 p-5">
                 <div className="border border-[#FF7373]/30 bg-[#FF7373]/10 p-4">
                   <p className="flex items-center gap-2 font-pixel text-[#FF9B9B]">
-                    <AlertTriangle className="size-4" /> Likely cause
-                    {result.errorLine ? ` · line ${result.errorLine}` : ""}
+                    <AlertTriangle className="size-4" /> {t("Likely cause")}
+                    {result.errorLine
+                      ? t(" · line {line}", {
+                          line: formatNumber(result.errorLine),
+                        })
+                      : ""}
                   </p>
                   <p className="mt-2 font-sans text-sm leading-6 text-white/60">
                     {result.likelyCause}
@@ -292,7 +308,7 @@ export default function ErrorDecoder() {
 
                 <div>
                   <p className="font-pixel text-sm uppercase tracking-[0.16em] text-[#899DFF]">
-                    Recommended fixes
+                    {t("Recommended fixes")}
                   </p>
                   <ul className="mt-3 space-y-2">
                     {result.fixes.map((fix) => (
@@ -307,7 +323,7 @@ export default function ErrorDecoder() {
                 {result.errorLine ? (
                   <div className="overflow-hidden border border-white/10">
                     <p className="border-b border-white/10 bg-[#0B0E18] px-4 py-2 font-pixel text-sm text-[#AAB6FF]">
-                      Suspicious line
+                      {t("Suspicious line")}
                     </p>
                     <HighlightedCode code={code} errorLine={result.errorLine} />
                   </div>
@@ -315,12 +331,14 @@ export default function ErrorDecoder() {
 
                 <div className="overflow-hidden border border-[#62FB60]/25">
                   <div className="flex items-center justify-between border-b border-white/10 bg-[#0B0E18] px-4 py-2">
-                    <p className="font-pixel text-sm text-[#62FB60]">Fixed code</p>
+                    <p className="font-pixel text-sm text-[#62FB60]">
+                      {t("Fixed code")}
+                    </p>
                     <button
                       type="button"
                       onClick={() => void copyFixedCode()}
                       className="cursor-pointer text-white/35 hover:text-[#FFD400]"
-                      aria-label="Copy fixed code"
+                      aria-label={t("Copy fixed code")}
                     >
                       <ClipboardCopy className="size-4" />
                     </button>
@@ -335,7 +353,7 @@ export default function ErrorDecoder() {
                   onClick={() => void copyAndOpenPlayground()}
                   className="w-full cursor-pointer rounded-none border-2 border-[#FFD400] bg-[#FFD400] font-pixel text-[#07080C] shadow-[3px_3px_0_#899DFF] hover:bg-[#FFD400]"
                 >
-                  <ClipboardCopy className="size-4" /> Copy & open Playground
+                  <ClipboardCopy className="size-4" /> {t("Copy & open Playground")}
                 </Button>
 
                 {result.notes.length > 0 ? (

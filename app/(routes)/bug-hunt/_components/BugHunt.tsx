@@ -15,9 +15,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import {
-  bugHuntMissions,
+  getBugHuntMissions,
   type BugHuntMission,
 } from "@/lib/labs/bug-hunt/catalog";
 import {
@@ -59,20 +60,22 @@ function difficultyClass(difficulty: BugHuntMission["difficulty"]) {
 }
 
 export default function BugHunt() {
+  const { locale, t, formatNumber, translateMessage } = useI18n();
+  const missions = useMemo(() => getBugHuntMissions(locale), [locale]);
   const [language, setLanguage] =
     useState<RunnableLabLanguage>("javascript");
   const visibleMissions = useMemo(
-    () => bugHuntMissions.filter((mission) => mission.language === language),
-    [language],
+    () => missions.filter((mission) => mission.language === language),
+    [language, missions],
   );
   const [missionSlug, setMissionSlug] = useState(visibleMissions[0].slug);
   const mission =
-    bugHuntMissions.find((item) => item.slug === missionSlug) ??
+    missions.find((item) => item.slug === missionSlug) ??
     visibleMissions[0];
 
   const [code, setCode] = useState(mission.starterCode);
-  const [output, setOutput] = useState(
-    "Press Run or Ctrl/⌘ + Enter to inspect the broken program.",
+  const [output, setOutput] = useState(() =>
+    t("Press Run or Ctrl/⌘ + Enter to inspect the broken program."),
   );
   const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
   const [usedHint, setUsedHint] = useState(false);
@@ -112,12 +115,12 @@ export default function BugHunt() {
     const savedDraft = window.localStorage.getItem(draftKey);
 
     setCode(savedDraft ?? mission.starterCode);
-    setOutput("Press Run or Ctrl/⌘ + Enter to inspect the broken program.");
+    setOutput(t("Press Run or Ctrl/⌘ + Enter to inspect the broken program."));
     setAttemptsLeft(MAX_ATTEMPTS);
     setUsedHint(false);
     setHintVisible(false);
     setLastXp(null);
-  }, [mission.slug, mission.starterCode]);
+  }, [mission.slug, mission.starterCode, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -134,7 +137,7 @@ export default function BugHunt() {
   }, [code, mission.slug, mission.starterCode]);
 
   const chooseLanguage = (nextLanguage: RunnableLabLanguage) => {
-    const firstMission = bugHuntMissions.find(
+    const firstMission = missions.find(
       (item) => item.language === nextLanguage,
     );
 
@@ -156,7 +159,7 @@ export default function BugHunt() {
 
     setIsRunning(true);
     setLastXp(null);
-    setOutput("Compiling and running...");
+    setOutput(t("Compiling and running..."));
 
     try {
       const runResponse = await fetch("/api/labs/run", {
@@ -172,11 +175,11 @@ export default function BugHunt() {
         .catch(() => ({}))) as RunResponse;
 
       if (!runResponse.ok) {
-        throw new Error(runData.error || "Code execution failed.");
+        throw new Error(runData.error || t("Code execution failed."));
       }
 
       const consoleOutput =
-        runData.output || runData.status || "Program finished without output.";
+        runData.output || runData.status || t("Program finished without output.");
       setOutput(consoleOutput);
 
       if (!runData.success) {
@@ -208,8 +211,10 @@ export default function BugHunt() {
           completionData.validationErrors?.join("\n") ||
           completionData.output ||
           completionData.error ||
-          "The bug is still hiding in the code.";
-        setOutput(`${consoleOutput}\n\n[Mission check]\n${feedback}`);
+          t("The bug is still hiding in the code.");
+        setOutput(
+          `${consoleOutput}\n\n[${t("Mission check")}]\n${feedback}`,
+        );
         return;
       }
 
@@ -218,12 +223,16 @@ export default function BugHunt() {
       window.localStorage.removeItem(`codequest:bug-hunt:${mission.slug}`);
       toast.success(
         completionData.alreadyCompleted
-          ? "Mission replay cleared"
-          : `Bug eliminated · +${completionData.xpEarned ?? 0} XP`,
+          ? t("Mission replay cleared")
+          : t("Bug eliminated · +{count} XP", {
+              count: formatNumber(completionData.xpEarned ?? 0),
+            }),
       );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Code execution failed.";
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Code execution failed.");
       setOutput(message);
       toast.error(message);
     } finally {
@@ -247,7 +256,7 @@ export default function BugHunt() {
 
   const resetMission = () => {
     setCode(mission.starterCode);
-    setOutput("Starter code restored. Find the bug and run it again.");
+    setOutput(t("Starter code restored. Find the bug and run it again."));
     setAttemptsLeft(MAX_ATTEMPTS);
     setUsedHint(false);
     setHintVisible(false);
@@ -263,9 +272,9 @@ export default function BugHunt() {
   const copyOutput = async () => {
     try {
       await navigator.clipboard.writeText(output);
-      toast.success("Console output copied");
+      toast.success(t("Console output copied"));
     } catch {
-      toast.error("Could not copy output");
+      toast.error(t("Could not copy output"));
     }
   };
 
@@ -277,17 +286,20 @@ export default function BugHunt() {
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div>
             <p className="font-pixel text-xs uppercase tracking-[0.2em] text-[#899DFF]">
-              Mission board
+              {t("Mission board")}
             </p>
             <p className="mt-1 font-pixel text-2xl text-white">
-              {completedSlugs.size}/{bugHuntMissions.length} cleared
+              {t("{completed}/{total} cleared", {
+                completed: formatNumber(completedSlugs.size),
+                total: formatNumber(missions.length),
+              })}
             </p>
           </div>
           <Bug className="size-7 text-[#FFD400]" />
         </div>
 
         <label className="mt-4 block font-pixel text-sm text-white/55" htmlFor="bug-language">
-          Language
+          {t("Language")}
         </label>
         <select
           id="bug-language"
@@ -328,9 +340,15 @@ export default function BugHunt() {
                 </div>
                 <div className="mt-1 flex items-center justify-between font-pixel text-xs">
                   <span className={difficultyClass(item.difficulty)}>
-                    {item.difficulty}
+                    {item.difficulty === "Easy"
+                      ? t("Easy")
+                      : item.difficulty === "Medium"
+                        ? t("Medium")
+                        : t("Hard")}
                   </span>
-                  <span className="text-[#FFD400]">{item.xp} XP</span>
+                  <span className="text-[#FFD400]">
+                    {formatNumber(item.xp)} XP
+                  </span>
                 </div>
               </button>
             );
@@ -345,7 +363,7 @@ export default function BugHunt() {
               <h2 className="font-pixel text-3xl text-white">{mission.title}</h2>
               {isCompleted ? (
                 <span className="border border-[#62FB60]/45 bg-[#62FB60]/10 px-2 py-1 font-pixel text-xs text-[#62FB60]">
-                  CLEARED
+                  {t("CLEARED")}
                 </span>
               ) : null}
             </div>
@@ -353,12 +371,18 @@ export default function BugHunt() {
               {mission.description}
             </p>
             <p className="mt-3 font-pixel text-sm text-[#899DFF]">
-              Expected output: <span className="text-[#FFD400]">{mission.expectedOutput}</span>
+              {t("Expected output")}: {" "}
+              <span className="text-[#FFD400]">{mission.expectedOutput}</span>
             </p>
           </div>
 
           <div className="flex shrink-0 items-center gap-3">
-            <div className="flex items-center gap-1 border border-white/10 bg-black/20 px-3 py-2" aria-label={`${attemptsLeft} attempts left`}>
+            <div
+              className="flex items-center gap-1 border border-white/10 bg-black/20 px-3 py-2"
+              aria-label={t("{count} attempts left", {
+                count: formatNumber(attemptsLeft),
+              })}
+            >
               {Array.from({ length: MAX_ATTEMPTS }).map((_, index) => (
                 <Heart
                   key={index}
@@ -370,7 +394,9 @@ export default function BugHunt() {
                 />
               ))}
             </div>
-            <span className="font-pixel text-lg text-[#FFD400]">{mission.xp} XP</span>
+            <span className="font-pixel text-lg text-[#FFD400]">
+              {formatNumber(mission.xp)} XP
+            </span>
           </div>
         </div>
 
@@ -385,7 +411,7 @@ export default function BugHunt() {
                   onClick={resetMission}
                   className="h-9 cursor-pointer rounded-none border-[#899DFF]/60 bg-transparent px-3 font-pixel text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C]"
                 >
-                  <RotateCcw className="size-4" /> Reset
+                  <RotateCcw className="size-4" /> {t("Reset")}
                 </Button>
                 <Button
                   type="button"
@@ -398,7 +424,7 @@ export default function BugHunt() {
                   ) : (
                     <Play className="size-4" />
                   )}
-                  {isRunning ? "Running..." : "Run"}
+                  {isRunning ? t("Running...") : t("Run")}
                 </Button>
               </div>
             </div>
@@ -415,13 +441,13 @@ export default function BugHunt() {
           <div className="flex min-h-0 flex-col">
             <div className="flex items-center justify-between border-b border-white/10 bg-[#0B0E18] px-4 py-3">
               <span className="flex items-center gap-2 font-pixel text-base text-[#AAB6FF]">
-                <Terminal className="size-4" /> Console
+                <Terminal className="size-4" /> {t("Console")}
               </span>
               <button
                 type="button"
                 onClick={() => void copyOutput()}
                 className="cursor-pointer text-white/35 transition-colors hover:text-[#FFD400]"
-                aria-label="Copy console output"
+                aria-label={t("Copy console output")}
               >
                 <Copy className="size-4" />
               </button>
@@ -435,7 +461,8 @@ export default function BugHunt() {
               {hintVisible ? (
                 <div className="border border-[#FFD400]/35 bg-[#FFD400]/5 p-4">
                   <p className="flex items-center gap-2 font-pixel text-[#FFD400]">
-                    <Lightbulb className="size-4" /> Hint · -{mission.hintCost} XP
+                    <Lightbulb className="size-4" /> {t("Hint")} · -
+                    {formatNumber(mission.hintCost)} XP
                   </p>
                   <p className="mt-2 font-sans text-sm leading-6 text-white/60">
                     {mission.hint}
@@ -448,19 +475,23 @@ export default function BugHunt() {
                   onClick={revealHint}
                   className="w-full cursor-pointer rounded-none border-[#FFD400]/50 bg-transparent font-pixel text-[#FFD400] hover:bg-[#FFD400] hover:text-[#07080C]"
                 >
-                  <Lightbulb className="size-4" /> Reveal hint (-{mission.hintCost} XP)
+                  <Lightbulb className="size-4" /> {t("Reveal hint (-{count} XP)", {
+                    count: formatNumber(mission.hintCost),
+                  })}
                 </Button>
               )}
 
               {!isCompleted && attemptsLeft === 0 ? (
                 <div className="mt-3 border border-[#FF7373]/35 bg-[#FF7373]/10 p-3 text-center">
-                  <p className="font-pixel text-[#FF9B9B]">No attempts left</p>
+                  <p className="font-pixel text-[#FF9B9B]">
+                    {t("No attempts left")}
+                  </p>
                   <button
                     type="button"
                     onClick={resetMission}
                     className="mt-1 cursor-pointer font-pixel text-sm text-[#FFD400] underline underline-offset-4"
                   >
-                    Restart mission
+                    {t("Restart mission")}
                   </button>
                 </div>
               ) : null}
@@ -468,7 +499,11 @@ export default function BugHunt() {
               {lastXp !== null ? (
                 <div className="mt-3 flex items-center justify-center gap-2 border border-[#62FB60]/35 bg-[#62FB60]/10 p-3 font-pixel text-[#62FB60]">
                   <Trophy className="size-4" />
-                  {lastXp > 0 ? `Mission cleared · +${lastXp} XP` : "Replay cleared"}
+                  {lastXp > 0
+                    ? t("Mission cleared · +{count} XP", {
+                        count: formatNumber(lastXp),
+                      })
+                    : t("Replay cleared")}
                 </div>
               ) : null}
             </div>

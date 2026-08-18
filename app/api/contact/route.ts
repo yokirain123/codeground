@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { getServerI18n } from "@/lib/i18n/server";
+import type { Translate } from "@/lib/i18n/translate";
+
 import {
   buildTelegramMessage,
   isHoneypotFilled,
@@ -15,12 +18,30 @@ function validationError(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
 }
 
+function localizeValidationError(message: string, t: Translate) {
+  switch (message) {
+    case "Invalid request body.":
+      return t("Invalid request body.");
+    case "Enter a name between 2 and 80 characters.":
+      return t("Enter a name between 2 and 80 characters.");
+    case "Enter a valid Telegram username or email.":
+      return t("Enter a valid Telegram username or email.");
+    case "Choose a valid request type.":
+      return t("Choose a valid request type.");
+    case "Message must contain between 10 and 2000 characters.":
+      return t("Message must contain between 10 and 2000 characters.");
+    default:
+      return t("The message could not be sent.");
+  }
+}
+
 export async function POST(request: Request) {
+  const { t } = await getServerI18n();
   const contentLength = Number(request.headers.get("content-length") ?? 0);
 
   if (Number.isFinite(contentLength) && contentLength > 10_000) {
     return NextResponse.json(
-      { error: "Request body is too large." },
+      { error: t("Request body is too large.") },
       { status: 413 },
     );
   }
@@ -30,19 +51,19 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return validationError("Invalid request body.");
+    return validationError(t("Invalid request body."));
   }
 
   if (isHoneypotFilled(body)) {
     return NextResponse.json({
-      message: "Message delivered. The Quest Master will reply soon.",
+      message: t("Message delivered. The Quest Master will reply soon."),
     });
   }
 
   const validation = validateContactBody(body);
 
   if (!validation.ok) {
-    return validationError(validation.error);
+    return validationError(localizeValidationError(validation.error, t));
   }
 
   const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
@@ -52,7 +73,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "The Telegram contact bot is not configured yet. Please try again later.",
+          t(
+            "The Telegram contact bot is not configured yet. Please try again later.",
+          ),
       },
       { status: 503 },
     );
@@ -88,19 +111,19 @@ export async function POST(request: Request) {
       });
 
       return NextResponse.json(
-        { error: "Telegram could not deliver the message. Please try again." },
+        { error: t("Telegram could not deliver the message. Please try again.") },
         { status: 502 },
       );
     }
 
     return NextResponse.json({
-      message: "Message delivered. The Quest Master will reply soon.",
+      message: t("Message delivered. The Quest Master will reply soon."),
     });
   } catch (error) {
     console.error("Telegram contact request failed", error);
 
     return NextResponse.json(
-      { error: "The message service is temporarily unavailable." },
+      { error: t("The message service is temporarily unavailable.") },
       { status: 502 },
     );
   }

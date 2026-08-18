@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/config/db";
 import { getChallengeBySlug } from "@/lib/challenges/catalog";
 import { challengeCompletionsTable } from "@/lib/challenges/schema";
+import { getServerLocale } from "@/lib/i18n/server";
 
 import ChallengeWorkspace from "./_components/ChallengeWorkspace";
 
@@ -17,9 +18,10 @@ interface ChallengePageProps {
 }
 
 export default async function ChallengePage({ params }: ChallengePageProps) {
+  const locale = await getServerLocale();
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
-  const challenge = getChallengeBySlug(slug);
+  const challenge = getChallengeBySlug(slug, locale);
 
   if (!challenge) {
     notFound();

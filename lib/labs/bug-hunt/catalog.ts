@@ -1,3 +1,5 @@
+import type { Locale } from "@/lib/i18n/config";
+
 import type { RunnableLabLanguage } from "../types";
 
 export interface BugHuntMission {
@@ -202,6 +204,65 @@ int main()
   },
 ];
 
-export function getBugHuntMission(slug: string) {
-  return bugHuntMissions.find((mission) => mission.slug === slug);
+const ukrainianMissionCopy: Record<
+  string,
+  Pick<BugHuntMission, "title" | "description" | "hint">
+> = {
+  "javascript-off-by-one": {
+    title: "На один крок далі",
+    description:
+      "Цикл інвентарю виходить за межі останнього елемента та псує суму.",
+    hint: "Масив із п’яти елементів має допустимі індекси від 0 до 4.",
+  },
+  "javascript-discount": {
+    title: "Знижка 900%",
+    description:
+      "Формула відсотків перетворює невелику знижку на катастрофічну.",
+    hint: "Відсоток — це частка від ста, а не від десяти.",
+  },
+  "python-lost-accumulator": {
+    title: "Забудькуватий лічильник",
+    description: "Сума забуває всі числа списку, крім останнього.",
+    hint: "Цикл має додавати до наявної суми, а не замінювати її.",
+  },
+  "python-missing-item": {
+    title: "Загублений множник",
+    description: "Цикл завершується зарано та ігнорує останнє значення.",
+    hint: "Кінцеве значення, передане до range, уже не входить у діапазон.",
+  },
+  "csharp-backwards-operator": {
+    title: "Оператор навпаки",
+    description: "Крихітна помилка в операторі скидає життя замість додавання.",
+    hint: "В операторі додавання з присвоєнням знак плюс стоїть першим.",
+  },
+  "csharp-integer-average": {
+    title: "Округлене середнє",
+    description: "Цілочисельне ділення непомітно відкидає дробову частину.",
+    hint: "Перед діленням перетвори один із його операндів на double.",
+  },
+  "cpp-assignment-condition": {
+    title: "Ідеально випадково",
+    description: "Умова змінює рахунок замість того, щоб порівняти його.",
+    hint: "Для порівняння потрібні два знаки дорівнює.",
+  },
+  "cpp-vector-boundary": {
+    title: "За межами вектора",
+    description: "Цикл читає один елемент за межами вектора.",
+    hint: "Розмір вектора — це кількість елементів, а останній індекс дорівнює size мінус один.",
+  },
+};
+
+export function getBugHuntMissions(locale: Locale = "en") {
+  if (locale === "en") {
+    return bugHuntMissions;
+  }
+
+  return bugHuntMissions.map((mission) => ({
+    ...mission,
+    ...ukrainianMissionCopy[mission.slug],
+  }));
+}
+
+export function getBugHuntMission(slug: string, locale: Locale = "en") {
+  return getBugHuntMissions(locale).find((mission) => mission.slug === slug);
 }

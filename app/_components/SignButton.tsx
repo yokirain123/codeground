@@ -1,7 +1,11 @@
-import { Button } from '@/components/ui/shadcn/button'
-import React from 'react'
+"use client";
+
+import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 function SignButton() {
+  const { t } = useI18n();
+
   return (
     <div>
         <Button
@@ -14,7 +18,7 @@ function SignButton() {
         />
 
         <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-          Sign up
+          {t("Sign up")}
         </span>
       </Button>
     </div>

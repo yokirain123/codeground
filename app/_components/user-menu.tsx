@@ -2,31 +2,32 @@
 
 import { UserButton } from "@clerk/nextjs";
 import {
-  BookOpen,
-  Code2,
   LayoutDashboard,
   Trophy,
   UsersRound,
 } from "lucide-react";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export function UserMenu() {
+  const { t } = useI18n();
+
   return (
     <UserButton>
       <UserButton.MenuItems>
         <UserButton.Link
-          label="Dashboard"
+          label={t("Dashboard")}
           labelIcon={<LayoutDashboard size={16} />}
           href="/dashboard"
         />
 
         <UserButton.Link
-          label="Friends"
+          label={t("Friends")}
           labelIcon={<UsersRound size={16} />}
           href="/friends"
         />
 
         <UserButton.Link
-          label="Achievements"
+          label={t("Achievements")}
           labelIcon={<Trophy size={16} />}
           href="/achievements"
         />

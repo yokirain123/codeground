@@ -19,6 +19,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 
 import CompleteExerciseButton from "./CompleteExerciseButton";
@@ -143,6 +144,7 @@ export default function CppCodeEditor({
   exercise,
   onCompletionChange,
 }: CppCodeEditorProps) {
+  const { t, formatNumber, translateMessage } = useI18n();
   const cppEntry = useMemo(() => {
     const entry = Object.entries(exercise.starterCode).find(([filename]) =>
       /\.(?:cpp|cc|cxx)$/.test(filename.toLowerCase()),
@@ -157,7 +159,7 @@ export default function CppCodeEditor({
 
   const [code, setCode] = useState(starterCode);
   const [stdin, setStdin] = useState("");
-  const [output, setOutput] = useState(DEFAULT_OUTPUT);
+  const [output, setOutput] = useState(() => t(DEFAULT_OUTPUT));
   const [diagnostics, setDiagnostics] = useState<CompilerDiagnostic[]>([]);
   const [runMetadata, setRunMetadata] = useState<RunMetadata | null>(null);
   const [runPhase, setRunPhase] = useState<RunPhase>("idle");
@@ -243,7 +245,7 @@ export default function CppCodeEditor({
 
     setCode(starterCode);
     setStdin("");
-    setOutput(DEFAULT_OUTPUT);
+    setOutput(t(DEFAULT_OUTPUT));
     setRunMetadata(null);
     setRunPhase("idle");
     setIsRunning(false);
@@ -256,7 +258,7 @@ export default function CppCodeEditor({
       abortControllerRef.current = null;
       isRunningRef.current = false;
     };
-  }, [applyEditorDiagnostics, exercise.id, starterCode]);
+  }, [applyEditorDiagnostics, exercise.id, starterCode, t]);
 
   const runCode = useCallback(async () => {
     const currentCode = editorRef.current?.getValue() ?? code;
@@ -277,7 +279,7 @@ export default function CppCodeEditor({
     setRunPhase("running");
     setRunMetadata(null);
     setLastSuccessfulCode(null);
-    setOutput("Compiling and running...");
+    setOutput(t("Compiling and running..."));
     applyEditorDiagnostics([]);
 
     try {
@@ -291,7 +293,9 @@ export default function CppCodeEditor({
       const data = (await response.json().catch(() => ({}))) as RunCppResponse;
 
       if (!response.ok) {
-        throw new Error(data.error || "C++ execution failed");
+        throw new Error(
+          translateMessage(data.error || t("C++ execution failed")),
+        );
       }
 
       if (runId !== activeRunRef.current) {
@@ -299,14 +303,14 @@ export default function CppCodeEditor({
       }
 
       const nextOutput =
-        data.output || data.status || "Program finished without output.";
+        data.output || data.status || t("Program finished without output.");
       const diagnosticSource =
         data.compileOutput || data.stderr || data.output || "";
       const nextDiagnostics = parseCompilerDiagnostics(diagnosticSource);
 
       setOutput(nextOutput);
       setRunMetadata({
-        status: data.status || "Unknown status",
+        status: data.status || t("Unknown status"),
         time: data.time ?? null,
         memory: data.memory ?? null,
       });
@@ -329,13 +333,13 @@ export default function CppCodeEditor({
 
       const wasAborted = error instanceof Error && error.name === "AbortError";
       const message = wasAborted
-        ? "C++ execution timed out"
+        ? t("C++ execution timed out")
         : error instanceof Error
           ? error.message
-          : "C++ execution failed";
+          : t("C++ execution failed");
 
       setOutput(message);
-      setRunMetadata({ status: "Request failed", time: null, memory: null });
+      setRunMetadata({ status: t("Request failed"), time: null, memory: null });
       setRunPhase("error");
       toast.error(message);
     } finally {
@@ -350,7 +354,7 @@ export default function CppCodeEditor({
         }
       }
     }
-  }, [applyEditorDiagnostics, code, jumpToDiagnostic, stdin]);
+  }, [applyEditorDiagnostics, code, jumpToDiagnostic, stdin, t, translateMessage]);
 
   useEffect(() => {
     runCodeRef.current = runCode;
@@ -393,7 +397,7 @@ export default function CppCodeEditor({
 
     setCode(starterCode);
     setLastSuccessfulCode(null);
-    setOutput("Starter code restored. Run it to refresh the output.");
+    setOutput(t("Starter code restored. Run it to refresh the output."));
     setRunMetadata(null);
     setRunPhase("idle");
     applyEditorDiagnostics([]);
@@ -403,35 +407,35 @@ export default function CppCodeEditor({
   const copyOutput = async () => {
     try {
       await navigator.clipboard.writeText(output);
-      toast.success("Console output copied");
+      toast.success(t("Console output copied"));
     } catch {
-      toast.error("Could not copy console output");
+      toast.error(t("Could not copy console output"));
     }
   };
 
   const status =
     runPhase === "running"
       ? {
-          label: "Compiling",
+          label: t("Compiling"),
           className: "border-[#899DFF]/60 bg-[#899DFF]/10 text-[#AAB6FF]",
         }
       : runPhase === "success"
         ? {
-            label: "Passed",
+            label: t("Passed"),
             className: "border-[#62FB60]/60 bg-[#62FB60]/10 text-[#62FB60]",
           }
         : runPhase === "error"
           ? {
-              label: "Failed",
+              label: t("Failed"),
               className: "border-[#FF6B6B]/60 bg-[#FF6B6B]/10 text-[#FF8E8E]",
             }
           : runPhase === "dirty"
             ? {
-                label: "Not run",
+                label: t("Not run"),
                 className: "border-[#FFD400]/50 bg-[#FFD400]/10 text-[#FFD400]",
               }
             : {
-                label: "Ready",
+                label: t("Ready"),
                 className: "border-white/15 bg-white/5 text-white/45",
               };
 
@@ -440,7 +444,7 @@ export default function CppCodeEditor({
   return (
     <div
       role="region"
-      aria-label={exerciseTitle + " C++ playground"}
+      aria-label={t("{exercise} C++ playground", { exercise: exerciseTitle })}
       className="grid h-full min-h-0 bg-[#07080C] text-white lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)]"
     >
       <section className="flex min-h-0 flex-col border-b border-[#899DFF]/30 lg:border-r lg:border-b-0">
@@ -466,7 +470,7 @@ export default function CppCodeEditor({
               className="h-9 cursor-pointer rounded-none border-[#899DFF] bg-transparent px-3 font-pixel text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C] disabled:pointer-events-none disabled:opacity-45"
             >
               <RotateCcw className="size-4" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t("Reset")}</span>
             </Button>
           </div>
         </header>
@@ -490,11 +494,13 @@ export default function CppCodeEditor({
             loading={
               <div className="flex h-full items-center justify-center gap-3 bg-[#090B14] font-pixel text-[#899DFF]">
                 <Loader2 className="size-5 animate-spin text-[#FFD400]" />
-                Loading C++ editor...
+                {t("Loading C++ editor...")}
               </div>
             }
             options={{
-              ariaLabel: exerciseTitle + " C++ code editor",
+              ariaLabel: t("{exercise} C++ code editor", {
+                exercise: exerciseTitle,
+              }),
               automaticLayout: true,
               autoIndent: "full",
               bracketPairColorization: { enabled: true },
@@ -539,7 +545,9 @@ export default function CppCodeEditor({
         <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-[#899DFF]/25 bg-[#10152A] px-4 py-3">
           <div className="flex min-w-0 items-center gap-2 font-mono text-[11px] text-white/35">
             <Keyboard className="size-3.5 shrink-0 text-[#899DFF]" />
-            <span className="hidden sm:inline">Ctrl/⌘ + Enter to run</span>
+            <span className="hidden sm:inline">
+              {t("Ctrl/⌘ + Enter to run")}
+            </span>
             <span className="hidden h-3 border-l border-white/15 sm:block" />
             <span>C++</span>
             <span>UTF-8</span>
@@ -548,8 +556,8 @@ export default function CppCodeEditor({
           <div className="flex shrink-0 items-center gap-3">
             <Button
               type="button"
-              aria-label="Run C++ code"
-              title="Run C++ code (Ctrl/Command + Enter)"
+              aria-label={t("Run C++ code")}
+              title={t("Run C++ code (Ctrl/Command + Enter)")}
               disabled={isRunning || !code.trim()}
               onClick={() => void runCode()}
               className="h-10 cursor-pointer rounded-none border-2 border-[#FFD400] bg-[#FFD400] px-5 font-pixel text-lg text-[#07080C] shadow-[4px_4px_0_0_#FF8C00] hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#FF8C00] disabled:pointer-events-none disabled:opacity-50"
@@ -559,7 +567,7 @@ export default function CppCodeEditor({
               ) : (
                 <Play className="size-4 fill-current" />
               )}
-              {isRunning ? "Running..." : "Run"}
+              {isRunning ? t("Running...") : t("Run")}
             </Button>
 
             <CompleteExerciseButton
@@ -568,13 +576,13 @@ export default function CppCodeEditor({
               isCompleted={isCompleted}
               onClick={() => {
                 if (code.trim() === starterCode.trim()) {
-                  toast.error("Change the starter code first");
+                  toast.error(t("Change the starter code first"));
                   return;
                 }
 
                 if (lastSuccessfulCode !== code) {
                   toast.error(
-                    "Run the current code successfully before checking it",
+                    t("Run the current code successfully before checking it"),
                   );
                   return;
                 }
@@ -596,7 +604,7 @@ export default function CppCodeEditor({
             className="flex shrink-0 items-center gap-2 bg-[#10152A] px-4 py-2 font-pixel text-sm text-[#AAB6FF]"
           >
             <Keyboard className="size-4 text-[#FFD400]" />
-            Program input
+            {t("Program input")}
             <span className="ml-auto font-mono text-[10px] text-white/25">
               STDIN
             </span>
@@ -609,7 +617,7 @@ export default function CppCodeEditor({
               setStdin(event.target.value);
               markCodeAsDirty();
             }}
-            placeholder="Values read by std::cin, one line at a time"
+            placeholder={t("Values read by std::cin, one line at a time")}
             spellCheck={false}
             className="min-h-0 flex-1 resize-none bg-[#080A11] p-4 font-mono text-sm text-[#E7E9F8] outline-none placeholder:text-white/25 selection:bg-[#899DFF]/35"
           />
@@ -618,7 +626,9 @@ export default function CppCodeEditor({
         <div className="flex min-h-0 flex-col">
           <header className="flex shrink-0 items-center gap-2 border-b border-[#899DFF]/25 bg-[#10152A] px-4 py-3">
             <Terminal className="size-5 text-[#FFD400]" />
-            <span className="font-pixel text-lg text-[#AAB6FF]">Console</span>
+            <span className="font-pixel text-lg text-[#AAB6FF]">
+              {t("Console")}
+            </span>
 
             <div className="ml-auto flex items-center gap-2">
               <span
@@ -633,8 +643,8 @@ export default function CppCodeEditor({
               <button
                 type="button"
                 onClick={() => void copyOutput()}
-                aria-label="Copy console output"
-                title="Copy output"
+                aria-label={t("Copy console output")}
+                title={t("Copy output")}
                 className="flex size-7 cursor-pointer items-center justify-center border border-[#899DFF]/30 text-[#899DFF] transition-colors hover:border-[#FFD400] hover:text-[#FFD400]"
               >
                 <Copy className="size-3.5" />
@@ -655,7 +665,9 @@ export default function CppCodeEditor({
             <div className="max-h-40 shrink-0 overflow-y-auto border-b border-[#FF6B6B]/25 bg-[#120B10]">
               <div className="flex items-center gap-2 border-b border-white/5 px-4 py-2 font-pixel text-sm text-[#FF8E8E]">
                 <AlertTriangle className="size-4" />
-                Problems ({diagnostics.length})
+                {t("Problems ({count})", {
+                  count: formatNumber(diagnostics.length),
+                })}
               </div>
 
               {diagnostics.map((diagnostic, index) => (
@@ -710,7 +722,7 @@ export default function CppCodeEditor({
           {runPhase === "success" && (
             <div className="flex shrink-0 items-center gap-2 border-t border-[#62FB60]/20 bg-[#62FB60]/5 px-4 py-2 font-mono text-xs text-[#62FB60]">
               <CheckCircle2 className="size-4" />
-              Program finished successfully
+              {t("Program finished successfully")}
             </div>
           )}
         </div>

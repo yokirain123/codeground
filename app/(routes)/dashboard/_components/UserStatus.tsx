@@ -8,6 +8,7 @@ import Star from "@/components/images/blink.png";
 import Streak from "@/components/images/confetti.png";
 import Badge from "@/components/images/label.png";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface Achievement {
   id: number;
@@ -44,6 +45,7 @@ interface StatItem {
 }
 
 export default function UserStatus() {
+  const { locale, t, formatNumber, translateMessage } = useI18n();
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
   const [error, setError] = useState("");
 
@@ -63,13 +65,15 @@ export default function UserStatus() {
         const contentType = response.headers.get("content-type");
 
         if (!contentType?.includes("application/json")) {
-          throw new Error("The server returned an invalid response");
+          throw new Error(t("The server returned an invalid response"));
         }
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || "Failed to load stats");
+          throw new Error(
+            translateMessage(data.error || t("Failed to load stats")),
+          );
         }
 
         if (!controller.signal.aborted) {
@@ -84,7 +88,11 @@ export default function UserStatus() {
 
         if (!controller.signal.aborted) {
           setError(
-            error instanceof Error ? error.message : "Failed to load stats",
+            locale === "uk"
+              ? t("Failed to load stats")
+              : error instanceof Error
+                ? translateMessage(error.message)
+                : t("Failed to load stats"),
           );
         }
       }
@@ -95,7 +103,7 @@ export default function UserStatus() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [locale, t, translateMessage]);
 
   if (error) {
     return (
@@ -122,18 +130,18 @@ export default function UserStatus() {
 
   const statItems: StatItem[] = [
     {
-      label: "Total points",
-      value: String(Math.max(0, stats.totalPoints)),
+      label: t("Total points"),
+      value: formatNumber(Math.max(0, stats.totalPoints)),
       icon: Star,
     },
     {
-      label: "Achievements",
-      value: `${Math.max(0, stats.badges)}/${achievements.length}`,
+      label: t("Achievements"),
+      value: `${formatNumber(Math.max(0, stats.badges))}/${formatNumber(achievements.length)}`,
       icon: Badge,
     },
     {
-      label: "Day streak",
-      value: String(Math.max(0, stats.streak)),
+      label: t("Day streak"),
+      value: formatNumber(Math.max(0, stats.streak)),
       icon: Streak,
     },
   ];
@@ -141,7 +149,7 @@ export default function UserStatus() {
   return (
     <aside className="border-2 border-[#899DFF]/45 bg-[#10152A] px-5 py-5 shadow-[6px_6px_0_#020307] sm:px-6">
       <p className="font-pixel text-xs uppercase tracking-[0.22em] text-[#899DFF]">
-        Player profile
+        {t("Player profile")}
       </p>
 
       <div className="mt-4 flex items-center gap-4 border-b border-white/10 pb-5">
@@ -149,7 +157,7 @@ export default function UserStatus() {
 
         <div className="min-w-0">
           <h2 className="truncate font-pixel text-2xl text-white sm:text-3xl">
-            {user.name || "Adventurer"}
+            {user.name || t("Adventurer")}
           </h2>
           <p className="mt-1 truncate font-sans text-sm text-white/40">
             {user.email}
@@ -186,9 +194,9 @@ export default function UserStatus() {
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4 font-pixel text-sm">
-        <span className="text-white/40">Exercises cleared</span>
+        <span className="text-white/40">{t("Exercises cleared")}</span>
         <span className="text-[#6FFFA2]">
-          {Math.max(0, stats.completedExercises)}
+          {formatNumber(Math.max(0, stats.completedExercises))}
         </span>
       </div>
     </aside>

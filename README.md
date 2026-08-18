@@ -145,6 +145,7 @@ pixel-inspired interface.
       <h3>🤝 Community &amp; resources</h3>
       <ul>
         <li>Player search, friend requests, parties, and public profiles.</li>
+        <li>English and Ukrainian interface with a persistent language switcher.</li>
         <li>Notifications for friends, courses, achievements, and system events.</li>
         <li>42 cheat-sheet patterns across seven languages.</li>
         <li>A 66-term A–Z glossary, searchable FAQ, and contact form.</li>
@@ -503,6 +504,7 @@ CodeQuest — це full-stack платформа для навчання про�
       <h3>🤝 Спільнота та матеріали</h3>
       <ul>
         <li>Пошук гравців, заявки в друзі, команди й публічні профілі.</li>
+        <li>Англійський та український інтерфейс зі збереженням вибраної мови.</li>
         <li>Сповіщення про друзів, курси, досягнення та системні події.</li>
         <li>42 шаблони у шпаргалках для семи мов.</li>
         <li>A–Z глосарій із 66 термінами, FAQ із пошуком і контактна форма.</li>

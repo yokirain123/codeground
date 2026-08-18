@@ -15,6 +15,7 @@ import { ArrowRight, ChevronDown, Code2 } from "lucide-react";
 
 import { codeQuestSandpackTheme } from "@/app/sandpack/sandpackTheme";
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 type DemoId = "html" | "react" | "react-tailwind";
 
@@ -200,6 +201,7 @@ h1 { color: #ffd400; }
 } as const;
 
 export default function PlaygroundPromo() {
+  const { t } = useI18n();
   const [demoId, setDemoId] = useState<DemoId>("html");
 
   const demo = demos[demoId];
@@ -210,26 +212,27 @@ export default function PlaygroundPromo() {
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <p className="font-pixel text-sm uppercase tracking-[0.3em] text-[#899DFF]">
-              Live preview
+              {t("Live preview")}
             </p>
 
             <h2 className="mt-3 font-pixel text-4xl text-white [text-shadow:4px_4px_0_#28336B] md:text-6xl">
-              Try the{" "}
+              {t("Try the")}{" "}
               <span className="text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
-                Playground
+                {t("Playground")}
               </span>
             </h2>
 
             <p className="mt-5 font-sans text-lg text-white/60 md:text-xl">
-              Explore real code and see the result instantly. Open the full
-              playground when you are ready to build your own project.
+              {t(
+                "Explore real code and see the result instantly. Open the full playground when you are ready to build your own project.",
+              )}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
             <div className="relative">
               <label htmlFor="promo-demo" className="sr-only">
-                Demo technology
+                {t("Demo technology")}
               </label>
 
               <select
@@ -262,7 +265,7 @@ export default function PlaygroundPromo() {
                 />
 
                 <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
-                  Open full playground
+                  {t("Open full playground")}
                   <ArrowRight className="size-4" />
                 </span>
               </Link>
@@ -275,12 +278,12 @@ export default function PlaygroundPromo() {
             <div className="flex items-center gap-3">
               <Code2 className="size-5 text-[#899DFF]" />
               <span className="font-pixel text-lg text-white">
-                {demo.label} demo
+                {demo.label} {t("demo")}
               </span>
             </div>
 
             <span className="border border-white/10 bg-black/20 px-2 py-1 font-pixel text-sm uppercase text-white/40">
-              Read only
+              {t("Read only")}
             </span>
           </div>
 

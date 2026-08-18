@@ -9,15 +9,18 @@ import {
   coursesTable,
   usersTable,
 } from "@/config/schema";
+import { getServerI18n } from "@/lib/i18n/server";
 
 export async function GET(request: Request) {
+  const { t } = await getServerI18n();
+
   try {
     const url = new URL(request.url);
     const courseId = Number(url.searchParams.get("courseId"));
 
     if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
-        { error: "Valid courseId is required" },
+        { error: t("Valid courseId is required") },
         { status: 400 },
       );
     }
@@ -33,18 +36,20 @@ export async function GET(request: Request) {
     console.error("Chapters loading error:", error);
 
     return NextResponse.json(
-      { error: "Failed to load chapters" },
+      { error: t("Failed to load chapters") },
       { status: 500 },
     );
   }
 }
 
 export async function POST(request: Request) {
+  const { t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("Unauthorized") }, { status: 401 });
     }
 
     const [currentUser] = await db
@@ -54,12 +59,12 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!currentUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: t("User not found") }, { status: 404 });
     }
 
     if (currentUser.role !== "admin") {
       return NextResponse.json(
-        { error: "Only admins can create course chapters" },
+        { error: t("Only admins can create course chapters") },
         { status: 403 },
       );
     }
@@ -69,7 +74,7 @@ export async function POST(request: Request) {
 
     if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
-        { error: "Valid courseId is required" },
+        { error: t("Valid courseId is required") },
         { status: 400 },
       );
     }
@@ -86,7 +91,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!course) {
-      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+      return NextResponse.json({ error: t("Course not found") }, { status: 404 });
     }
 
     const courseData = getCourseChapterData(course);
@@ -100,7 +105,10 @@ export async function POST(request: Request) {
 
       return NextResponse.json(
         {
-          message: `${course.title} was created without an automatic chapter template. You can add its curriculum separately.`,
+          message: t(
+            "{course} was created without an automatic chapter template. You can add its curriculum separately.",
+            { course: course.title },
+          ),
           templateApplied: false,
           synchronized: 0,
           chapters,
@@ -141,7 +149,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: `Synchronized ${syncedChapters.length} chapters for ${course.title}`,
+        message: t("Synchronized {count} chapters for {course}", {
+          count: syncedChapters.length,
+          course: course.title,
+        }),
         templateApplied: true,
         synchronized: syncedChapters.length,
         chapters,
@@ -156,7 +167,7 @@ export async function POST(request: Request) {
         error:
           process.env.NODE_ENV === "development" && error instanceof Error
             ? error.message
-            : "Failed to create chapters",
+            : t("Failed to create chapters"),
       },
       { status: 500 },
     );

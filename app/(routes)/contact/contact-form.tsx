@@ -2,6 +2,8 @@
 
 import { type FormEvent, useState } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 const categories = ["Question", "Bug report", "Course idea", "Other"];
 const maxMessageLength = 2000;
 
@@ -22,6 +24,7 @@ const initialValues: ContactFormValues = {
 };
 
 export default function ContactForm() {
+  const { t, formatNumber } = useI18n();
   const [values, setValues] = useState<ContactFormValues>(initialValues);
   const [isSending, setIsSending] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -55,19 +58,19 @@ export default function ContactForm() {
       } | null;
 
       if (!response.ok) {
-        throw new Error(payload?.error ?? "The message could not be sent.");
+        throw new Error(payload?.error ?? t("The message could not be sent."));
       }
 
       setValues(initialValues);
       setSuccessMessage(
         payload?.message ??
-          "Message delivered. The Quest Master will reply soon.",
+          t("Message delivered. The Quest Master will reply soon."),
       );
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "The message could not be sent. Please try again.",
+          : t("The message could not be sent. Please try again."),
       );
     } finally {
       setIsSending(false);
@@ -90,28 +93,29 @@ export default function ContactForm() {
       <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.72fr_1fr] lg:items-start">
         <div className="lg:sticky lg:top-28">
           <p className="font-mono text-xs uppercase tracking-[0.28em] text-[#899DFF]">
-            Contact terminal
+            {t("Contact terminal")}
           </p>
           <h2 className="mt-3 font-pixel text-5xl leading-none sm:text-7xl">
-            Send your <span className="text-[#FFD400]">message</span>
+            {t("Send your")} <span className="text-[#FFD400]">{t("message")}</span>
           </h2>
           <p className="mt-5 max-w-lg text-base leading-7 text-white/55 sm:text-lg">
-            The form sends your request to the private CodeQuest Telegram inbox.
-            Leave a Telegram username or email so you can receive a reply.
+            {t(
+              "The form sends your request to the private CodeQuest Telegram inbox. Leave a Telegram username or email so you can receive a reply.",
+            )}
           </p>
 
           <div className="mt-8 space-y-3 border-l-2 border-[#899DFF] pl-5 font-mono text-sm text-white/45">
             <p>
-              <span className="mr-2 text-[#FFD400]">01</span> Choose a request
-              type
+              <span className="mr-2 text-[#FFD400]">01</span>{" "}
+              {t("Choose a request type")}
             </p>
             <p>
-              <span className="mr-2 text-[#FFD400]">02</span> Describe what
-              happened
+              <span className="mr-2 text-[#FFD400]">02</span>{" "}
+              {t("Describe what happened")}
             </p>
             <p>
-              <span className="mr-2 text-[#FFD400]">03</span> Bot delivers it
-              privately
+              <span className="mr-2 text-[#FFD400]">03</span>{" "}
+              {t("Bot delivers it privately")}
             </p>
           </div>
         </div>
@@ -133,18 +137,20 @@ export default function ContactForm() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#899DFF]">
-                  New support request
+                  {t("New support request")}
                 </p>
                 <h3 className="mt-1 font-pixel text-3xl text-white">
-                  Player message
+                  {t("Player message")}
                 </h3>
               </div>
-              <span className="font-mono text-xs text-[#FFD400]">● READY</span>
+              <span className="font-mono text-xs text-[#FFD400]">
+                ● {t("READY")}
+              </span>
             </div>
 
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <label className="font-mono text-xs uppercase tracking-[0.14em] text-white/55">
-                Your name
+                {t("Your name")}
                 <input
                   type="text"
                   name="name"
@@ -155,13 +161,13 @@ export default function ContactForm() {
                   value={values.name}
                   onChange={(event) => updateField("name", event.target.value)}
                   disabled={isSending}
-                  placeholder="Player name"
+                  placeholder={t("Player name")}
                   className={fieldStyles}
                 />
               </label>
 
               <label className="font-mono text-xs uppercase tracking-[0.14em] text-white/55">
-                Reply contact
+                {t("Reply contact")}
                 <input
                   type="text"
                   name="contact"
@@ -170,20 +176,22 @@ export default function ContactForm() {
                   minLength={3}
                   maxLength={120}
                   pattern="(?:@[A-Za-z0-9_]{5,32}|[^\\s@]+@[^\\s@]+\\.[^\\s@]+)"
-                  title="Enter a Telegram username such as @username or a valid email address."
+                  title={t(
+                    "Enter a Telegram username such as @username or a valid email address.",
+                  )}
                   value={values.contact}
                   onChange={(event) =>
                     updateField("contact", event.target.value)
                   }
                   disabled={isSending}
-                  placeholder="@username or email"
+                  placeholder={t("@username or email")}
                   className={fieldStyles}
                 />
               </label>
             </div>
 
             <label className="mt-5 block font-mono text-xs uppercase tracking-[0.14em] text-white/55">
-              Request type
+              {t("Request type")}
               <select
                 name="category"
                 value={values.category}
@@ -199,14 +207,20 @@ export default function ContactForm() {
                     value={category}
                     className="bg-[#10152A]"
                   >
-                    {category}
+                    {category === "Question"
+                      ? t("Question")
+                      : category === "Bug report"
+                        ? t("Bug report")
+                        : category === "Course idea"
+                          ? t("Course idea")
+                          : t("Other")}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="mt-5 block font-mono text-xs uppercase tracking-[0.14em] text-white/55">
-              Message
+              {t("Message")}
               <textarea
                 name="message"
                 required
@@ -216,17 +230,19 @@ export default function ContactForm() {
                 value={values.message}
                 onChange={(event) => updateField("message", event.target.value)}
                 disabled={isSending}
-                placeholder="Tell us what happened or what you would like to suggest..."
+                placeholder={t(
+                  "Tell us what happened or what you would like to suggest...",
+                )}
                 className={`${fieldStyles} h-auto resize-y py-3 leading-7`}
               />
             </label>
 
             <div className="mt-2 flex justify-end font-mono text-[10px] text-white/30">
-              {values.message.length}/{maxMessageLength}
+              {formatNumber(values.message.length)}/{formatNumber(maxMessageLength)}
             </div>
 
             <label className="absolute -left-[9999px]" aria-hidden="true">
-              Website
+              {t("Website")}
               <input
                 type="text"
                 name="website"
@@ -255,8 +271,9 @@ export default function ContactForm() {
 
             <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="max-w-sm text-xs leading-5 text-white/35">
-                Your message is only used to answer this request. The bot token
-                remains on the server.
+                {t(
+                  "Your message is only used to answer this request. The bot token remains on the server.",
+                )}
               </p>
 
               <button
@@ -264,7 +281,7 @@ export default function ContactForm() {
                 disabled={isSending}
                 className="group relative h-12 min-w-44 cursor-pointer overflow-hidden rounded-none border-2 border-black bg-[#FFD400] px-6 font-pixel text-2xl text-black shadow-[4px_4px_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:cursor-wait disabled:opacity-60"
               >
-                {isSending ? "Sending..." : "Send message ▶"}
+                {isSending ? t("Sending...") : t("Send message ▶")}
               </button>
             </div>
           </form>

@@ -8,6 +8,7 @@ import {
 import { getBugHuntMission } from "@/lib/labs/bug-hunt/catalog";
 import { validateBugHuntSolution } from "@/lib/labs/bug-hunt/validation";
 import { runWithJudge0 } from "@/lib/labs/judge0";
+import { getServerI18n } from "@/lib/i18n/server";
 
 interface CompleteBugHuntBody {
   missionSlug?: unknown;
@@ -16,12 +17,14 @@ interface CompleteBugHuntBody {
 }
 
 export async function POST(request: Request) {
+  const { locale, t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
-        { error: "Sign in to complete Bug Hunt missions and earn XP." },
+        { error: t("Sign in to complete Bug Hunt missions and earn XP.") },
         { status: 401 },
       );
     }
@@ -31,18 +34,18 @@ export async function POST(request: Request) {
       typeof body.missionSlug === "string" ? body.missionSlug.trim() : "";
     const code = typeof body.code === "string" ? body.code : "";
     const usedHint = body.usedHint === true;
-    const mission = getBugHuntMission(missionSlug);
+    const mission = getBugHuntMission(missionSlug, locale);
 
     if (!mission) {
       return NextResponse.json(
-        { error: "Bug Hunt mission not found." },
+        { error: t("Bug Hunt mission not found.") },
         { status: 404 },
       );
     }
 
     if (!code.trim() || code.length > 60_000) {
       return NextResponse.json(
-        { error: "Submit the code you want to check." },
+        { error: t("Submit the code you want to check.") },
         { status: 400 },
       );
     }
@@ -57,7 +60,9 @@ export async function POST(request: Request) {
     if (!execution.success) {
       return NextResponse.json(
         {
-          error: "The program must compile and run before the bug can be cleared.",
+          error: t(
+            "The program must compile and run before the bug can be cleared.",
+          ),
           output: execution.output,
         },
         { status: 422 },
@@ -68,12 +73,14 @@ export async function POST(request: Request) {
       slug: missionSlug,
       code,
       stdout: execution.stdout,
+      locale,
     });
 
     if (!validation.valid) {
       return NextResponse.json(
         {
-          error: validation.errors[0] ?? "The bug is still hiding in the code.",
+          error:
+            validation.errors[0] ?? t("The bug is still hiding in the code."),
           validationErrors: validation.errors,
         },
         { status: 422 },
@@ -101,13 +108,17 @@ export async function POST(request: Request) {
 
     if (error instanceof MissingCodeQuestProfileError) {
       return NextResponse.json(
-        { error: `${error.message} Refresh the Dashboard and try again.` },
+        {
+          error: t(
+            "Your CodeQuest profile is not ready yet. Refresh the Dashboard and try again.",
+          ),
+        },
         { status: 404 },
       );
     }
 
     return NextResponse.json(
-      { error: "Failed to complete the Bug Hunt mission." },
+      { error: t("Failed to complete the Bug Hunt mission.") },
       { status: 500 },
     );
   }

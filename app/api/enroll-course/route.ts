@@ -8,15 +8,18 @@
     coursesTable,
     usersTable,
     } from "@/config/schema";
+    import { getServerI18n } from "@/lib/i18n/server";
 
     export async function GET(request: Request) {
+    const { t } = await getServerI18n();
+
     try {
         const { userId: clerkId } = await auth();
 
         if (!clerkId) {
         return NextResponse.json(
             {
-            error: "Unauthorized",
+            error: t("Unauthorized"),
             },
             {
             status: 401,
@@ -36,7 +39,7 @@
         ) {
         return NextResponse.json(
             {
-            error: "Valid courseId is required",
+            error: t("Valid courseId is required"),
             },
             {
             status: 400,
@@ -60,7 +63,7 @@
         if (!currentUser) {
         return NextResponse.json(
             {
-            error: "User not found",
+            error: t("User not found"),
             },
             {
             status: 404,
@@ -98,7 +101,7 @@
 
         return NextResponse.json(
         {
-            error: "Failed to check enrollment",
+            error: t("Failed to check enrollment"),
         },
         {
             status: 500,
@@ -108,13 +111,15 @@
     }
 
     export async function POST(request: Request) {
+    const { t } = await getServerI18n();
+
     try {
         const { userId: clerkId } = await auth();
 
         if (!clerkId) {
         return NextResponse.json(
             {
-            error: "Unauthorized",
+            error: t("Unauthorized"),
             },
             {
             status: 401,
@@ -131,7 +136,7 @@
         ) {
         return NextResponse.json(
             {
-            error: "Valid courseId is required",
+            error: t("Valid courseId is required"),
             },
             {
             status: 400,
@@ -155,7 +160,7 @@
         if (!currentUser) {
         return NextResponse.json(
             {
-            error: "User not found",
+            error: t("User not found"),
             },
             {
             status: 404,
@@ -179,7 +184,7 @@
         if (!course) {
         return NextResponse.json(
             {
-            error: "Course not found",
+            error: t("Course not found"),
             },
             {
             status: 404,
@@ -202,7 +207,7 @@
 
         return NextResponse.json({
         isEnrolled: true,
-        message: "Course enrolled",
+        message: t("Course enrolled"),
         });
     } catch (error) {
         console.error(
@@ -212,7 +217,7 @@
 
         return NextResponse.json(
         {
-            error: "Failed to enroll in course",
+            error: t("Failed to enroll in course"),
         },
         {
             status: 500,
@@ -222,13 +227,15 @@
     }
 
     export async function DELETE(request: Request) {
+    const { t } = await getServerI18n();
+
     try {
         const { userId: clerkId } = await auth();
 
         if (!clerkId) {
         return NextResponse.json(
             {
-            error: "Unauthorized",
+            error: t("Unauthorized"),
             },
             {
             status: 401,
@@ -248,7 +255,7 @@
         ) {
         return NextResponse.json(
             {
-            error: "Valid courseId is required",
+            error: t("Valid courseId is required"),
             },
             {
             status: 400,
@@ -272,7 +279,7 @@
         if (!currentUser) {
         return NextResponse.json(
             {
-            error: "User not found",
+            error: t("User not found"),
             },
             {
             status: 404,
@@ -301,7 +308,7 @@
         return NextResponse.json({
         isEnrolled: false,
         removed: deletedEnrollments.length > 0,
-        message: "You left the course",
+        message: t("You left the course"),
         });
     } catch (error) {
         console.error(
@@ -311,7 +318,7 @@
 
         return NextResponse.json(
         {
-            error: "Failed to leave course",
+            error: t("Failed to leave course"),
         },
         {
             status: 500,

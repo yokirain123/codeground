@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { ChevronDown } from "lucide-react";
 import {
   AnimatePresence,
@@ -38,6 +39,7 @@ export default function BasicDropdown({
   className = "",
   onChange,
 }: BasicDropdownProps) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
 
@@ -240,7 +242,7 @@ export default function BasicDropdown({
           <ul
             id="home-dropdown-items"
             role="listbox"
-            aria-label={`${label} navigation`}
+            aria-label={t("{label} navigation", { label })}
             className="p-2"
           >
             {items.map((item, index) => (

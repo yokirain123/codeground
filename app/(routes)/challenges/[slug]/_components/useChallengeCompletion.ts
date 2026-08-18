@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { getChallengeDraftKey } from "@/lib/challenges/draft";
 
 interface CompleteChallengeResponse {
@@ -29,6 +30,7 @@ export function useChallengeCompletion({
   initialCompleted,
   onCompletionChange,
 }: UseChallengeCompletionOptions) {
+  const { t, formatNumber, translateMessage } = useI18n();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(initialCompleted);
 
@@ -62,7 +64,7 @@ export function useChallengeCompletion({
         throw new Error(
           data.validationErrors?.[0] ||
             data.error ||
-            "The challenge is not complete yet.",
+            t("The challenge is not complete yet."),
         );
       }
 
@@ -71,20 +73,22 @@ export function useChallengeCompletion({
       localStorage.removeItem(getChallengeDraftKey(slug));
 
       if (data.alreadyCompleted) {
-        toast.info("Challenge already completed");
+        toast.info(t("Challenge already completed"));
       } else {
-        toast.success("Challenge cleared!", {
+        toast.success(t("Challenge cleared!"), {
           description:
             typeof data.xpEarned === "number"
-              ? `You earned ${data.xpEarned} XP.`
+              ? t("You earned {count} XP.", {
+                  count: formatNumber(data.xpEarned),
+                })
               : undefined,
         });
       }
     } catch (error) {
       toast.error(
         error instanceof Error
-          ? error.message
-          : "Failed to complete the challenge.",
+          ? translateMessage(error.message)
+          : t("Failed to complete the challenge."),
       );
     } finally {
       setIsSubmitting(false);

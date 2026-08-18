@@ -9,6 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Library } from "lucide-react";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import PlaygroundLayout from "./_components/PlaygroundLayout";
 
@@ -64,6 +65,7 @@ function normalizeParameter(value: string | string[] | undefined) {
 }
 
 export default function Playground() {
+  const { t } = useI18n();
   const router = useRouter();
 
   const params = useParams<{
@@ -110,10 +112,8 @@ export default function Playground() {
     ? playgroundState.exerciseDetail
     : null;
 
-  const chapters = isCurrentRequest ? playgroundState.chapters : [];
-
   const error = !hasValidParameters
-    ? "Invalid exercise URL"
+    ? t("Invalid exercise URL")
     : isCurrentRequest
       ? playgroundState.error
       : "";
@@ -126,9 +126,10 @@ export default function Playground() {
     return exerciseSlug.replaceAll("-", " ").toUpperCase();
   }, [exerciseDetail, exerciseSlug]);
 
-  const exerciseLocations = useMemo<ExerciseLocation[]>(
-    () =>
-      [...chapters]
+  const exerciseLocations = useMemo<ExerciseLocation[]>(() => {
+    const chapters = isCurrentRequest ? playgroundState.chapters : [];
+
+    return [...chapters]
         .sort(
           (firstChapter, secondChapter) =>
             firstChapter.chapterId - secondChapter.chapterId,
@@ -141,9 +142,8 @@ export default function Playground() {
 
             exerciseName: exercise.name,
           })),
-        ),
-    [chapters],
-  );
+        );
+  }, [isCurrentRequest, playgroundState.chapters]);
 
   const currentExerciseIndex = useMemo(
     () =>
@@ -236,7 +236,7 @@ export default function Playground() {
 
         console.error("Playground loading error:", error);
 
-        let errorMessage = "Failed to load exercise";
+        let errorMessage = t("Failed to load exercise");
 
         if (
           axios.isAxiosError<{
@@ -244,7 +244,7 @@ export default function Playground() {
           }>(error)
         ) {
           errorMessage =
-            error.response?.data?.error ?? "Failed to load exercise";
+            error.response?.data?.error ?? t("Failed to load exercise");
         }
 
         if (!controller.signal.aborted) {
@@ -263,7 +263,7 @@ export default function Playground() {
     return () => {
       controller.abort();
     };
-  }, [requestKey, courseId, chapterId, exerciseSlug]);
+  }, [requestKey, courseId, chapterId, exerciseSlug, t]);
 
   const openExercise = (location: ExerciseLocation | null) => {
     if (!location) {
@@ -285,7 +285,7 @@ export default function Playground() {
     return (
       <main className="flex h-[calc(100dvh-64px)] items-center justify-center bg-[#07080C] p-6">
         <p className="border border-red-400/30 bg-red-400/10 p-5 font-pixel text-2xl text-red-400">
-          {error || "Exercise not found"}
+          {error || t("Exercise not found")}
         </p>
       </main>
     );
@@ -295,7 +295,7 @@ export default function Playground() {
   return (
     <main className="flex h-[calc(100dvh-64px)] min-h-0 flex-col overflow-hidden bg-[#07080C] text-white">
       <nav
-        aria-label="Exercise navigation"
+        aria-label={t("Exercise navigation")}
         className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#10152A] px-4 py-3"
       >
         <Button
@@ -307,7 +307,7 @@ export default function Playground() {
           className="border-[#899DFF]/45 bg-black/20 font-pixel text-lg text-[#899DFF] hover:border-[#FFD400]/70 hover:bg-[#FFD400]/10 hover:text-[#FFD400]"
         >
           <Library className="size-4" />
-          All chapters
+          {t("All chapters")}
         </Button>
 
         <div className="flex items-center gap-3">
@@ -318,7 +318,7 @@ export default function Playground() {
             title={
               previousExercise
                 ? previousExercise.exerciseName
-                : "This is the first exercise"
+                : t("This is the first exercise")
             }
             onClick={() => {
               openExercise(previousExercise);
@@ -332,7 +332,7 @@ export default function Playground() {
 
             <span className="relative z-10 flex items-center justify-center transition-colors duration-500 group-hover:text-white">
               <ChevronLeft className="size-5 shrink-0" />
-              Previous
+              {t("Previous")}
             </span>
           </Button>
 
@@ -342,10 +342,10 @@ export default function Playground() {
             disabled={!nextExercise || !isCurrentExerciseCompleted}
             title={
               !isCurrentExerciseCompleted
-                ? "Complete this exercise first"
+                ? t("Complete this exercise first")
                 : nextExercise
                   ? nextExercise.exerciseName
-                  : "This is the final exercise"
+                  : t("This is the final exercise")
             }
             onClick={() => {
               openExercise(nextExercise);
@@ -358,7 +358,7 @@ export default function Playground() {
             />
 
             <span className="relative z-10 flex items-center justify-center gap-2 transition-colors duration-500 group-hover:text-white">
-              Next
+              {t("Next")}
               <ChevronRight className="size-5 shrink-0" />
             </span>
           </Button>

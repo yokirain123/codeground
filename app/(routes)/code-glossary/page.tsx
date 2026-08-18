@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { BookA, Search, Tags } from "lucide-react";
 
 import Footer from "@/app/_components/Footer";
+import { getServerI18n } from "@/lib/i18n/server";
+import { formatLocalizedNumber } from "@/lib/i18n/translate";
 import {
   GLOSSARY_CATEGORIES,
   GLOSSARY_ENTRIES,
@@ -9,13 +11,18 @@ import {
 
 import CodeGlossaryExplorer from "./_components/CodeGlossaryExplorer";
 
-export const metadata: Metadata = {
-  title: "Code Glossary | CodeQuest",
-  description:
-    "Plain-language explanations of programming, web, data, architecture, and development-tool terms.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return {
+    title: t("Code Glossary | CodeQuest"),
+    description: t(
+      "Plain-language explanations of programming, web, data, architecture, and development-tool terms.",
+    ),
+  };
+}
 
-export default function CodeGlossaryPage() {
+export default async function CodeGlossaryPage() {
+  const { locale, t } = await getServerI18n();
   return (
     <main className="min-h-screen overflow-hidden bg-[#07080C] text-white">
       <section className="relative isolate border-b border-[#899DFF]/25">
@@ -32,16 +39,17 @@ export default function CodeGlossaryPage() {
           <div>
             <div className="inline-flex items-center gap-2 border border-[#899DFF]/40 bg-[#899DFF]/5 px-3 py-2 font-pixel text-xs uppercase tracking-[0.2em] text-[#AAB6FF]">
               <BookA className="size-4 text-[#FFD400]" />
-              Programmer dictionary
+              {t("Programmer dictionary")}
             </div>
 
             <h1 className="mt-6 font-pixel text-6xl leading-[0.82] sm:text-7xl lg:text-8xl">
-              CODE <span className="text-[#FFD400]">GLOSSARY</span>
+              {t("CODE")} <span className="text-[#FFD400]">{t("GLOSSARY")}</span>
             </h1>
 
             <p className="mt-6 max-w-2xl font-sans text-lg leading-8 text-white/55">
-              Confusing programming words translated into clear language, with
-              small examples that show what each term means in real code.
+              {t(
+                "Confusing programming words translated into clear language, with small examples that show what each term means in real code.",
+              )}
             </p>
           </div>
 
@@ -49,26 +57,26 @@ export default function CodeGlossaryPage() {
             <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
               <BookA className="mx-auto size-5 text-[#FFD400]" />
               <p className="mt-2 font-pixel text-3xl text-[#FFD400]">
-                {GLOSSARY_ENTRIES.length}
+                {formatLocalizedNumber(locale, GLOSSARY_ENTRIES.length)}
               </p>
               <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
-                Terms
+                {t("Terms")}
               </p>
             </div>
             <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
               <Tags className="mx-auto size-5 text-[#899DFF]" />
               <p className="mt-2 font-pixel text-3xl text-white">
-                {GLOSSARY_CATEGORIES.length}
+                {formatLocalizedNumber(locale, GLOSSARY_CATEGORIES.length)}
               </p>
               <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
-                Categories
+                {t("Categories")}
               </p>
             </div>
             <div className="min-w-24 p-4 text-center">
               <Search className="mx-auto size-5 text-[#6FFFA2]" />
               <p className="mt-2 font-pixel text-3xl text-[#6FFFA2]">A–Z</p>
               <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
-                Searchable
+                {t("Searchable")}
               </p>
             </div>
           </div>

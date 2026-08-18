@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Bell, UsersRound } from "lucide-react";
 
 import PlayerAvatar from "@/components/friends/PlayerAvatar";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type {
   FriendRequestsResponse,
   FriendsResponse,
@@ -17,6 +18,7 @@ const emptyFriends: FriendsResponse = {
 };
 
 export default function FriendsSummary() {
+  const { t, formatNumber } = useI18n();
   const [friends, setFriends] = useState<FriendsResponse>(emptyFriends);
   const [incomingRequests, setIncomingRequests] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -66,14 +68,16 @@ export default function FriendsSummary() {
         <div className="flex items-center gap-2 text-[#899DFF]">
           <UsersRound className="size-4" />
           <p className="font-pixel text-xs uppercase tracking-[0.2em]">
-            Your party
+            {t("Your party")}
           </p>
         </div>
 
         {incomingRequests > 0 && (
           <Link
             href="/friends"
-            aria-label={`${incomingRequests} incoming friend requests`}
+            aria-label={t("{count} incoming friend requests", {
+              count: incomingRequests,
+            })}
             className="flex items-center gap-1.5 border border-[#FFD400]/45 bg-[#FFD400]/10 px-2 py-1 font-pixel text-[10px] text-[#FFD400]"
           >
             <Bell className="size-3" /> {incomingRequests}
@@ -91,10 +95,10 @@ export default function FriendsSummary() {
           <div className="mt-5 flex items-center justify-between gap-4 border-b border-white/10 pb-5">
             <div>
               <p className="font-pixel text-3xl text-[#FFD400]">
-                {friends.total}
+                {formatNumber(friends.total)}
               </p>
               <p className="mt-1 font-pixel text-[10px] uppercase tracking-[0.15em] text-white/35">
-                Party members
+                {t("Party members")}
               </p>
             </div>
 
@@ -118,7 +122,7 @@ export default function FriendsSummary() {
               </div>
             ) : (
               <span className="font-sans text-sm text-white/30">
-                No allies yet
+                {t("No allies yet")}
               </span>
             )}
           </div>
@@ -127,7 +131,7 @@ export default function FriendsSummary() {
             href="/friends"
             className="mt-4 flex h-11 items-center justify-between border border-[#899DFF]/30 bg-[#899DFF]/5 px-4 font-pixel text-sm text-[#AAB8FF] transition hover:border-[#899DFF] hover:bg-[#899DFF]/10 hover:text-white"
           >
-            Open friends <ArrowRight className="size-4" />
+            {t("Open friends")} <ArrowRight className="size-4" />
           </Link>
         </>
       )}

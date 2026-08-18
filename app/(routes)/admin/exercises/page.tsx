@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
 import { asc, eq } from "drizzle-orm";
@@ -11,6 +12,7 @@ import {
   ExerciseTable,
   usersTable,
 } from "@/config/schema";
+import { getServerI18n } from "@/lib/i18n/server";
 
 import AdminExerciseGenerator, {
   type AdminCourse,
@@ -18,7 +20,19 @@ import AdminExerciseGenerator, {
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+
+  return {
+    title: t("AI Exercise Forge | CodeQuest"),
+    description: t(
+      "Generate lessons, tasks, starter files, hints, and validation rules for CodeQuest courses.",
+    ),
+  };
+}
+
 export default async function AdminExercisesPage() {
+  const { t } = await getServerI18n();
   const { userId: clerkId } = await auth();
 
   if (!clerkId) {
@@ -138,16 +152,17 @@ export default async function AdminExercisesPage() {
       <header className="mb-10 flex flex-col gap-5 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm uppercase tracking-wider text-foreground/40">
-            Admin panel
+            {t("Admin panel")}
           </p>
 
           <h1 className="mt-1 font-pixel text-4xl text-accent md:text-6xl">
-            AI Exercise Forge
+            {t("AI Exercise Forge")}
           </h1>
 
           <p className="mt-3 max-w-3xl text-xl text-foreground/60">
-            Generate unique lessons, tasks, starter files, hints and validation
-            rules for every course chapter.
+            {t(
+              "Generate unique lessons, tasks, starter files, hints and validation rules for every course chapter.",
+            )}
           </p>
         </div>
 
@@ -155,16 +170,16 @@ export default async function AdminExercisesPage() {
           href="/courses"
           className="w-fit border border-accent bg-accent px-4 py-2 text-xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#FF8C00]"
         >
-          View courses
+          {t("View courses")}
         </Link>
       </header>
 
       <section className="mb-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Courses" value={courses.length} />
-        <StatCard label="Chapters" value={totalChapters} />
-        <StatCard label="Ready exercises" value={readyExercises} success />
+        <StatCard label={t("Courses")} value={courses.length} />
+        <StatCard label={t("Chapters")} value={totalChapters} />
+        <StatCard label={t("Ready exercises")} value={readyExercises} success />
         <StatCard
-          label="Missing exercises"
+          label={t("Missing exercises")}
           value={Math.max(0, totalExercises - readyExercises)}
           warning={readyExercises < totalExercises}
         />

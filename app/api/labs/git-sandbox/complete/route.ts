@@ -10,6 +10,7 @@ import {
   isSerializedGitState,
   validateGitSandboxMission,
 } from "@/lib/labs/git/validation";
+import { getServerI18n } from "@/lib/i18n/server";
 
 interface CompleteGitMissionBody {
   missionSlug?: unknown;
@@ -17,12 +18,14 @@ interface CompleteGitMissionBody {
 }
 
 export async function POST(request: Request) {
+  const { locale, t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
-        { error: "Sign in to complete Git Sandbox quests and earn XP." },
+        { error: t("Sign in to complete Git Sandbox quests and earn XP.") },
         { status: 401 },
       );
     }
@@ -30,18 +33,18 @@ export async function POST(request: Request) {
     const body = (await request.json()) as CompleteGitMissionBody;
     const missionSlug =
       typeof body.missionSlug === "string" ? body.missionSlug.trim() : "";
-    const mission = getGitSandboxMission(missionSlug);
+    const mission = getGitSandboxMission(missionSlug, locale);
 
     if (!mission) {
       return NextResponse.json(
-        { error: "Git Sandbox mission not found." },
+        { error: t("Git Sandbox mission not found.") },
         { status: 404 },
       );
     }
 
     if (!isSerializedGitState(body.state)) {
       return NextResponse.json(
-        { error: "The simulated repository state is invalid." },
+        { error: t("The simulated repository state is invalid.") },
         { status: 400 },
       );
     }
@@ -50,17 +53,23 @@ export async function POST(request: Request) {
 
     if (serializedSize > 150_000) {
       return NextResponse.json(
-        { error: "The simulated repository is too large." },
+        { error: t("The simulated repository is too large.") },
         { status: 413 },
       );
     }
 
-    const validation = validateGitSandboxMission(missionSlug, body.state);
+    const validation = validateGitSandboxMission(
+      missionSlug,
+      body.state,
+      locale,
+    );
 
     if (!validation.valid) {
       return NextResponse.json(
         {
-          error: validation.errors[0] ?? "The Git quest is not complete yet.",
+          error:
+            validation.errors[0] ??
+            t("The Git quest is not complete yet."),
           validationErrors: validation.errors,
         },
         { status: 422 },
@@ -87,13 +96,17 @@ export async function POST(request: Request) {
 
     if (error instanceof MissingCodeQuestProfileError) {
       return NextResponse.json(
-        { error: `${error.message} Refresh the Dashboard and try again.` },
+        {
+          error: t(
+            "Your CodeQuest profile is not ready yet. Refresh the Dashboard and try again.",
+          ),
+        },
         { status: 404 },
       );
     }
 
     return NextResponse.json(
-      { error: "Failed to complete the Git Sandbox mission." },
+      { error: t("Failed to complete the Git Sandbox mission.") },
       { status: 500 },
     );
   }

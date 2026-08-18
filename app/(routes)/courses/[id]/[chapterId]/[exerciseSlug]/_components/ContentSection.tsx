@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 import type { ExerciseData } from "./types";
 
 interface ContentSectionProps {
@@ -28,11 +32,13 @@ export default function ContentSection({
   exerciseTitle,
   exercise,
 }: ContentSectionProps) {
+  const { t, formatNumber } = useI18n();
+
   return (
     <section className="h-full overflow-y-auto border-r border-border p-6">
       <header>
         <p className="text-sm uppercase text-foreground/40">
-          Exercise
+          {t("Exercise")}
         </p>
 
         <h1 className="mt-1 text-3xl text-accent md:text-4xl flex items-center gap-2">
@@ -43,7 +49,7 @@ export default function ContentSection({
 
       <section className="mt-6">
         <h2 className="text-2xl text-accent">
-          Learn
+          {t("Learn")}
         </h2>
 
         <div
@@ -57,7 +63,7 @@ export default function ContentSection({
       <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-2xl text-accent flex items-center gap-2">
           <svg className="size-5 text-[#0FB5FF]" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M18 22H6v-2h12v2ZM6 20H4V4h2v16ZM16 4h-2v4h4V6h2v14h-2V10h-6V4H6V2h10v2Zm0 14H8v-2h8v2Zm0-4H8v-2h8v2Zm-6-4H8V8h2v2Zm8-4h-2V4h2v2Z"/></svg>
-          Your task
+          {t("Your task")}
         </h2>
 
         <div
@@ -70,10 +76,10 @@ export default function ContentSection({
 
       <details className="group mt-8 border border-accent/50 bg-accent/5">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-base text-accent [&::-webkit-details-marker]:hidden">
-          <span>Show hint</span>
+          <span>{t("Show hint")}</span>
 
           <span className="text-sm text-foreground/40">
-            -{exercise.hintXp} XP
+            -{formatNumber(exercise.hintXp)} XP
           </span>
         </summary>
 

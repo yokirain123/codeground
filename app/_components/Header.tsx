@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { Show } from "@clerk/nextjs";
@@ -5,17 +7,21 @@ import { Show } from "@clerk/nextjs";
 import Logo from "@/app/_components/Logo";
 import Navbar from "@/app/_components/Navbar";
 import { Button } from "@/components/ui/button";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import { UserMenu } from "./user-menu";
 import NotificationBell from "./NotificationBell";
 
 export function Header() {
+  const { t } = useI18n();
+
   return (
     <header className="sticky top-0 z-50 border-b border-[#899DFF]/25 bg-[#07080C]/95 text-white backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 md:gap-5 md:px-6 lg:px-8">
         <Link
           href="/"
-          aria-label="CodeQuest home"
+          aria-label={t("CodeQuest home")}
           className="flex shrink-0 items-center"
         >
           <Logo />
@@ -26,6 +32,8 @@ export function Header() {
         </div>
 
         <div className="flex shrink-0 items-center gap-3 border-l border-[#899DFF]/20 pl-3 sm:gap-4 sm:pl-4">
+          <LanguageSwitcher />
+
           <Show when="signed-out">
             <Button
               variant="default"
@@ -38,15 +46,17 @@ export function Header() {
                 />
 
                 <span className="relative z-10 transition-colors duration-500 group-hover:text-[#07080C]">
-                  Sign in
+                  {t("Sign in")}
                 </span>
               </Link>
             </Button>
           </Show>
 
           <Show when="signed-in">
-            <NotificationBell/>
-            <UserMenu />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <NotificationBell />
+              <UserMenu />
+            </div>
           </Show>
         </div>
       </div>

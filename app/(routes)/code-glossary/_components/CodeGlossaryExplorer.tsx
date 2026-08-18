@@ -3,12 +3,13 @@
 import { BookA, ChevronDown, FilterX, Hash, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import {
   GLOSSARY_CATEGORIES,
-  GLOSSARY_ENTRIES,
   type GlossaryCategory,
   type GlossaryEntry,
 } from "@/lib/resources/glossary";
+import { getGlossaryEntries } from "@/lib/resources/glossary.uk";
 
 type CategoryFilter = GlossaryCategory | "All";
 
@@ -31,13 +32,15 @@ function groupByLetter(entries: GlossaryEntry[]) {
 }
 
 export default function CodeGlossaryExplorer() {
+  const { locale, t, formatNumber } = useI18n();
+  const glossaryEntries = useMemo(() => getGlossaryEntries(locale), [locale]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("All");
 
   const filteredEntries = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return GLOSSARY_ENTRIES.filter((entry) => {
+    return glossaryEntries.filter((entry) => {
       const matchesCategory = category === "All" || entry.category === category;
       const matchesQuery =
         !normalizedQuery ||
@@ -50,15 +53,15 @@ export default function CodeGlossaryExplorer() {
 
       return matchesCategory && matchesQuery;
     });
-  }, [category, query]);
+  }, [category, glossaryEntries, query]);
 
   const groupedEntries = useMemo(
     () => groupByLetter(filteredEntries),
     [filteredEntries],
   );
   const allLetters = useMemo(
-    () => [...new Set(GLOSSARY_ENTRIES.map((entry) => entry.term[0]))],
-    [],
+    () => [...new Set(glossaryEntries.map((entry) => entry.term[0]))],
+    [glossaryEntries],
   );
   const visibleLetters = Object.keys(groupedEntries).sort();
   const filtersAreActive = query.trim().length > 0 || category !== "All";
@@ -80,12 +83,12 @@ export default function CodeGlossaryExplorer() {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <label className="flex min-w-0 items-center gap-3 border border-[#899DFF]/30 bg-[#07080C] px-4 py-3 focus-within:border-[#FFD400]">
             <Search className="size-5 shrink-0 text-[#899DFF]" />
-            <span className="sr-only">Search programming terms</span>
+            <span className="sr-only">{t("Search programming terms")}</span>
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search API, pointer, state, compiler..."
+              placeholder={t("Search API, pointer, state, compiler...")}
               className="min-w-0 flex-1 bg-transparent font-sans text-base text-white outline-none placeholder:text-white/25"
             />
             {query && (
@@ -94,15 +97,16 @@ export default function CodeGlossaryExplorer() {
                 onClick={() => setQuery("")}
                 className="cursor-pointer font-pixel text-xs uppercase tracking-wider text-white/35 hover:text-[#FFD400]"
               >
-                Clear
+                {t("Clear")}
               </button>
             )}
           </label>
 
           <div className="flex items-center justify-between gap-4 font-pixel text-sm text-white/40 lg:justify-end">
             <span>
-              <span className="text-[#FFD400]">{filteredEntries.length}</span>{" "}
-              terms found
+              {t("{count} terms found", {
+                count: formatNumber(filteredEntries.length),
+              })}
             </span>
             {filtersAreActive && (
               <button
@@ -110,13 +114,16 @@ export default function CodeGlossaryExplorer() {
                 onClick={clearFilters}
                 className="flex cursor-pointer items-center gap-2 text-[#899DFF] transition-colors hover:text-[#FFD400]"
               >
-                <FilterX className="size-4" /> Reset
+                <FilterX className="size-4" /> {t("Reset")}
               </button>
             )}
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2" aria-label="Term categories">
+        <div
+          className="mt-5 flex flex-wrap gap-2"
+          aria-label={t("Term categories")}
+        >
           {(["All", ...GLOSSARY_CATEGORIES] as CategoryFilter[]).map(
             (categoryOption) => {
               const isActive = categoryOption === category;
@@ -133,7 +140,7 @@ export default function CodeGlossaryExplorer() {
                       : "border-white/10 bg-black/15 text-white/45 hover:border-[#899DFF]/60 hover:text-white"
                   }`}
                 >
-                  {categoryOption}
+                  {t(categoryOption)}
                 </button>
               );
             },
@@ -173,11 +180,14 @@ export default function CodeGlossaryExplorer() {
                 </div>
                 <div>
                   <p className="font-pixel text-xl text-white">
-                    {groupedEntries[letter].length}{" "}
-                    {groupedEntries[letter].length === 1 ? "term" : "terms"}
+                    {t("{count} terms", {
+                      count: formatNumber(groupedEntries[letter].length),
+                    })}
                   </p>
                   <p className="font-sans text-sm text-white/35">
-                    Programming concepts beginning with {letter}
+                    {t("Programming concepts beginning with {letter}", {
+                      letter,
+                    })}
                   </p>
                 </div>
               </div>
@@ -201,7 +211,7 @@ export default function CodeGlossaryExplorer() {
                         <span
                           className={`mt-1 inline-flex border px-2 py-0.5 font-pixel text-[10px] uppercase tracking-wider ${categoryStyles[entry.category]}`}
                         >
-                          {entry.category}
+                          {t(entry.category)}
                         </span>
                       </div>
 
@@ -216,7 +226,7 @@ export default function CodeGlossaryExplorer() {
                       {entry.example && (
                         <div className="mt-4 border-l-2 border-[#FFD400] bg-black/20 px-4 py-3">
                           <div className="flex items-center gap-2 font-pixel text-[10px] uppercase tracking-[0.18em] text-[#FFD400]">
-                            <BookA className="size-3.5" /> Example
+                            <BookA className="size-3.5" /> {t("Example")}
                           </div>
                           <p className="mt-2 font-mono text-sm leading-6 text-[#DCE2FF]">
                             {entry.example}
@@ -234,17 +244,17 @@ export default function CodeGlossaryExplorer() {
         <div className="mt-8 border-2 border-dashed border-[#899DFF]/30 bg-[#10152A]/40 px-6 py-16 text-center">
           <Search className="mx-auto size-8 text-[#899DFF]/50" />
           <h2 className="mt-4 font-pixel text-3xl text-white">
-            No terms found
+            {t("No terms found")}
           </h2>
           <p className="mt-2 font-sans text-white/40">
-            Try another search or reset the active category.
+            {t("Try another search or reset the active category.")}
           </p>
           <button
             type="button"
             onClick={clearFilters}
             className="mt-5 cursor-pointer border border-[#FFD400] px-4 py-2 font-pixel text-sm text-[#FFD400] hover:bg-[#FFD400] hover:text-[#07080C]"
           >
-            Reset filters
+            {t("Reset filters")}
           </button>
         </div>
       )}

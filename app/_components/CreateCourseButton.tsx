@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export interface Course {
   id: number;
@@ -28,6 +29,7 @@ const initialForm = {
 export default function CreateCourseButton({
   onCreated,
 }: CreateCourseButtonProps) {
+  const { t, translateMessage } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -57,7 +59,9 @@ export default function CreateCourseButton({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create course");
+        throw new Error(
+          translateMessage(data.error || t("Failed to create course")),
+        );
       }
 
       const chaptersResponse = await fetch("/api/admin/save-chapters", {
@@ -74,7 +78,10 @@ export default function CreateCourseButton({
 
       if (!chaptersResponse.ok) {
         throw new Error(
-          chaptersData.error || "Course created, but chapters were not created",
+          translateMessage(
+            chaptersData.error ||
+              t("Course created, but chapters were not created"),
+          ),
         );
       }
 
@@ -83,7 +90,9 @@ export default function CreateCourseButton({
       setIsOpen(false);
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Failed to create course",
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Failed to create course"),
       );
     } finally {
       setIsSubmitting(false);
@@ -97,7 +106,7 @@ export default function CreateCourseButton({
         onClick={() => setIsOpen(true)}
         className="group relative cursor-pointer overflow-hidden border bg-accent px-4 py-5 font-pixel text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent-hover hover:text-white hover:shadow-[2px_2px_0_0_#FF8C00]"
       >
-        + Create course
+        + {t("Create course")}
       </Button>
 
       {isOpen && (
@@ -107,7 +116,9 @@ export default function CreateCourseButton({
             className="w-full max-w-xl border-2 border-accent bg-background p-6 shadow-[8px_8px_0_0_#FF8C00]"
           >
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-pixel text-4xl text-accent">Create course</h2>
+              <h2 className="font-pixel text-4xl text-accent">
+                {t("Create course")}
+              </h2>
 
               <button
                 type="button"
@@ -128,7 +139,7 @@ export default function CreateCourseButton({
                     title: event.target.value,
                   })
                 }
-                placeholder="Course title"
+                placeholder={t("Course title")}
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none focus:shadow-[3px_3px_0_0_#FF8C00]"
               />
 
@@ -141,7 +152,7 @@ export default function CreateCourseButton({
                     desc: event.target.value,
                   })
                 }
-                placeholder="Course description"
+                placeholder={t("Course description")}
                 rows={5}
                 className="resize-none border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none focus:shadow-[3px_3px_0_0_#FF8C00]"
               />
@@ -156,7 +167,7 @@ export default function CreateCourseButton({
                     bannerImage: event.target.value,
                   })
                 }
-                placeholder="Banner image URL"
+                placeholder={t("Banner image URL")}
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none focus:shadow-[3px_3px_0_0_#FF8C00]"
               />
 
@@ -170,9 +181,9 @@ export default function CreateCourseButton({
                 }
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
+                <option value="Beginner">{t("Beginner")}</option>
+                <option value="Intermediate">{t("Intermediate")}</option>
+                <option value="Advanced">{t("Advanced")}</option>
               </select>
 
               <input
@@ -183,7 +194,7 @@ export default function CreateCourseButton({
                     tags: event.target.value,
                   })
                 }
-                placeholder="Tags separated by commas"
+                placeholder={t("Tags separated by commas")}
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none focus:shadow-[3px_3px_0_0_#FF8C00]"
               />
             </div>
@@ -199,7 +210,7 @@ export default function CreateCourseButton({
                 onClick={() => setIsOpen(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
 
               <Button
@@ -207,7 +218,7 @@ export default function CreateCourseButton({
                 disabled={isSubmitting}
                 className="bg-accent font-pixel text-xl text-black hover:bg-accent-hover hover:text-white"
               >
-                {isSubmitting ? "Creating..." : "Create course"}
+                {isSubmitting ? t("Creating...") : t("Create course")}
               </Button>
             </div>
           </form>

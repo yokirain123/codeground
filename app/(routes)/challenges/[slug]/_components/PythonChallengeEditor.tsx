@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Play, RotateCcw, Terminal } from "lucide-react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import { getChallengeDraftKey } from "@/lib/challenges/draft";
 import type { ChallengeDefinition } from "@/lib/challenges/types";
@@ -31,6 +32,7 @@ export default function PythonChallengeEditor({
   initialCompleted,
   onCompletionChange,
 }: PythonChallengeEditorProps) {
+  const { t } = useI18n();
   const pythonEntry = useMemo(
     () =>
       Object.entries(challenge.starterCode).find(([filename]) =>
@@ -42,7 +44,9 @@ export default function PythonChallengeEditor({
 
   const [code, setCode] = useState(starterCode);
   const [stdin, setStdin] = useState("");
-  const [output, setOutput] = useState("Downloading Python runtime...");
+  const [output, setOutput] = useState(() =>
+    t("Downloading Python runtime..."),
+  );
   const [isRuntimeReady, setIsRuntimeReady] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [workerVersion, setWorkerVersion] = useState(0);
@@ -159,7 +163,7 @@ export default function PythonChallengeEditor({
       activeRunCodeRef.current = codeToRun;
       setIsRunning(true);
       setLastSuccessfulCode(null);
-      setOutput("Running...");
+      setOutput(t("Running..."));
 
       worker.postMessage({
         type: "run",
@@ -176,7 +180,9 @@ export default function PythonChallengeEditor({
         setIsRuntimeReady(false);
         setLastSuccessfulCode(null);
         setOutput(
-          "Execution stopped after 10 seconds. Check your loops and try again.",
+          t(
+            "Execution stopped after 10 seconds. Check your loops and try again.",
+          ),
         );
         setWorkerVersion((current) => current + 1);
       }, RUN_TIMEOUT_MS);
@@ -188,7 +194,9 @@ export default function PythonChallengeEditor({
       setIsRuntimeReady(false);
       setIsRunning(false);
       setOutput(
-        "Python could not load within 45 seconds. Check the connection and reload the page.",
+        t(
+          "Python could not load within 45 seconds. Check the connection and reload the page.",
+        ),
       );
     }, RUNTIME_TIMEOUT_MS);
 
@@ -196,7 +204,11 @@ export default function PythonChallengeEditor({
       const message = event.data;
 
       if (message.type === "loading") {
-        setOutput(message.message);
+        setOutput(
+          message.message === "Downloading Python runtime..."
+            ? t("Downloading Python runtime...")
+            : message.message,
+        );
         return;
       }
 
@@ -219,7 +231,11 @@ export default function PythonChallengeEditor({
       setIsRunning(false);
 
       if (message.type === "result") {
-        setOutput(message.output);
+        setOutput(
+          message.output === "Program finished without output."
+            ? t("Program finished without output.")
+            : message.output,
+        );
         setLastSuccessfulCode(activeRunCodeRef.current);
       } else {
         setOutput(message.error);
@@ -232,7 +248,7 @@ export default function PythonChallengeEditor({
       setIsRunning(false);
       setIsRuntimeReady(false);
       setLastSuccessfulCode(null);
-      setOutput(event.message || "The Python worker failed to start.");
+      setOutput(event.message || t("The Python worker failed to start."));
     };
 
     return () => {
@@ -246,7 +262,7 @@ export default function PythonChallengeEditor({
       worker.terminate();
       workerRef.current = null;
     };
-  }, [challenge.slug, workerVersion]);
+  }, [challenge.slug, t, workerVersion]);
 
   const runCode = () => {
     if (!workerRef.current || !isRuntimeReady || isRunning) {
@@ -258,7 +274,7 @@ export default function PythonChallengeEditor({
     activeRunCodeRef.current = code;
     setIsRunning(true);
     setLastSuccessfulCode(null);
-    setOutput("Running...");
+    setOutput(t("Running..."));
 
     workerRef.current.postMessage({
       type: "run",
@@ -275,7 +291,9 @@ export default function PythonChallengeEditor({
       setIsRuntimeReady(false);
       setLastSuccessfulCode(null);
       setOutput(
-        "Execution stopped after 10 seconds. Check your loops and try again.",
+        t(
+          "Execution stopped after 10 seconds. Check your loops and try again.",
+        ),
       );
       setWorkerVersion((current) => current + 1);
     }, RUN_TIMEOUT_MS);
@@ -287,7 +305,7 @@ export default function PythonChallengeEditor({
     setStdin("");
     stdinRef.current = "";
     setLastSuccessfulCode(null);
-    setOutput("Starter code restored. Run it to refresh the output.");
+    setOutput(t("Starter code restored. Run it to refresh the output."));
     localStorage.removeItem(getChallengeDraftKey(challenge.slug));
   };
 
@@ -309,7 +327,7 @@ export default function PythonChallengeEditor({
               className="h-9 cursor-pointer rounded-none border-[#899DFF] bg-transparent px-3 font-pixel text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C]"
             >
               <RotateCcw className="size-4" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t("Reset")}</span>
             </Button>
 
             <Button
@@ -319,13 +337,17 @@ export default function PythonChallengeEditor({
               className="h-9 cursor-pointer rounded-none border-2 border-[#FFD400] bg-[#FFD400] px-4 font-pixel text-[#07080C] shadow-[3px_3px_0_0_#899DFF] hover:translate-x-px hover:translate-y-px hover:bg-[#FFD400] hover:shadow-[1px_1px_0_0_#899DFF] disabled:pointer-events-none disabled:opacity-50"
             >
               <Play className="size-4" />
-              {isRunning ? "Running..." : isRuntimeReady ? "Run" : "Loading..."}
+              {isRunning
+                ? t("Running...")
+                : isRuntimeReady
+                  ? t("Run")
+                  : t("Loading...")}
             </Button>
           </div>
         </header>
 
         <label htmlFor="challenge-python-editor" className="sr-only">
-          Python code
+          {t("Python code")}
         </label>
         <textarea
           id="challenge-python-editor"
@@ -340,7 +362,7 @@ export default function PythonChallengeEditor({
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#899DFF]/25 bg-[#10152A] px-4 py-3">
           <p className="hidden font-pixel text-xs text-white/30 xl:block">
-            Draft saved automatically
+            {t("Draft saved automatically")}
           </p>
           <div className="ml-auto">
             <ChallengeSubmitButton
@@ -348,13 +370,13 @@ export default function PythonChallengeEditor({
               isCompleted={isCompleted}
               onClick={() => {
                 if (code.trim() === starterCode.trim()) {
-                  toast.error("Change the starter code first");
+                  toast.error(t("Change the starter code first"));
                   return;
                 }
 
                 if (lastSuccessfulCode !== code) {
                   toast.error(
-                    "Run the current code successfully before submitting it",
+                    t("Run the current code successfully before submitting it"),
                   );
                   return;
                 }
@@ -376,7 +398,7 @@ export default function PythonChallengeEditor({
             className="flex shrink-0 items-center gap-2 bg-[#10152A] px-4 py-2 font-pixel text-sm text-[#AAB6FF]"
           >
             <Keyboard className="size-4 text-[#FFD400]" />
-            Program input
+            {t("Program input")}
           </label>
           <textarea
             id="challenge-python-stdin"
@@ -385,7 +407,7 @@ export default function PythonChallengeEditor({
               setStdin(event.target.value);
               setLastSuccessfulCode(null);
             }}
-            placeholder="Enter one input value per line..."
+            placeholder={t("Enter one input value per line...")}
             spellCheck={false}
             className="min-h-0 flex-1 resize-none overflow-auto bg-[#090B14] p-4 font-mono text-sm leading-6 text-white outline-none placeholder:text-white/25"
           />
@@ -394,7 +416,7 @@ export default function PythonChallengeEditor({
         <div className="flex min-h-0 flex-col">
           <div className="flex shrink-0 items-center gap-2 bg-[#10152A] px-4 py-2 font-pixel text-sm text-[#AAB6FF]">
             <Terminal className="size-4 text-[#62FB60]" />
-            Terminal output
+            {t("Terminal output")}
           </div>
           <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap p-4 font-mono text-sm leading-6 text-[#62FB60]">
             {output}

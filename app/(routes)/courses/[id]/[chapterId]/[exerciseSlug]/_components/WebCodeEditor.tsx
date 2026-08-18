@@ -13,6 +13,7 @@ import { autocompletion } from "@codemirror/autocomplete";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { codeQuestSandpackTheme } from "@/app/sandpack/sandpackTheme";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import CompleteExerciseButton from "./CompleteExerciseButton";
 import type { ExerciseData } from "./types";
@@ -88,6 +89,7 @@ export default function WebCodeEditor({
   exercise,
   onCompletionChange,
 }: WebCodeEditorProps) {
+  const { t } = useI18n();
   const panelOrientation = usePanelOrientation();
   const { completeExercise, isChecking, isCompleting, isCompleted } =
     useExerciseCompletion(onCompletionChange);
@@ -116,7 +118,9 @@ export default function WebCodeEditor({
   return (
     <div
       role="region"
-      aria-label={`${exerciseTitle} code playground`}
+      aria-label={t("{exercise} code playground", {
+        exercise: exerciseTitle,
+      })}
       className="h-full min-h-0 w-full overflow-hidden bg-[#07080C]"
     >
       <SandpackProvider

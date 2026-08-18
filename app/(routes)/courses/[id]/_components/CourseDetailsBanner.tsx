@@ -6,6 +6,7 @@ import axios from "axios";
 import Image from "next/image";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import TokenStateScreen from "@/components/TokenStateScreen";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -49,6 +50,7 @@ export default function CourseDetailsBanner({
   loading = false,
   onEnrollmentChange,
 }: CourseDetailsBannerProps) {
+  const { t, translateMessage } = useI18n();
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [error, setError] = useState("");
@@ -101,9 +103,8 @@ export default function CourseDetailsBanner({
 
         console.error("Enrollment check error:", error);
 
-        const errorMessage = getErrorMessage(
-          error,
-          "Could not check your enrollment status",
+        const errorMessage = translateMessage(
+          getErrorMessage(error, t("Could not check your enrollment status")),
         );
 
         setEnrollmentState({
@@ -120,7 +121,7 @@ export default function CourseDetailsBanner({
     return () => {
       controller.abort();
     };
-  }, [courseId, onEnrollmentChange]);
+  }, [courseId, onEnrollmentChange, t, translateMessage]);
 
   const enrollCourse = async () => {
     if (!course || isBusy || isEnrolled) {
@@ -139,7 +140,9 @@ export default function CourseDetailsBanner({
       });
 
       if (!response.data.isEnrolled) {
-        throw new Error(response.data.message || "Failed to enroll in course");
+        throw new Error(
+          response.data.message || t("Failed to enroll in course"),
+        );
       }
 
       setEnrollmentState({
@@ -148,19 +151,18 @@ export default function CourseDetailsBanner({
       });
       onEnrollmentChange?.(true);
 
-      toast.success("Course enrolled!", {
-        description: "The exercises are now unlocked.",
+      toast.success(t("Course enrolled!"), {
+        description: t("The exercises are now unlocked."),
       });
     } catch (error) {
       console.error("Course enrollment error:", error);
 
-      const errorMessage = getErrorMessage(
-        error,
-        "Failed to enroll in course",
+      const errorMessage = translateMessage(
+        getErrorMessage(error, t("Failed to enroll in course")),
       );
 
       setError(errorMessage);
-      toast.error("Enrollment failed", {
+      toast.error(t("Enrollment failed"), {
         description: errorMessage,
       });
     } finally {
@@ -174,7 +176,9 @@ export default function CourseDetailsBanner({
     }
 
     const confirmed = window.confirm(
-      `Are you sure you want to leave "${course.title}"?`,
+      t('Are you sure you want to leave "{course}"?', {
+        course: course.title,
+      }),
     );
 
     if (!confirmed) {
@@ -195,19 +199,18 @@ export default function CourseDetailsBanner({
       });
       onEnrollmentChange?.(false);
 
-      toast.success("You left the course", {
-        description: "The exercises are now locked.",
+      toast.success(t("You left the course"), {
+        description: t("The exercises are now locked."),
       });
     } catch (error) {
       console.error("Course unenrollment error:", error);
 
-      const errorMessage = getErrorMessage(
-        error,
-        "Failed to leave course",
+      const errorMessage = translateMessage(
+        getErrorMessage(error, t("Failed to leave course")),
       );
 
       setError(errorMessage);
-      toast.error("Could not leave course", {
+      toast.error(t("Could not leave course"), {
         description: errorMessage,
       });
     } finally {
@@ -235,7 +238,13 @@ export default function CourseDetailsBanner({
 
       <div className="relative z-10 flex w-full max-w-3xl flex-col items-start px-6 py-12 text-left md:px-10 lg:px-14">
         <span className="mb-4 border-2 border-black bg-[#FFD400] px-3 py-1 font-pixel text-lg text-black shadow-[3px_3px_0_#FF8C00] md:text-xl">
-          {course.level}
+          {course.level === "Beginner"
+            ? t("Beginner")
+            : course.level === "Intermediate"
+              ? t("Intermediate")
+              : course.level === "Advanced"
+                ? t("Advanced")
+                : course.level}
         </span>
 
         <h1 className="font-pixel text-4xl font-bold text-white [text-shadow:4px_4px_0_#28336B] md:text-7xl">
@@ -262,16 +271,16 @@ export default function CourseDetailsBanner({
 
               <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
                 {isCheckingEnrollment
-                  ? "Checking..."
+                  ? t("Checking...")
                   : isEnrolling
-                    ? "Enrolling..."
-                    : "Start course"}
+                    ? t("Enrolling...")
+                    : t("Start course")}
               </span>
             </Button>
           ) : (
             <>
               <div className="border-2 border-[#6FFFA2]/50 bg-[#6FFFA2]/10 px-6 py-3 font-pixel text-xl text-[#6FFFA2] md:text-2xl">
-                Enrolled ✓
+                {t("Enrolled")} ✓
               </div>
 
               <Button
@@ -281,7 +290,7 @@ export default function CourseDetailsBanner({
                 disabled={isLeaving}
                 className="h-auto cursor-pointer border-2 border-red-500/70 bg-[#07080C]/80 px-5 py-3 font-pixel text-xl text-red-400 shadow-[4px_4px_0_#7F1D1D] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_#7F1D1D] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 md:text-2xl"
               >
-                {isLeaving ? "Leaving..." : "Leave course"}
+                {isLeaving ? t("Leaving...") : t("Leave course")}
               </Button>
             </>
           )}
