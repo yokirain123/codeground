@@ -1,11 +1,46 @@
 import "server-only";
 
+import type { Locale } from "@/lib/i18n/config";
+
 import { getGitSandboxMission } from "./catalog";
 import type { GitSandboxState } from "./types";
 
 export interface GitMissionValidationResult {
   valid: boolean;
   errors: string[];
+}
+
+const UK_VALIDATION_MESSAGES: Record<string, string> = {
+  "Git Sandbox mission not found.": "Місію Git Sandbox не знайдено.",
+  "The repository HEAD is invalid.": "HEAD репозиторію некоректний.",
+  "Edit README.md, stage it and create a new commit.":
+    "Відредагуй README.md, додай його до індексу та створи новий коміт.",
+  "Create a branch named feature.": "Створи гілку з назвою feature.",
+  "Switch back to main before finishing the mission.":
+    "Перед завершенням місії повернися до гілки main.",
+  "Commit the app.js change on feature and merge it into main.":
+    "Закоміть зміни app.js у feature та злий цю гілку в main.",
+  "The feature branch has not been merged into main.":
+    "Гілку feature ще не злито в main.",
+  "Use git revert HEAD to create an undo commit.":
+    "Використай git revert HEAD, щоб створити коміт скасування.",
+  "The stable version of app.js has not been restored.":
+    "Стабільну версію app.js ще не відновлено.",
+  "Finish the merge on the main branch.":
+    "Заверши злиття в гілці main.",
+  "Resolve, stage and commit every merge conflict.":
+    "Розв’яжи, проіндексуй і закоміть усі конфлікти злиття.",
+  "The resolved merge commit has not been created yet.":
+    "Коміт із розв’язаним злиттям ще не створено.",
+  "Remove every conflict marker from app.js.":
+    "Прибери всі маркери конфлікту з app.js.",
+  "Commit the staged changes before completing the mission.":
+    "Закоміть проіндексовані зміни перед завершенням місії.",
+};
+
+function localizeErrors(locale: Locale, errors: string[]) {
+  if (locale === "en") return errors;
+  return errors.map((error) => UK_VALIDATION_MESSAGES[error] ?? error);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -35,18 +70,25 @@ function getHead(state: GitSandboxState) {
 export function validateGitSandboxMission(
   slug: string,
   state: GitSandboxState,
+  locale: Locale = "en",
 ): GitMissionValidationResult {
   const mission = getGitSandboxMission(slug);
 
   if (!mission || state.missionSlug !== slug) {
-    return { valid: false, errors: ["Git Sandbox mission not found."] };
+    return {
+      valid: false,
+      errors: localizeErrors(locale, ["Git Sandbox mission not found."]),
+    };
   }
 
   const errors: string[] = [];
   const head = getHead(state);
 
   if (!head) {
-    return { valid: false, errors: ["The repository HEAD is invalid."] };
+    return {
+      valid: false,
+      errors: localizeErrors(locale, ["The repository HEAD is invalid."]),
+    };
   }
 
   if (slug === "first-checkpoint") {
@@ -116,5 +158,8 @@ export function validateGitSandboxMission(
     errors.push("Commit the staged changes before completing the mission.");
   }
 
-  return { valid: errors.length === 0, errors };
+  return {
+    valid: errors.length === 0,
+    errors: localizeErrors(locale, errors),
+  };
 }

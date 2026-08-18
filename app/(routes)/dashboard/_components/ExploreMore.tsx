@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface ExploreOption {
   id: number;
@@ -10,50 +13,51 @@ interface ExploreOption {
   href: string;
 }
 
-const exploreMoreOptions: ExploreOption[] = [
-  {
-    id: 1,
-    title: "Git Sandbox",
-    description: "Practice Git without breaking a real project.",
-    category: "Version control",
-    icon: "/labs/git-sandbox.svg",
-    href: "/git-sandbox",
-  },
-  {
-    id: 2,
-    title: "Refactor Lab",
-    description: "Turn working code into clean and readable code.",
-    category: "Improve",
-    icon: "/labs/refactor-lab.svg",
-    href: "/refactor-lab",
-  },
-  {
-    id: 3,
-    title: "Bug Hunt",
-    description: "Find and fix bugs hidden inside broken code.",
-    category: "Debug",
-    icon: "/labs/bug-hunt.svg",
-    href: "/bug-hunt",
-  },
-  {
-    id: 4,
-    title: "Error Decoder",
-    description: "Turn confusing error messages into clear solutions.",
-    category: "Diagnose",
-    icon: "/labs/error-decoder.svg",
-    href: "/error-decoder",
-  },
-];
-
 export default function ExploreMore() {
+  const { t } = useI18n();
+  const exploreMoreOptions: ExploreOption[] = [
+    {
+      id: 1,
+      title: "Git Sandbox",
+      description: t("Practice Git without breaking a real project."),
+      category: t("Version control"),
+      icon: "/labs/git-sandbox.svg",
+      href: "/git-sandbox",
+    },
+    {
+      id: 2,
+      title: "Refactor Lab",
+      description: t("Turn working code into clean and readable code."),
+      category: t("Improve"),
+      icon: "/labs/refactor-lab.svg",
+      href: "/refactor-lab",
+    },
+    {
+      id: 3,
+      title: "Bug Hunt",
+      description: t("Find and fix bugs hidden inside broken code."),
+      category: t("Debug"),
+      icon: "/labs/bug-hunt.svg",
+      href: "/bug-hunt",
+    },
+    {
+      id: 4,
+      title: "Error Decoder",
+      description: t("Turn confusing error messages into clear solutions."),
+      category: t("Diagnose"),
+      icon: "/labs/error-decoder.svg",
+      href: "/error-decoder",
+    },
+  ];
+
   return (
     <section>
       <div className="mb-5 border-b border-white/10 pb-4">
         <p className="font-pixel text-xs uppercase tracking-[0.22em] text-[#899DFF]">
-          Optional side quests
+          {t("Optional side quests")}
         </p>
         <h2 className="mt-1 font-pixel text-3xl font-bold text-white sm:text-4xl">
-          Explore <span className="text-[#FFD400]">more</span>
+          {t("Explore")} <span className="text-[#FFD400]">{t("more")}</span>
         </h2>
       </div>
 

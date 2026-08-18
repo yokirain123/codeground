@@ -1,4 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
+
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import type { Chapter, CourseProgressData } from "./CourseChapter";
 
@@ -15,6 +19,7 @@ export default function CourseProgress({
   chapters,
   completion,
 }: CourseProgressProps) {
+  const { t, formatNumber } = useI18n();
   const totalExercises = chapters.reduce(
     (total, chapter) => total + chapter.exercises.length,
     0,
@@ -62,29 +67,31 @@ export default function CourseProgress({
 
         <div>
           <p className="font-pixel text-xs uppercase tracking-[0.2em] text-[#899DFF]">
-            Player stats
+            {t("Player stats")}
           </p>
           <h2 className="mt-1 font-pixel text-3xl text-white">
-            Course progress
+            {t("Course progress")}
           </h2>
         </div>
       </div>
 
       <div className="mb-6">
         <div className="mb-3 flex items-end justify-between gap-4 font-pixel">
-          <span className="text-xl text-white/60">Completion</span>
+          <span className="text-xl text-white/60">{t("Completion")}</span>
           <span className={isComplete ? "text-[#6FFFA2]" : "text-[#FFD400]"}>
-            {progress}%
+            {formatNumber(progress)}%
           </span>
         </div>
 
         <div
           role="progressbar"
-          aria-label="Course progress"
+          aria-label={t("Course progress")}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
-          aria-valuetext={`${progress}% complete`}
+          aria-valuetext={t("{progress}% complete", {
+            progress: formatNumber(progress),
+          })}
           className="h-4 overflow-hidden border border-white/15 bg-black/40 p-px"
         >
           <div
@@ -99,18 +106,18 @@ export default function CourseProgress({
       <div className="flex flex-col gap-4 border-t border-white/10 pt-5">
         <ProgressRow
           icon={<ChaptersIcon />}
-          label="Chapters"
-          value={`${completedChapters}/${chapters.length}`}
+          label={t("Chapters")}
+          value={`${formatNumber(completedChapters)}/${formatNumber(chapters.length)}`}
         />
         <ProgressRow
           icon={<ExercisesIcon />}
-          label="Exercises"
-          value={`${completedExercises}/${totalExercises}`}
+          label={t("Exercises")}
+          value={`${formatNumber(completedExercises)}/${formatNumber(totalExercises)}`}
         />
         <ProgressRow
           icon={<XpIcon />}
-          label="Total XP"
-          value={`${earnedXp}/${totalXp} XP`}
+          label={t("Total XP")}
+          value={`${formatNumber(earnedXp)}/${formatNumber(totalXp)} XP`}
           highlighted
         />
       </div>

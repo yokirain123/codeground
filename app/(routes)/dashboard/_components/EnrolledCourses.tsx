@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import bookCourses from "@/components/images/book.gif";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface EnrolledCourse {
   enrollmentId: number;
@@ -24,6 +25,7 @@ interface EnrolledCoursesResponse {
 }
 
 export default function EnrolledCourses() {
+  const { locale, t, formatNumber } = useI18n();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,7 +46,7 @@ export default function EnrolledCourses() {
         const contentType = response.headers.get("content-type");
 
         if (!contentType?.includes("application/json")) {
-          throw new Error("The server returned an invalid response");
+          throw new Error(t("The server returned an invalid response"));
         }
 
         const data: EnrolledCourse[] | EnrolledCoursesResponse =
@@ -52,11 +54,13 @@ export default function EnrolledCourses() {
 
         if (!response.ok) {
           const message = Array.isArray(data) ? undefined : data.error;
-          throw new Error(message || "Failed to load enrolled courses");
+          throw new Error(message || t("Failed to load enrolled courses"));
         }
 
         if (!Array.isArray(data)) {
-          throw new Error("The enrolled courses response has an invalid format");
+          throw new Error(
+            t("The enrolled courses response has an invalid format"),
+          );
         }
 
         if (!controller.signal.aborted) {
@@ -71,9 +75,11 @@ export default function EnrolledCourses() {
 
         if (!controller.signal.aborted) {
           setError(
-            error instanceof Error
-              ? error.message
-              : "Failed to load enrolled courses",
+            locale === "uk"
+              ? t("Failed to load enrolled courses")
+              : error instanceof Error
+                ? error.message
+                : t("Failed to load enrolled courses"),
           );
         }
       } finally {
@@ -88,17 +94,18 @@ export default function EnrolledCourses() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [locale, t]);
 
   return (
     <section>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
         <div>
           <p className="font-pixel text-xs uppercase tracking-[0.22em] text-[#899DFF]">
-            Active quest lines
+            {t("Active quest lines")}
           </p>
           <h2 className="mt-1 font-pixel text-3xl font-bold text-white sm:text-4xl">
-            Your enrolled <span className="text-[#FFD400]">courses</span>
+            {t("Your enrolled")}{" "}
+            <span className="text-[#FFD400]">{t("courses")}</span>
           </h2>
         </div>
 
@@ -107,13 +114,16 @@ export default function EnrolledCourses() {
             href="/courses"
             className="font-pixel text-base text-[#899DFF] transition-colors hover:text-[#FFD400] sm:text-lg"
           >
-            View all courses →
+            {t("View all courses →")}
           </Link>
         )}
       </div>
 
       {isLoading && (
-        <div className="grid gap-5 xl:grid-cols-2" aria-label="Loading courses">
+        <div
+          className="grid gap-5 xl:grid-cols-2"
+          aria-label={t("Loading courses")}
+        >
           {[1, 2].map((item) => (
             <div
               key={item}
@@ -136,16 +146,18 @@ export default function EnrolledCourses() {
             width={90}
             height={90}
             unoptimized
-            alt="An open course book"
+            alt={t("An open course book")}
             className="[image-rendering:pixelated]"
           />
 
           <div>
             <h3 className="font-pixel text-2xl text-white sm:text-3xl">
-              Your quest log is empty
+              {t("Your quest log is empty")}
             </h3>
             <p className="mt-2 font-sans text-sm text-white/50 sm:text-base">
-              Enroll in a course to begin earning XP and tracking your progress.
+              {t(
+                "Enroll in a course to begin earning XP and tracking your progress.",
+              )}
             </p>
           </div>
 
@@ -158,7 +170,7 @@ export default function EnrolledCourses() {
               className="absolute top-full left-1/2 size-8 -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#FF8C00] transition-transform duration-700 group-hover:scale-[18]"
             />
             <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-              Browse all courses
+              {t("Browse all courses")}
             </span>
           </Link>
         </div>
@@ -192,7 +204,13 @@ export default function EnrolledCourses() {
                     </h3>
 
                     <span className="shrink-0 border border-[#FFD400]/35 bg-[#FFD400]/10 px-2 py-1 font-pixel text-xs text-[#FFD400]">
-                      {course.level}
+                      {course.level === "Beginner"
+                        ? t("Beginner")
+                        : course.level === "Intermediate"
+                          ? t("Intermediate")
+                          : course.level === "Advanced"
+                            ? t("Advanced")
+                            : course.level}
                     </span>
                   </div>
 
@@ -203,10 +221,10 @@ export default function EnrolledCourses() {
 
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
                   <span className="font-pixel text-sm text-[#899DFF]">
-                    Continue course →
+                    {t("Continue course →")}
                   </span>
                   <span className="font-pixel text-base text-[#FFD400]">
-                    {Math.max(0, course.xpEarned)} XP
+                    {formatNumber(Math.max(0, course.xpEarned))} XP
                   </span>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface AdminExercise {
   name: string;
@@ -62,6 +63,7 @@ export default function AdminExerciseGenerator({
   courses,
 }: AdminExerciseGeneratorProps) {
   const router = useRouter();
+  const { locale, t, translateMessage } = useI18n();
 
   const [openCourseId, setOpenCourseId] = useState<number | null>(
     courses[0]?.id ?? null,
@@ -105,6 +107,7 @@ export default function AdminExerciseGenerator({
         courseId,
         chapterId,
         overwrite,
+        locale,
       }),
     });
 
@@ -120,7 +123,13 @@ export default function AdminExerciseGenerator({
       });
 
       throw new Error(
-        `Generator API returned ${response.status} ${response.statusText}. Check the terminal for the server error.`,
+        t(
+          "Generator API returned {status} {statusText}. Check the terminal for the server error.",
+          {
+            status: response.status,
+            statusText: response.statusText,
+          },
+        ),
       );
     }
 
@@ -130,22 +139,31 @@ export default function AdminExerciseGenerator({
       data = JSON.parse(responseText) as GenerateResponse;
     } catch {
       throw new Error(
-        `Generator API returned invalid JSON with status ${response.status}.`,
+        t("Generator API returned invalid JSON with status {status}.", {
+          status: response.status,
+        }),
       );
     }
 
     if (!response.ok) {
-      throw new Error(data.error || "Failed to generate exercises");
+      throw new Error(
+        translateMessage(data.error || t("Failed to generate exercises")),
+      );
     }
 
     if (showToast) {
       if ((data.generated ?? 0) > 0) {
-        toast.success("Exercises generated!", {
-          description: `${data.generated} exercises were saved.`,
+        toast.success(t("Exercises generated!"), {
+          description: t("{count} exercises were saved.", {
+            count: data.generated,
+          }),
         });
       } else {
-        toast.info("Nothing to generate", {
-          description: data.message,
+        toast.info(t("Nothing to generate"), {
+          description:
+            locale === "uk"
+              ? t("All exercises in this chapter already have content.")
+              : data.message,
         });
       }
     }
@@ -165,7 +183,9 @@ export default function AdminExerciseGenerator({
     if (
       overwrite &&
       !window.confirm(
-        "Regenerate this chapter? Existing exercise content will be replaced.",
+        t(
+          "Regenerate this chapter? Existing exercise content will be replaced.",
+        ),
       )
     ) {
       return;
@@ -186,11 +206,11 @@ export default function AdminExerciseGenerator({
     } catch (error) {
       console.error("Chapter generation error:", error);
 
-      toast.error("Generation failed", {
+      toast.error(t("Generation failed"), {
         description:
           error instanceof Error
-            ? error.message
-            : "Failed to generate exercises",
+            ? translateMessage(error.message)
+            : t("Failed to generate exercises"),
       });
     } finally {
       setActiveChapterKey(null);
@@ -207,8 +227,8 @@ export default function AdminExerciseGenerator({
     );
 
     if (chaptersToGenerate.length === 0) {
-      toast.info("Course is ready", {
-        description: "Every exercise already has generated content.",
+      toast.info(t("Course is ready"), {
+        description: t("Every exercise already has generated content."),
       });
 
       return;
@@ -255,13 +275,15 @@ export default function AdminExerciseGenerator({
       }
 
       if (generatedExercises > 0) {
-        toast.success("Course generation finished!", {
-          description: `${generatedExercises} exercises were generated.`,
+        toast.success(t("Course generation finished!"), {
+          description: t("{count} exercises were generated.", {
+            count: generatedExercises,
+          }),
         });
       }
 
       if (failedChapters.length > 0) {
-        toast.error("Some chapters failed", {
+        toast.error(t("Some chapters failed"), {
           description: failedChapters.join(", "),
         });
       }
@@ -277,11 +299,13 @@ export default function AdminExerciseGenerator({
     return (
       <section className="border-2 border-accent p-8 text-center shadow-[6px_6px_0_0_#FF8C00]">
         <h2 className="font-pixel text-3xl text-accent">
-          No courses yet
+          {t("No courses yet")}
         </h2>
 
         <p className="mt-2 text-xl text-foreground/60">
-          Create a course and its chapters before generating exercises.
+          {t(
+            "Create a course and its chapters before generating exercises.",
+          )}
         </p>
       </section>
     );
@@ -350,7 +374,13 @@ export default function AdminExerciseGenerator({
                     </span>
 
                     <span className="border border-border px-2 py-1 text-sm uppercase text-foreground/50">
-                      {course.level}
+                      {course.level === "Beginner"
+                        ? t("Beginner")
+                        : course.level === "Intermediate"
+                          ? t("Intermediate")
+                          : course.level === "Advanced"
+                            ? t("Advanced")
+                            : course.level}
                     </span>
 
                     {course.tags && (
@@ -366,7 +396,7 @@ export default function AdminExerciseGenerator({
 
                   <span className="mt-3 block text-lg">
                     <span className="text-green-400">
-                      {readyExercises} ready
+                      {t("{count} ready", { count: readyExercises })}
                     </span>
 
                     <span className="text-foreground/35">
@@ -382,7 +412,7 @@ export default function AdminExerciseGenerator({
                   href={`/courses/${course.id}`}
                   className="border border-border bg-secondary px-4 py-2 text-lg transition-colors hover:border-accent hover:text-accent"
                 >
-                  Open course
+                  {t("Open course")}
                 </Link>
 
                 <PixelButton
@@ -397,10 +427,13 @@ export default function AdminExerciseGenerator({
                   }}
                 >
                   {isGeneratingCourse && courseProgress
-                    ? `Generating ${courseProgress.current}/${courseProgress.total}`
+                    ? t("Generating {current}/{total}", {
+                        current: courseProgress.current,
+                        total: courseProgress.total,
+                      })
                     : isCourseReady
-                      ? "Course ready"
-                      : "Generate entire course"}
+                      ? t("Course ready")
+                      : t("Generate entire course")}
                 </PixelButton>
               </div>
             </header>
@@ -412,7 +445,7 @@ export default function AdminExerciseGenerator({
               >
                 {course.chapters.length === 0 ? (
                   <p className="p-6 text-xl text-foreground/50">
-                    This course does not have chapters yet.
+                    {t("This course does not have chapters yet.")}
                   </p>
                 ) : (
                   course.chapters.map((chapter) => {
@@ -449,8 +482,10 @@ export default function AdminExerciseGenerator({
                                       : "text-orange-400"
                                   }
                                 >
-                                  {chapter.readyCount}/{chapter.totalCount}{" "}
-                                  exercises ready
+                                  {t("{ready}/{total} exercises ready", {
+                                    ready: chapter.readyCount,
+                                    total: chapter.totalCount,
+                                  })}
                                 </p>
                               </div>
                             </div>
@@ -471,7 +506,7 @@ export default function AdminExerciseGenerator({
                                         exercise.difficulty,
                                       )}`}
                                     >
-                                      {exercise.difficulty} · {exercise.xp} XP
+                                      {t(exercise.difficulty)} · {exercise.xp} XP
                                     </p>
                                   </div>
 
@@ -482,7 +517,9 @@ export default function AdminExerciseGenerator({
                                         : "text-foreground/35"
                                     }`}
                                   >
-                                    {exercise.isReady ? "READY" : "MISSING"}
+                                    {exercise.isReady
+                                      ? t("READY")
+                                      : t("MISSING")}
                                   </span>
                                 </div>
                               ))}
@@ -508,7 +545,7 @@ export default function AdminExerciseGenerator({
                               }}
                               className="cursor-pointer border-border bg-secondary px-3 py-2 text-lg hover:border-red-400 hover:bg-red-400/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
                             >
-                              Regenerate all
+                              {t("Regenerate all")}
                             </Button>
 
                             <PixelButton
@@ -528,10 +565,10 @@ export default function AdminExerciseGenerator({
                               }}
                             >
                               {isGeneratingChapter
-                                ? "Generating..."
+                                ? t("Generating...")
                                 : isChapterReady
-                                  ? "Chapter ready"
-                                  : "Generate missing"}
+                                  ? t("Chapter ready")
+                                  : t("Generate missing")}
                             </PixelButton>
                           </div>
                         </div>

@@ -9,11 +9,16 @@ import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 
 import { UserDetailContext } from "@/context/UserDetailContext";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
+import type { Locale } from "@/lib/i18n/config";
 
 function Provider({
   children,
+  initialLocale,
   ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
+}: React.ComponentProps<typeof NextThemesProvider> & {
+  initialLocale: Locale;
+}) {
   const { user, isLoaded, isSignedIn } = useUser();
 
   const [userDetail, setUserDetail] = useState();
@@ -40,14 +45,16 @@ function Provider({
 
   return (
     <NextThemesProvider {...props}>
-      <UserDetailContext.Provider
-        value={{
-          userDetail,
-          setUserDetail,
-        }}
-      >
-        {children}
-      </UserDetailContext.Provider>
+      <I18nProvider initialLocale={initialLocale}>
+        <UserDetailContext.Provider
+          value={{
+            userDetail,
+            setUserDetail,
+          }}
+        >
+          {children}
+        </UserDetailContext.Provider>
+      </I18nProvider>
     </NextThemesProvider>
   );
 }

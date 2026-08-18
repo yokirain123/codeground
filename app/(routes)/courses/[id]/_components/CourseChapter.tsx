@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 export interface Exercise {
   name: string;
   slug: string;
@@ -102,6 +104,7 @@ function CourseChapterItem({
   completedExerciseKeys,
   nextExerciseKey,
 }: CourseChapterItemProps) {
+  const { t, formatNumber } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -122,7 +125,9 @@ function CourseChapterItem({
         </h3>
 
         <span className="hidden font-pixel text-lg text-white/45 sm:block">
-          {chapter.exercises.length} exercises
+          {t("{count} exercises", {
+            count: formatNumber(chapter.exercises.length),
+          })}
         </span>
 
         <ChevronIcon />
@@ -138,7 +143,7 @@ function CourseChapterItem({
             <LockIcon />
 
             <p className="font-pixel text-lg">
-              Enroll in this course to unlock exercises.
+              {t("Enroll in this course to unlock exercises.")}
             </p>
           </div>
         )}
@@ -146,7 +151,7 @@ function CourseChapterItem({
         {isEnrolled && !isCompletedDataReady && (
           <div className="mb-5 border border-[#899DFF]/25 bg-[#899DFF]/5 px-4 py-3">
             <p className="font-pixel text-lg text-[#899DFF]">
-              Loading your progress...
+              {t("Loading your progress...")}
             </p>
           </div>
         )}
@@ -174,7 +179,9 @@ function CourseChapterItem({
                 }`}
               >
                 <span className="font-pixel text-sm text-white/40">
-                  Exercise {exerciseIndex + 1}
+                  {t("Exercise {number}", {
+                    number: formatNumber(exerciseIndex + 1),
+                  })}
                 </span>
 
                 <div>
@@ -193,7 +200,13 @@ function CourseChapterItem({
                         : difficultyColors[exercise.difficulty]
                     }`}
                   >
-                    {isCompleted ? "Completed" : exercise.difficulty}
+                    {isCompleted
+                      ? t("Completed")
+                      : exercise.difficulty === "easy"
+                        ? t("easy")
+                        : exercise.difficulty === "medium"
+                          ? t("medium")
+                          : t("hard")}
                   </p>
                 </div>
 
@@ -206,20 +219,22 @@ function CourseChapterItem({
                         : "text-white/25"
                   }`}
                 >
-                  +{exercise.xp} XP
+                  +{formatNumber(exercise.xp)} XP
                 </span>
                 {isCompleted || canStart ? (
                   <Link
                     href={`/courses/${chapter.courseId}/${chapter.chapterId}/${encodeURIComponent(exercise.slug)}`}
                     title={
                       isCompleted
-                        ? `Open ${exercise.name}`
-                        : `Start ${exercise.name}`
+                        ? t("Open {exercise}", { exercise: exercise.name })
+                        : t("Start {exercise}", { exercise: exercise.name })
                     }
                     aria-label={
                       isCompleted
-                        ? `Open completed exercise ${exercise.name}`
-                        : `Start ${exercise.name}`
+                        ? t("Open completed exercise {exercise}", {
+                            exercise: exercise.name,
+                          })
+                        : t("Start {exercise}", { exercise: exercise.name })
                     }
                     className={`flex size-9 items-center justify-center border transition-all duration-300 ${
                       isCompleted
@@ -235,12 +250,14 @@ function CourseChapterItem({
                     disabled
                     title={
                       !isEnrolled
-                        ? "Enroll to unlock this exercise"
+                        ? t("Enroll to unlock this exercise")
                         : !isCompletedDataReady
-                          ? "Loading your progress"
-                          : "Complete the previous exercise first"
+                          ? t("Loading your progress")
+                          : t("Complete the previous exercise first")
                     }
-                    aria-label={`${exercise.name} is locked`}
+                    aria-label={t("{exercise} is locked", {
+                      exercise: exercise.name,
+                    })}
                     className="flex size-9 cursor-not-allowed items-center justify-center border border-white/10 bg-white/[0.025] text-white/20"
                   >
                     <LockIcon />
@@ -260,6 +277,7 @@ export default function CourseChapters({
   isEnrolled,
   onProgressChange,
 }: CourseChaptersProps) {
+  const { t, translateMessage } = useI18n();
   const [completedExerciseKeys, setCompletedExerciseKeys] = useState<
     Set<string>
   >(() => new Set());
@@ -341,7 +359,11 @@ export default function CourseChapters({
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || "Failed to load completed exercises");
+          throw new Error(
+            translateMessage(
+              data.error || t("Failed to load completed exercises"),
+            ),
+          );
         }
 
         const completedExercises = Array.isArray(data.completedExercises)
@@ -375,8 +397,8 @@ export default function CourseChapters({
           setLoadedCompletedCourseId(null);
           setLoadingError(
             error instanceof Error
-              ? error.message
-              : "Failed to load completed exercises",
+              ? translateMessage(error.message)
+              : t("Failed to load completed exercises"),
           );
         }
       }
@@ -387,23 +409,33 @@ export default function CourseChapters({
     return () => {
       controller.abort();
     };
-  }, [courseId, isEnrolled, onProgressChange, orderedChapters]);
+  }, [
+    courseId,
+    isEnrolled,
+    onProgressChange,
+    orderedChapters,
+    t,
+    translateMessage,
+  ]);
 
   return (
     <div className="min-w-0 lg:col-span-2">
       <p className="font-pixel text-sm uppercase tracking-[0.25em] text-[#899DFF]">
-        Quest log
+        {t("Quest log")}
       </p>
 
       <h2 className="mb-6 mt-2 font-pixel text-4xl text-white [text-shadow:3px_3px_0_#28336B] md:text-5xl">
-        Course <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">chapters</span>
+        {t("Course")} {" "}
+        <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">
+          {t("chapters")}
+        </span>
       </h2>
 
       {isEnrolled && isCompletedDataReady && nextExercise && courseId && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-2 border-[#899DFF]/45 bg-[#10152A] p-4 shadow-[5px_5px_0_#020307]">
           <div>
             <p className="font-pixel text-sm uppercase tracking-[0.16em] text-[#899DFF]">
-              Next available exercise
+              {t("Next available exercise")}
             </p>
 
             <p className="mt-1 font-pixel text-2xl text-white">
@@ -415,7 +447,7 @@ export default function CourseChapters({
             href={`/courses/${courseId}/${nextExercise.chapterId}/${encodeURIComponent(nextExercise.exercise.slug)}`}
             className="border-2 border-black bg-[#FFD400] px-4 py-2 font-pixel text-xl text-black shadow-[3px_3px_0_#FF8C00] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-none"
           >
-            Start next exercise
+            {t("Start next exercise")}
           </Link>
         </div>
       )}
@@ -426,7 +458,7 @@ export default function CourseChapters({
         chapters.length > 0 && (
           <div className="mb-6 border border-[#6FFFA2]/40 bg-[#6FFFA2]/5 p-4">
             <p className="font-pixel text-xl text-[#6FFFA2]">
-              Course completed! Every exercise is finished.
+              {t("Course completed! Every exercise is finished.")}
             </p>
           </div>
         )}
@@ -440,7 +472,7 @@ export default function CourseChapters({
       {chapters.length === 0 ? (
         <div className="border-2 border-[#899DFF]/45 bg-[#10152A] p-6 text-center shadow-[5px_5px_0_#020307]">
           <p className="font-pixel text-2xl text-white/60">
-            This course does not have any chapters yet.
+            {t("This course does not have any chapters yet.")}
           </p>
         </div>
       ) : (

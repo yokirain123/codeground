@@ -16,7 +16,6 @@ import type {
 interface PlaygroundLayoutProps {
   exerciseTitle: string;
   exercise: ExerciseData;
-  courseTags?: string | null;
   onCompletionChange?: (
     isCompleted: boolean,
   ) => void;
@@ -25,7 +24,6 @@ interface PlaygroundLayoutProps {
 export default function PlaygroundLayout({
   exerciseTitle,
   exercise,
-  courseTags,
   onCompletionChange,
 }: PlaygroundLayoutProps) {
   return (
@@ -65,9 +63,6 @@ export default function PlaygroundLayout({
                 exerciseTitle
               }
               exercise={exercise}
-              courseTags={
-                courseTags
-              }
               onCompletionChange={
                 onCompletionChange
               }

@@ -1,3 +1,6 @@
+import type { Locale } from "@/lib/i18n/config";
+
+import { localizeChallenge } from "./localize";
 import type { ChallengeDefinition, ChallengeSummary } from "./types";
 
 export const CHALLENGES: readonly ChallengeDefinition[] = [
@@ -613,12 +616,13 @@ const challengeBySlug = new Map(
   CHALLENGES.map((challenge) => [challenge.slug, challenge]),
 );
 
-export function getChallengeBySlug(slug: string) {
-  return challengeBySlug.get(slug);
+export function getChallengeBySlug(slug: string, locale: Locale = "en") {
+  const challenge = challengeBySlug.get(slug);
+  return challenge ? localizeChallenge(challenge, locale) : undefined;
 }
 
-export function getChallengeSummaries(): ChallengeSummary[] {
-  return CHALLENGES.map(
+export function getChallengeSummaries(locale: Locale = "en"): ChallengeSummary[] {
+  return CHALLENGES.map((challenge) => localizeChallenge(challenge, locale)).map(
     ({
       slug,
       title,

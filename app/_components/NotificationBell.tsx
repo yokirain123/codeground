@@ -16,6 +16,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import PlayerAvatar from "@/components/friends/PlayerAvatar";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import type { Locale } from "@/lib/i18n/config";
+import type { Translate } from "@/lib/i18n/translate";
 import type {
   NotificationItem,
   NotificationsResponse,
@@ -58,24 +61,82 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return data;
 }
 
-function getRelativeTime(createdAt: string) {
+function getRelativeTime(createdAt: string, locale: Locale) {
   const seconds = Math.max(
     0,
     Math.floor((Date.now() - new Date(createdAt).getTime()) / 1_000),
   );
 
-  if (seconds < 60) return "now";
-  if (seconds < 3_600) return `${Math.floor(seconds / 60)}m`;
-  if (seconds < 86_400) return `${Math.floor(seconds / 3_600)}h`;
-  if (seconds < 604_800) return `${Math.floor(seconds / 86_400)}d`;
+  if (seconds < 60) return locale === "uk" ? "щойно" : "now";
 
-  return new Intl.DateTimeFormat("en", {
+  const relativeTime = new Intl.RelativeTimeFormat(
+    locale === "uk" ? "uk-UA" : "en-US",
+    { numeric: "always", style: "narrow" },
+  );
+
+  if (seconds < 3_600) {
+    return relativeTime.format(-Math.floor(seconds / 60), "minute");
+  }
+  if (seconds < 86_400) {
+    return relativeTime.format(-Math.floor(seconds / 3_600), "hour");
+  }
+  if (seconds < 604_800) {
+    return relativeTime.format(-Math.floor(seconds / 86_400), "day");
+  }
+
+  return new Intl.DateTimeFormat(locale === "uk" ? "uk-UA" : "en-US", {
     month: "short",
     day: "numeric",
   }).format(new Date(createdAt));
 }
 
+function getNotificationCopy(
+  notification: NotificationItem,
+  locale: Locale,
+  t: Translate,
+) {
+  if (locale === "en") {
+    return { title: notification.title, message: notification.message };
+  }
+
+  if (notification.type === "friend_request") {
+    return {
+      title: t("New friend request"),
+      message: t("{name} wants to join your party.", {
+        name: notification.actor?.name ?? t("A CodeQuest player"),
+      }),
+    };
+  }
+
+  if (notification.type === "friend_accepted") {
+    return {
+      title: t("Friend request accepted"),
+      message: t("{name} joined your party.", {
+        name: notification.actor?.name ?? t("A CodeQuest player"),
+      }),
+    };
+  }
+
+  if (notification.type === "course_reminder") {
+    const courseTitle = notification.message.match(
+      /^Continue (.+) and complete your next coding quest\.$/,
+    )?.[1];
+
+    return {
+      title: t("Your quest is waiting"),
+      message: courseTitle
+        ? t("Continue {course} and complete your next coding quest.", {
+            course: courseTitle,
+          })
+        : t("Return to your course and complete the next coding quest."),
+    };
+  }
+
+  return { title: notification.title, message: notification.message };
+}
+
 export default function NotificationBell() {
+  const { locale, t, translateMessage } = useI18n();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -99,14 +160,14 @@ export default function NotificationBell() {
       if (!silent) {
         setError(
           loadError instanceof Error
-            ? loadError.message
-            : "Failed to load notifications.",
+            ? translateMessage(loadError.message)
+            : t("Failed to load notifications."),
         );
       }
     } finally {
       if (!silent) setIsLoading(false);
     }
-  }, []);
+  }, [t, translateMessage]);
 
   useEffect(() => {
     // Defer initial load to avoid synchronous setState during effect
@@ -184,8 +245,8 @@ export default function NotificationBell() {
       setUnreadCount(previousCount);
       toast.error(
         updateError instanceof Error
-          ? updateError.message
-          : "Failed to update notifications.",
+          ? translateMessage(updateError.message)
+          : t("Failed to update notifications."),
       );
       void loadNotifications(true);
     }
@@ -206,8 +267,8 @@ export default function NotificationBell() {
     } catch (dismissError) {
       toast.error(
         dismissError instanceof Error
-          ? dismissError.message
-          : "Failed to dismiss notification.",
+          ? translateMessage(dismissError.message)
+          : t("Failed to dismiss notification."),
       );
       void loadNotifications(true);
     }
@@ -230,8 +291,8 @@ export default function NotificationBell() {
       );
       toast.success(
         action === "accept"
-          ? "Player added to your party."
-          : "Friend request declined.",
+          ? t("Player added to your party.")
+          : t("Friend request declined."),
       );
       setNotifications((items) =>
         items.filter((item) => item.id !== notification.id),
@@ -243,8 +304,8 @@ export default function NotificationBell() {
     } catch (actionError) {
       toast.error(
         actionError instanceof Error
-          ? actionError.message
-          : "Failed to update friend request.",
+          ? translateMessage(actionError.message)
+          : t("Failed to update friend request."),
       );
     } finally {
       setBusyId(null);
@@ -262,8 +323,8 @@ export default function NotificationBell() {
         type="button"
         aria-label={
           unreadCount > 0
-            ? `Notifications, ${unreadCount} unread`
-            : "Notifications"
+            ? t("Notifications, {count} unread", { count: unreadCount })
+            : t("Notifications")
         }
         aria-haspopup="dialog"
         aria-expanded={isOpen}
@@ -281,16 +342,18 @@ export default function NotificationBell() {
       {isOpen && (
         <div
           role="dialog"
-          aria-label="Notifications"
+          aria-label={t("Notifications")}
           className="absolute top-[calc(100%+12px)] right-0 z-[70] w-[min(24rem,calc(100vw-1rem))] border-2 border-[#899DFF]/55 bg-[#0B0E1A] shadow-[7px_7px_0_#020307]"
         >
           <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3">
             <div>
-              <h2 className="font-pixel text-xl text-white">Notifications</h2>
+              <h2 className="font-pixel text-xl text-white">
+                {t("Notifications")}
+              </h2>
               <p className="font-sans text-xs text-white/35">
                 {unreadCount > 0
-                  ? `${unreadCount} unread quest updates`
-                  : "You are all caught up"}
+                  ? t("{count} unread quest updates", { count: unreadCount })
+                  : t("You are all caught up")}
               </p>
             </div>
 
@@ -300,7 +363,7 @@ export default function NotificationBell() {
               onClick={() => void markAllRead()}
               className="flex cursor-pointer items-center gap-1.5 font-pixel text-xs text-[#899DFF] hover:text-[#FFD400] disabled:cursor-default disabled:text-white/20"
             >
-              <CheckCheck className="size-4" /> Read all
+              <CheckCheck className="size-4" /> {t("Read all")}
             </button>
           </div>
 
@@ -317,22 +380,23 @@ export default function NotificationBell() {
                   onClick={() => void loadNotifications()}
                   className="mt-3 cursor-pointer font-pixel text-sm text-[#FFD400]"
                 >
-                  Try again
+                  {t("Try again")}
                 </button>
               </div>
             ) : notifications.length === 0 ? (
               <div className="px-5 py-12 text-center">
                 <Bell className="mx-auto size-8 text-[#899DFF]/35" />
                 <p className="mt-3 font-pixel text-xl text-white">
-                  No new signals
+                  {t("No new signals")}
                 </p>
                 <p className="mt-1 font-sans text-sm text-white/35">
-                  Friend invites and course reminders will appear here.
+                  {t("Friend invites and course reminders will appear here.")}
                 </p>
               </div>
             ) : (
               notifications.map((notification) => {
                 const Icon = iconByType[notification.type];
+                const copy = getNotificationCopy(notification, locale, t);
                 const isFriendRequest =
                   notification.type === "friend_request" &&
                   Boolean(notification.entityId);
@@ -369,18 +433,18 @@ export default function NotificationBell() {
                       <div className="min-w-0 flex-1 pr-5">
                         <div className="flex items-start justify-between gap-3">
                           <h3 className="font-pixel text-base leading-5 text-white">
-                            {notification.title}
+                            {copy.title}
                           </h3>
                           <time
                             dateTime={notification.createdAt}
                             className="shrink-0 font-sans text-[11px] text-white/25"
                           >
-                            {getRelativeTime(notification.createdAt)}
+                            {getRelativeTime(notification.createdAt, locale)}
                           </time>
                         </div>
 
                         <p className="mt-1 font-sans text-sm leading-5 text-white/50">
-                          {notification.message}
+                          {copy.message}
                         </p>
 
                         {isFriendRequest ? (
@@ -398,7 +462,7 @@ export default function NotificationBell() {
                               ) : (
                                 <Check className="size-3.5" />
                               )}
-                              Accept
+                              {t("Accept")}
                             </button>
                             <button
                               type="button"
@@ -411,7 +475,7 @@ export default function NotificationBell() {
                               }
                               className="cursor-pointer border border-white/10 px-3 py-1.5 font-pixel text-xs text-white/45 hover:border-red-400/50 hover:text-red-300 disabled:cursor-wait disabled:opacity-50"
                             >
-                              Decline
+                              {t("Decline")}
                             </button>
                           </div>
                         ) : notification.href ? (
@@ -424,8 +488,8 @@ export default function NotificationBell() {
                             className="mt-2 inline-flex font-pixel text-xs text-[#899DFF] hover:text-[#FFD400]"
                           >
                             {notification.type === "course_reminder"
-                              ? "Continue course →"
-                              : "Open →"}
+                              ? t("Continue course →")
+                              : t("Open →")}
                           </Link>
                         ) : !notification.isRead ? (
                           <button
@@ -433,14 +497,14 @@ export default function NotificationBell() {
                             onClick={() => void markRead(notification)}
                             className="mt-2 cursor-pointer font-pixel text-xs text-[#899DFF] hover:text-[#FFD400]"
                           >
-                            Mark as read
+                            {t("Mark as read")}
                           </button>
                         ) : null}
                       </div>
 
                       <button
                         type="button"
-                        aria-label="Dismiss notification"
+                        aria-label={t("Dismiss notification")}
                         onClick={() => void dismiss(notification)}
                         className="absolute top-3 right-3 flex size-6 cursor-pointer items-center justify-center text-white/20 hover:text-white"
                       >
@@ -459,7 +523,7 @@ export default function NotificationBell() {
               onClick={() => setIsOpen(false)}
               className="font-pixel text-xs text-white/35 hover:text-[#FFD400]"
             >
-              Open friends hub
+              {t("Open friends hub")}
             </Link>
           </div>
         </div>

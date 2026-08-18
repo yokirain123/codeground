@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import type { Course } from "@/app/_components/CreateCourseButton";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import CourseChapters, {
   type Chapter,
@@ -14,6 +15,7 @@ import CourseDetailsBanner from "./_components/CourseDetailsBanner";
 import CourseProgress from "./_components/CourseProgress";
 
 export default function CoursePage() {
+  const { t, translateMessage } = useI18n();
   const params = useParams<{ id: string }>();
 
   const [courseProgress, setCourseProgress] = useState<CourseProgressData>({
@@ -65,11 +67,11 @@ export default function CoursePage() {
         ]);
 
         if (!coursesResponse.ok) {
-          throw new Error("Failed to load course");
+          throw new Error(t("Failed to load course"));
         }
 
         if (!chaptersResponse.ok) {
-          throw new Error("Failed to load chapters");
+          throw new Error(t("Failed to load chapters"));
         }
 
         const coursesData: Course[] = await coursesResponse.json();
@@ -79,7 +81,7 @@ export default function CoursePage() {
         );
 
         if (!currentCourse) {
-          throw new Error("Course not found");
+          throw new Error(t("Course not found"));
         }
 
         setCourse(currentCourse);
@@ -91,7 +93,9 @@ export default function CoursePage() {
 
         console.error("Course loading error:", error);
         setError(
-          error instanceof Error ? error.message : "Failed to load course",
+          error instanceof Error
+            ? translateMessage(error.message)
+            : t("Failed to load course"),
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -105,13 +109,13 @@ export default function CoursePage() {
     return () => {
       controller.abort();
     };
-  }, [courseId]);
+  }, [courseId, t, translateMessage]);
 
   if (isLoading) {
     return (
       <main className="flex min-h-[calc(100svh-64px)] items-center justify-center bg-[#07080C]">
         <p className="font-pixel text-2xl text-[#FFD400]">
-          Loading course...
+          {t("Loading course...")}
         </p>
       </main>
     );
@@ -121,7 +125,7 @@ export default function CoursePage() {
     return (
       <main className="flex min-h-[calc(100svh-64px)] items-center justify-center bg-[#07080C] p-8">
         <p className="border border-red-400/30 bg-red-400/10 p-5 font-pixel text-2xl text-red-400">
-          {error || "Course not found"}
+          {error || t("Course not found")}
         </p>
       </main>
     );

@@ -85,6 +85,70 @@ export const gitSandboxMissions: GitSandboxMission[] = [
   },
 ];
 
-export function getGitSandboxMission(slug: string) {
-  return gitSandboxMissions.find((mission) => mission.slug === slug);
+const ukrainianMissionCopy: Record<
+  string,
+  Pick<GitSandboxMission, "title" | "description" | "objective" | "hint">
+> = {
+  "first-checkpoint": {
+    title: "Перша контрольна точка",
+    description: "Зміни README та збережи свою першу чисту контрольну точку.",
+    objective: [
+      "Відредагуй README.md у робочій області.",
+      "Додай змінений файл до індексу.",
+      "Створи коміт із власним повідомленням.",
+    ],
+    hint: "Спочатку відредагуй файл, потім виконай git add перед git commit.",
+  },
+  "feature-branch": {
+    title: "Гілка функції",
+    description: "Створи зміну поза main, а потім безпечно злий її.",
+    objective: [
+      "Створи гілку feature та перемкнися на неї.",
+      "Відредагуй app.js, додай його до індексу й закоміть зміну.",
+      "Повернися до main та злий гілку feature.",
+    ],
+    hint: "git switch -c feature одночасно створює гілку та перемикається на неї.",
+  },
+  "revert-broken-release": {
+    title: "Скасуй зламаний реліз",
+    description:
+      "Останній коміт зламав production. Скасуй його, не видаляючи історію.",
+    objective: [
+      "Переглянь нещодавню історію комітів.",
+      "Створи новий коміт, який скасовує HEAD.",
+      "Збережи зламаний коміт видимим в історії.",
+    ],
+    hint: "Reset переписує стан. У цій місії потрібна команда, що створює новий коміт скасування.",
+  },
+  "resolve-merge-conflict": {
+    title: "Конфлікт злиття",
+    description:
+      "Main і feature змінили той самий рядок. Розв’яжи конфлікт і заверши злиття.",
+    objective: [
+      "Злий наявну гілку feature в main.",
+      "Відредагуй app.js і видали всі маркери конфлікту.",
+      "Додай app.js до індексу та закоміть розв’язане злиття.",
+    ],
+    hint: "Після невдалого злиття відредагуй app.js, залиш потрібне фінальне привітання та видали <<<<<<<, ======= і >>>>>>>.",
+  },
+};
+
+export function getGitSandboxMissions(locale: Locale = "en") {
+  if (locale === "en") {
+    return gitSandboxMissions;
+  }
+
+  return gitSandboxMissions.map((mission) => ({
+    ...mission,
+    ...ukrainianMissionCopy[mission.slug],
+    objective: [
+      ...(ukrainianMissionCopy[mission.slug]?.objective ?? mission.objective),
+    ],
+    suggestedCommands: [...mission.suggestedCommands],
+  }));
 }
+
+export function getGitSandboxMission(slug: string, locale: Locale = "en") {
+  return getGitSandboxMissions(locale).find((mission) => mission.slug === slug);
+}
+import type { Locale } from "@/lib/i18n/config";

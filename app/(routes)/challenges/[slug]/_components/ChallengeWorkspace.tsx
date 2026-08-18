@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Clock3, Trophy } from "lucide-react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { ChallengeDefinition } from "@/lib/challenges/types";
 
 import ChallengeInstructions from "./ChallengeInstructions";
@@ -40,6 +41,7 @@ export default function ChallengeWorkspace({
   challenge,
   initialCompleted,
 }: ChallengeWorkspaceProps) {
+  const { t, formatNumber } = useI18n();
   const orientation = usePanelOrientation();
   const [isCompleted, setIsCompleted] = useState(initialCompleted);
 
@@ -49,7 +51,7 @@ export default function ChallengeWorkspace({
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/challenges"
-            aria-label="Back to challenges"
+            aria-label={t("Back to challenges")}
             className="flex size-9 shrink-0 items-center justify-center border border-[#899DFF]/40 text-[#AAB6FF] transition-colors hover:border-[#FFD400] hover:bg-[#FFD400] hover:text-[#07080C]"
           >
             <ArrowLeft className="size-4" />
@@ -60,7 +62,11 @@ export default function ChallengeWorkspace({
               {challenge.title}
             </p>
             <p className="font-pixel text-[10px] uppercase tracking-widest text-[#899DFF]">
-              {challenge.language} · {challenge.difficulty}
+              {challenge.language} · {challenge.difficulty === "easy"
+                ? t("easy")
+                : challenge.difficulty === "medium"
+                  ? t("medium")
+                  : t("hard")}
             </p>
           </div>
         </div>
@@ -68,14 +74,16 @@ export default function ChallengeWorkspace({
         <div className="flex items-center gap-4 font-pixel text-xs text-white/45">
           <span className="hidden items-center gap-1.5 sm:flex">
             <Clock3 className="size-4 text-[#899DFF]" />
-            {challenge.estimatedMinutes} min
+            {t("{count} min", {
+              count: formatNumber(challenge.estimatedMinutes),
+            })}
           </span>
           <span className="flex items-center gap-1.5 text-[#FFD400]">
-            <Trophy className="size-4" />+{challenge.xp} XP
+            <Trophy className="size-4" />+{formatNumber(challenge.xp)} XP
           </span>
           {isCompleted && (
             <span className="flex items-center gap-1.5 text-[#62FB60]">
-              <Check className="size-4" /> Cleared
+              <Check className="size-4" /> {t("Cleared")}
             </span>
           )}
         </div>

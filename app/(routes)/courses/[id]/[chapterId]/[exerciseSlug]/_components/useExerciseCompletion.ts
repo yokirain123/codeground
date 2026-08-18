@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
+
 interface CompletionResponse {
   alreadyCompleted?: boolean;
   error?: string;
@@ -43,6 +45,7 @@ function normalizeParameter(value: string | string[] | undefined) {
 export function useExerciseCompletion(
   onCompletionChange?: (isCompleted: boolean) => void,
 ) {
+  const { t, formatNumber, translateMessage } = useI18n();
   const params = useParams<{
     id: string;
     chapterId: string;
@@ -102,7 +105,9 @@ export function useExerciseCompletion(
         const data = (await response.json()) as CompletionCheckResponse;
 
         if (!response.ok) {
-          throw new Error(data.error || "Failed to check completion");
+          throw new Error(
+            translateMessage(data.error || t("Failed to check completion")),
+          );
         }
 
         if (!controller.signal.aborted) {
@@ -126,7 +131,15 @@ export function useExerciseCompletion(
     void checkCompletion();
 
     return () => controller.abort();
-  }, [requestKey, courseId, chapterId, exerciseSlug, onCompletionChange]);
+  }, [
+    requestKey,
+    courseId,
+    chapterId,
+    exerciseSlug,
+    onCompletionChange,
+    t,
+    translateMessage,
+  ]);
 
   const completeExercise = async (
   files: Record<string, string>,
@@ -156,25 +169,31 @@ export function useExerciseCompletion(
       const data = (await response.json()) as CompletionResponse;
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to complete exercise");
+        throw new Error(
+          translateMessage(data.error || t("Failed to complete exercise")),
+        );
       }
 
       setCompletionState({ requestKey, isCompleted: true });
       onCompletionChange?.(true);
 
       if (data.alreadyCompleted) {
-        toast.info("Exercise was already completed");
+        toast.info(t("Exercise was already completed"));
       } else {
-        toast.success("Exercise completed!", {
+        toast.success(t("Exercise completed!"), {
           description:
             typeof data.xpEarned === "number"
-              ? `You earned ${data.xpEarned} XP.`
+              ? t("You earned {count} XP.", {
+                  count: formatNumber(data.xpEarned),
+                })
               : undefined,
         });
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to complete exercise";
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Failed to complete exercise");
 
       toast.error(message);
     } finally {

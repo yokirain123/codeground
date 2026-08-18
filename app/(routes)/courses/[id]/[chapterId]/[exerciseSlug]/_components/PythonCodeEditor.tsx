@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 
 import CompleteExerciseButton from "./CompleteExerciseButton";
@@ -57,6 +58,7 @@ export default function PythonCodeEditor({
   exercise,
   onCompletionChange,
 }: PythonCodeEditorProps) {
+  const { t } = useI18n();
   const pythonEntry = useMemo(() => {
     const entry = Object.entries(
       exercise.starterCode,
@@ -75,7 +77,7 @@ export default function PythonCodeEditor({
   const [stdin, setStdin] = useState("");
 
   const [output, setOutput] = useState(
-    "Downloading Python runtime...",
+    t("Downloading Python runtime..."),
   );
 
   const [isRuntimeReady, setIsRuntimeReady] =
@@ -158,7 +160,7 @@ export default function PythonCodeEditor({
       stdinRef.current = "";
 
       setOutput(
-        "Downloading Python runtime...",
+        t("Downloading Python runtime..."),
       );
 
       setIsRuntimeReady(false);
@@ -171,7 +173,7 @@ export default function PythonCodeEditor({
     } else {
       setTimeout(applyReset, 0);
     }
-  }, [exercise.id, starterCode]);
+  }, [exercise.id, starterCode, t]);
 
   useEffect(() => {
     const worker = new Worker(
@@ -192,7 +194,9 @@ export default function PythonCodeEditor({
         setIsRunning(false);
 
         setOutput(
-          "Python could not load within 45 seconds. Check whether cdn.jsdelivr.net is blocked by your browser or Content Security Policy, then reload the page.",
+          t(
+            "Python could not load within 45 seconds. Check whether cdn.jsdelivr.net is blocked by your browser or Content Security Policy, then reload the page.",
+          ),
         );
       },
       RUNTIME_TIMEOUT_MS,
@@ -204,7 +208,13 @@ export default function PythonCodeEditor({
       const message = event.data;
 
       if (message.type === "loading") {
-        setOutput(message.message);
+        setOutput(
+          message.message === "Loading Python module..."
+            ? t("Loading Python module...")
+            : message.message === "Starting Python runtime..."
+              ? t("Starting Python runtime...")
+              : message.message,
+        );
         return;
       }
 
@@ -214,7 +224,7 @@ export default function PythonCodeEditor({
         setIsRuntimeReady(true);
 
         setOutput(
-    "Python is ready. Click Run.",
+    t("Python is ready. Click Run."),
   );
 
         return;
@@ -232,7 +242,11 @@ export default function PythonCodeEditor({
       setIsRunning(false);
 
       if (message.type === "result") {
-        setOutput(message.output);
+        setOutput(
+          message.output === "Program finished without output."
+            ? t("Program finished without output.")
+            : message.output,
+        );
 
         setLastSuccessfulCode(
           activeRunCodeRef.current,
@@ -260,7 +274,7 @@ export default function PythonCodeEditor({
 
       setOutput(
         event.message ||
-          "The Python worker failed to start.",
+          t("The Python worker failed to start."),
       );
     };
 
@@ -276,6 +290,7 @@ export default function PythonCodeEditor({
     workerVersion,
     clearRunTimeout,
     clearRuntimeTimeout,
+    t,
   ]);
 
   const runCode = () => {
@@ -295,7 +310,7 @@ export default function PythonCodeEditor({
 
     setIsRunning(true);
     setLastSuccessfulCode(null);
-    setOutput("Running...");
+    setOutput(t("Running..."));
 
     workerRef.current.postMessage({
       type: "run",
@@ -316,7 +331,9 @@ export default function PythonCodeEditor({
         setLastSuccessfulCode(null);
 
         setOutput(
-          "Execution stopped after 10 seconds. Check your loops and try again.",
+          t(
+            "Execution stopped after 10 seconds. Check your loops and try again.",
+          ),
         );
 
         setWorkerVersion(
@@ -333,26 +350,20 @@ export default function PythonCodeEditor({
 
     setLastSuccessfulCode(null);
 
-    setOutput(
-      "Starter code restored. Run it to refresh the output.",
-    );
+    setOutput(t("Starter code restored. Run it to refresh the output."));
   };
 
   const checkSolution = () => {
     if (
       code.trim() === starterCode.trim()
     ) {
-      toast.error(
-        "Change the starter code first",
-      );
+      toast.error(t("Change the starter code first"));
 
       return;
     }
 
     if (lastSuccessfulCode !== code) {
-      toast.error(
-        "Run the current code successfully before checking it",
-      );
+      toast.error(t("Run the current code successfully before checking it"));
 
       return;
     }
@@ -371,7 +382,9 @@ export default function PythonCodeEditor({
   return (
     <div
       role="region"
-      aria-label={`${exerciseTitle} Python playground`}
+      aria-label={t("{exercise} Python playground", {
+        exercise: exerciseTitle,
+      })}
       className="grid h-full min-h-0 bg-[#07080C] text-white lg:grid-cols-2"
     >
       <section className="flex min-h-0 flex-col border-b border-[#899DFF]/30 lg:border-r lg:border-b-0">
@@ -395,7 +408,7 @@ export default function PythonCodeEditor({
               <RotateCcw className="size-4" />
 
               <span className="hidden sm:inline">
-                Reset
+                {t("Reset")}
               </span>
             </Button>
 
@@ -411,10 +424,10 @@ export default function PythonCodeEditor({
               <Play className="size-4" />
 
               {isRunning
-                ? "Running..."
+                ? t("Running...")
                 : isRuntimeReady
-                  ? "Run"
-                  : "Loading..."}
+                  ? t("Run")
+                  : t("Loading...")}
             </Button>
           </div>
         </header>
@@ -423,7 +436,7 @@ export default function PythonCodeEditor({
           htmlFor="python-editor"
           className="sr-only"
         >
-          Python code
+          {t("Python code")}
         </label>
 
         <textarea
@@ -460,7 +473,7 @@ export default function PythonCodeEditor({
           >
             <Keyboard className="size-4 text-[#FFD400]" />
 
-            Program input
+            {t("Program input")}
           </label>
 
           <textarea
@@ -476,7 +489,7 @@ export default function PythonCodeEditor({
 
               setLastSuccessfulCode(null);
             }}
-            placeholder="One input() value per line"
+            placeholder={t("One input() value per line")}
             spellCheck={false}
             className="min-h-0 flex-1 resize-none bg-[#080A11] p-4 font-mono text-sm text-[#E7E9F8] outline-none placeholder:text-white/25"
           />
@@ -486,7 +499,7 @@ export default function PythonCodeEditor({
           <header className="flex shrink-0 items-center gap-2 border-b border-[#899DFF]/25 bg-[#10152A] px-4 py-3 font-pixel text-lg text-[#AAB6FF]">
             <Terminal className="size-5 text-[#FFD400]" />
 
-            Python output
+            {t("Python output")}
 
             <span className="ml-auto text-xs text-white/35">
               Pyodide · WebAssembly

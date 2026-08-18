@@ -9,12 +9,14 @@ import {
 } from "@/lib/challenges/catalog";
 import { getDailyChallengeSlug } from "@/lib/challenges/daily";
 import { challengeCompletionsTable } from "@/lib/challenges/schema";
+import { getServerLocale } from "@/lib/i18n/server";
 
 import ChallengesCatalog from "./_components/ChallengesCatalog";
 
 export const dynamic = "force-dynamic";
 
 export default async function ChallengesPage() {
+  const locale = await getServerLocale();
   const { userId } = await auth();
 
   const completedChallenges = userId
@@ -29,12 +31,12 @@ export default async function ChallengesPage() {
     : [];
 
   const dailySlug = getDailyChallengeSlug();
-  const dailyChallenge = getChallengeBySlug(dailySlug);
+  const dailyChallenge = getChallengeBySlug(dailySlug, locale);
 
   return (
     <>
       <ChallengesCatalog
-        challenges={getChallengeSummaries()}
+        challenges={getChallengeSummaries(locale)}
         dailySlug={dailyChallenge?.slug ?? dailySlug}
         completions={completedChallenges.map(
           (completion: {

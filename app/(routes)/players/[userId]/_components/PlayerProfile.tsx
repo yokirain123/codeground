@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 
 import PlayerAvatar from "@/components/friends/PlayerAvatar";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { PlayerProfileResponse } from "@/lib/friends/types";
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -42,6 +43,7 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export default function PlayerProfile() {
+  const { t, formatDate, formatNumber, translateMessage } = useI18n();
   const params = useParams<{ userId: string | string[] }>();
   const rawUserId = Array.isArray(params.userId)
     ? params.userId[0]
@@ -66,13 +68,13 @@ export default function PlayerProfile() {
     } catch (loadError) {
       setError(
         loadError instanceof Error
-          ? loadError.message
-          : "Failed to load player profile.",
+          ? translateMessage(loadError.message)
+          : t("Failed to load player profile."),
       );
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [t, translateMessage, userId]);
 
   useEffect(() => {
     void loadProfile();
@@ -82,7 +84,7 @@ export default function PlayerProfile() {
     return (
       <div className="flex min-h-[65svh] items-center justify-center text-[#899DFF]">
         <Loader2 className="size-7 animate-spin" />
-        <span className="ml-3 font-pixel text-lg">Loading player...</span>
+        <span className="ml-3 font-pixel text-lg">{t("Loading player...")}</span>
       </div>
     );
   }
@@ -90,15 +92,17 @@ export default function PlayerProfile() {
   if (error || !profile) {
     return (
       <div className="mx-auto flex min-h-[65svh] max-w-xl flex-col items-center justify-center px-6 text-center">
-        <h1 className="font-pixel text-3xl text-white">Player unavailable</h1>
+        <h1 className="font-pixel text-3xl text-white">
+          {t("Player unavailable")}
+        </h1>
         <p className="mt-3 font-sans text-white/45">
-          {error || "This CodeQuest profile could not be found."}
+          {error || t("This CodeQuest profile could not be found.")}
         </p>
         <Link
           href="/friends"
           className="mt-6 border-2 border-black bg-[#FFD400] px-5 py-2.5 font-pixel text-lg text-black shadow-[3px_3px_0_#FF8C00]"
         >
-          Back to friends
+          {t("Back to friends")}
         </Link>
       </div>
     );
@@ -118,13 +122,15 @@ export default function PlayerProfile() {
       );
       toast.success(
         result.autoAccepted
-          ? `${player.name} joined your party.`
-          : `Friend request sent to ${player.name}.`,
+          ? t("{name} joined your party.", { name: player.name })
+          : t("Friend request sent to {name}.", { name: player.name }),
       );
       await loadProfile();
     } catch (actionError) {
       toast.error(
-        actionError instanceof Error ? actionError.message : "Request failed.",
+        actionError instanceof Error
+          ? translateMessage(actionError.message)
+          : t("Request failed."),
       );
     } finally {
       setBusy(false);
@@ -139,11 +145,13 @@ export default function PlayerProfile() {
         method: "PATCH",
         body: JSON.stringify({ action: "accept" }),
       });
-      toast.success(`${player.name} is now your friend.`);
+      toast.success(t("{name} is now your friend.", { name: player.name }));
       await loadProfile();
     } catch (actionError) {
       toast.error(
-        actionError instanceof Error ? actionError.message : "Request failed.",
+        actionError instanceof Error
+          ? translateMessage(actionError.message)
+          : t("Request failed."),
       );
     } finally {
       setBusy(false);
@@ -152,17 +160,23 @@ export default function PlayerProfile() {
 
   const removeFriend = async () => {
     if (!player.relationshipId) return;
-    if (!window.confirm(`Remove ${player.name} from your friends?`)) return;
+    if (!window.confirm(t("Remove {name} from your friends?", { name: player.name }))) {
+      return;
+    }
     setBusy(true);
     try {
       await requestJson(`/api/friends/${player.relationshipId}`, {
         method: "DELETE",
       });
-      toast.success(`${player.name} was removed from your friends.`);
+      toast.success(
+        t("{name} was removed from your friends.", { name: player.name }),
+      );
       await loadProfile();
     } catch (actionError) {
       toast.error(
-        actionError instanceof Error ? actionError.message : "Request failed.",
+        actionError instanceof Error
+          ? translateMessage(actionError.message)
+          : t("Request failed."),
       );
     } finally {
       setBusy(false);
@@ -176,21 +190,23 @@ export default function PlayerProfile() {
       await requestJson(`/api/friends/requests/${player.relationshipId}`, {
         method: "DELETE",
       });
-      toast.success("Friend request cancelled.");
+      toast.success(t("Friend request cancelled."));
       await loadProfile();
     } catch (actionError) {
       toast.error(
-        actionError instanceof Error ? actionError.message : "Request failed.",
+        actionError instanceof Error
+          ? translateMessage(actionError.message)
+          : t("Request failed."),
       );
     } finally {
       setBusy(false);
     }
   };
 
-  const joinedDate = new Intl.DateTimeFormat("en-US", {
+  const joinedDate = formatDate(player.joinedAt, {
     month: "long",
     year: "numeric",
-  }).format(new Date(player.joinedAt));
+  });
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 lg:px-10 lg:py-14">
@@ -198,7 +214,7 @@ export default function PlayerProfile() {
         href="/friends"
         className="inline-flex items-center gap-2 font-pixel text-sm text-[#899DFF] transition hover:text-white"
       >
-        <ArrowLeft className="size-4" /> Back to friends
+        <ArrowLeft className="size-4" /> {t("Back to friends")}
       </Link>
 
       <section className="relative mt-5 overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] p-6 shadow-[7px_7px_0_#020307] sm:p-8 lg:p-10">
@@ -221,18 +237,18 @@ export default function PlayerProfile() {
 
           <div className="min-w-0 flex-1">
             <p className="font-pixel text-xs uppercase tracking-[0.25em] text-[#899DFF]">
-              CodeQuest adventurer
+              {t("CodeQuest adventurer")}
             </p>
             <h1 className="mt-2 break-words font-pixel text-4xl text-white sm:text-5xl lg:text-6xl">
               {player.name}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
               <span className="font-pixel text-xl text-[#FFD400]">
-                {Math.max(0, player.points).toLocaleString("en-US")} XP
+                {formatNumber(Math.max(0, player.points))} XP
               </span>
               <span className="flex items-center gap-2 font-sans text-sm text-white/40">
-                <CalendarDays className="size-4 text-[#899DFF]" /> Joined{" "}
-                {joinedDate}
+                <CalendarDays className="size-4 text-[#899DFF]" />{" "}
+                {t("Joined {date}", { date: joinedDate })}
               </span>
             </div>
           </div>
@@ -244,16 +260,16 @@ export default function PlayerProfile() {
       <section className="mt-8 grid gap-4 sm:grid-cols-3">
         {[
           {
-            label: "Quests cleared",
+            label: t("Quests cleared"),
             value: player.stats.completedExercises,
             icon: Swords,
           },
           {
-            label: "Courses joined",
+            label: t("Courses joined"),
             value: player.stats.enrolledCourses,
             icon: BookOpen,
           },
-          { label: "Friends", value: player.stats.friends, icon: UsersRound },
+          { label: t("Friends"), value: player.stats.friends, icon: UsersRound },
         ].map((stat) => {
           const Icon = stat.icon;
           return (
@@ -266,7 +282,7 @@ export default function PlayerProfile() {
               </span>
               <div>
                 <p className="font-pixel text-3xl text-[#FFD400]">
-                  {stat.value}
+                  {formatNumber(stat.value)}
                 </p>
                 <p className="font-sans text-sm text-white/40">{stat.label}</p>
               </div>
@@ -278,7 +294,9 @@ export default function PlayerProfile() {
       <section className="mt-10">
         <div className="flex items-center gap-3 border-b border-white/10 pb-4">
           <BookOpen className="size-5 text-[#899DFF]" />
-          <h2 className="font-pixel text-3xl text-white">Current courses</h2>
+          <h2 className="font-pixel text-3xl text-white">
+            {t("Current courses")}
+          </h2>
         </div>
 
         {player.courses.length > 0 ? (
@@ -290,21 +308,28 @@ export default function PlayerProfile() {
                 className="group border-2 border-[#899DFF]/30 bg-[#10152A] p-5 shadow-[4px_4px_0_#020307] transition hover:border-[#FFD400]/60"
               >
                 <p className="font-pixel text-[10px] uppercase tracking-[0.18em] text-[#899DFF]">
-                  {course.level}
+                  {course.level === "Beginner"
+                    ? t("Beginner")
+                    : course.level === "Intermediate"
+                      ? t("Intermediate")
+                      : course.level === "Advanced"
+                        ? t("Advanced")
+                        : course.level}
                 </p>
                 <h3 className="mt-2 font-pixel text-2xl text-white group-hover:text-[#FFD400]">
                   {course.title}
                 </h3>
                 <p className="mt-3 font-pixel text-sm text-[#FFD400]">
-                  {Math.max(0, course.xpEarned).toLocaleString("en-US")} course
-                  XP
+                  {t("{count} course XP", {
+                    count: formatNumber(Math.max(0, course.xpEarned)),
+                  })}
                 </p>
               </Link>
             ))}
           </div>
         ) : (
           <div className="mt-5 border-2 border-dashed border-[#899DFF]/20 bg-[#10152A]/40 p-8 text-center font-sans text-white/40">
-            This adventurer has not joined a course yet.
+            {t("This adventurer has not joined a course yet.")}
           </div>
         )}
       </section>
@@ -320,7 +345,7 @@ export default function PlayerProfile() {
         <span
           className={`${baseClass} border border-[#899DFF]/30 bg-[#899DFF]/5 text-[#AAB8FF]`}
         >
-          Your profile
+          {t("Your profile")}
         </span>
       );
     }
@@ -333,7 +358,8 @@ export default function PlayerProfile() {
           onClick={() => void sendRequest()}
           className={`${baseClass} cursor-pointer border-2 border-black bg-[#FFD400] text-black shadow-[4px_4px_0_#FF8C00] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00]`}
         >
-          <UserPlus className="size-5" /> {busy ? "Sending..." : "Add friend"}
+          <UserPlus className="size-5" />{" "}
+          {busy ? t("Sending...") : t("Add friend")}
         </button>
       );
     }
@@ -347,7 +373,7 @@ export default function PlayerProfile() {
           className={`${baseClass} cursor-pointer border-2 border-[#6FFFA2] bg-[#6FFFA2]/10 text-[#6FFFA2] hover:bg-[#6FFFA2] hover:text-[#07080C]`}
         >
           <Check className="size-5" />{" "}
-          {busy ? "Accepting..." : "Accept request"}
+          {busy ? t("Accepting...") : t("Accept request")}
         </button>
       );
     }
@@ -361,7 +387,7 @@ export default function PlayerProfile() {
           className={`${baseClass} cursor-pointer border border-[#899DFF]/30 bg-[#899DFF]/5 text-[#899DFF] hover:border-red-400/45 hover:bg-red-400/10 hover:text-red-300`}
         >
           <Clock3 className="size-5" />{" "}
-          {busy ? "Cancelling..." : "Cancel request"}
+          {busy ? t("Cancelling...") : t("Cancel request")}
         </button>
       );
     }
@@ -374,7 +400,7 @@ export default function PlayerProfile() {
         className={`${baseClass} cursor-pointer border border-white/15 bg-white/[0.025] text-white/55 hover:border-red-400/45 hover:bg-red-400/10 hover:text-red-300`}
       >
         <UserMinus className="size-5" />{" "}
-        {busy ? "Removing..." : "Remove friend"}
+        {busy ? t("Removing...") : t("Remove friend")}
       </button>
     );
   }

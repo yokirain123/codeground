@@ -1,48 +1,57 @@
-import { BookOpen, Code2, Trophy } from "lucide-react";
+"use client";
 
-const steps = [
-  {
-    number: "01",
-    title: "Choose a course",
-    description: "Pick a learning path and begin at your current skill level.",
-    icon: BookOpen,
-  },
-  {
-    number: "02",
-    title: "Complete coding quests",
-    description:
-      "Learn the topic, write real code and solve exercises in the playground.",
-    icon: Code2,
-  },
-  {
-    number: "03",
-    title: "Earn XP and achievements",
-    description:
-      "Build your streak, unlock badges and track your course progress.",
-    icon: Trophy,
-  },
-] as const;
+import { BookOpen, Code2, Trophy } from "lucide-react";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export default function HowCodeQuestWorks() {
+  const { t } = useI18n();
+  const steps = [
+    {
+      number: "01",
+      title: t("Choose a course"),
+      description: t(
+        "Pick a learning path and begin at your current skill level.",
+      ),
+      icon: BookOpen,
+    },
+    {
+      number: "02",
+      title: t("Complete coding quests"),
+      description: t(
+        "Learn the topic, write real code and solve exercises in the playground.",
+      ),
+      icon: Code2,
+    },
+    {
+      number: "03",
+      title: t("Earn XP and achievements"),
+      description: t(
+        "Build your streak, unlock badges and track your course progress.",
+      ),
+      icon: Trophy,
+    },
+  ] as const;
+
   return (
     <section className="relative px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-2xl text-center">
           <p className="font-pixel text-sm uppercase tracking-[0.3em] text-[#899DFF]">
-            Your journey
+            {t("Your journey")}
           </p>
 
           <h2 className="mt-3 font-pixel text-4xl text-white [text-shadow:4px_4px_0_#28336B] md:text-6xl">
-            How{" "}
+            {t("How")}{" "}
             <span className="text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
               CodeQuest
             </span>{" "}
-            works
+            {t("works")}
           </h2>
 
           <p className="mt-5 font-sans text-lg text-white/60 md:text-xl">
-            From your first lesson to your next achievement in three simple
-            steps.
+            {t(
+              "From your first lesson to your next achievement in three simple steps.",
+            )}
           </p>
         </div>
 

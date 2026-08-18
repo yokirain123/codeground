@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { getOpenAIClient } from "@/lib/openai";
 import { isLabLanguage } from "@/lib/labs/types";
+import { getServerI18n } from "@/lib/i18n/server";
 
 const RefactorChangeSchema = z.object({
   title: z.string(),
@@ -61,11 +62,13 @@ rewriting it into a different style.
 `;
 
 export async function POST(request: Request) {
+  const { locale, t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("Unauthorized") }, { status: 401 });
     }
 
     const body = (await request.json()) as RefactorBody;
@@ -75,21 +78,21 @@ export async function POST(request: Request) {
 
     if (!isLabLanguage(language)) {
       return NextResponse.json(
-        { error: "Choose the programming language." },
+        { error: t("Choose the programming language.") },
         { status: 400 },
       );
     }
 
     if (!code.trim()) {
       return NextResponse.json(
-        { error: "Paste the code you want to improve." },
+        { error: t("Paste the code you want to improve.") },
         { status: 400 },
       );
     }
 
     if (code.length > 40_000 || goal.length > 1_000) {
       return NextResponse.json(
-        { error: "The code or refactoring goal is too large." },
+        { error: t("The code or refactoring goal is too large.") },
         { status: 413 },
       );
     }
@@ -100,7 +103,14 @@ export async function POST(request: Request) {
       model,
       store: false,
       input: [
-        { role: "system", content: SYSTEM_INSTRUCTIONS },
+        {
+          role: "system",
+          content:
+            SYSTEM_INSTRUCTIONS +
+            (locale === "uk"
+              ? "\nWrite every explanatory field in Ukrainian. Keep source code, identifiers, exact code snippets and category enum values unchanged."
+              : "\nWrite every explanatory field in English."),
+        },
         {
           role: "user",
           content: JSON.stringify({ language, code, goal }, null, 2),
@@ -132,7 +142,7 @@ export async function POST(request: Request) {
         error:
           process.env.NODE_ENV === "development" && error instanceof Error
             ? error.message
-            : "Refactor Lab is temporarily unavailable.",
+            : t("Refactor Lab is temporarily unavailable."),
       },
       { status: 500 },
     );

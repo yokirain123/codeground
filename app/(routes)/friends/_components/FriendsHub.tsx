@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 import PlayerAvatar from "@/components/friends/PlayerAvatar";
 import PlayerCard from "@/components/friends/PlayerCard";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type {
   FriendRequestsResponse,
   FriendsResponse,
@@ -52,6 +53,7 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export default function FriendsHub() {
+  const { t, formatNumber, translateMessage } = useI18n();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q")?.trim() ?? "";
 
@@ -108,14 +110,16 @@ export default function FriendsHub() {
         };
 
         if (!response.ok) {
-          throw new Error(data.error || "Failed to search players.");
+          throw new Error(data.error || t("Failed to search players."));
         }
 
         setPlayers(Array.isArray(data.players) ? data.players : []);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") return;
         toast.error(
-          error instanceof Error ? error.message : "Failed to search players.",
+          error instanceof Error
+            ? translateMessage(error.message)
+            : t("Failed to search players."),
         );
         setPlayers([]);
       } finally {
@@ -127,7 +131,7 @@ export default function FriendsHub() {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [activeTab, query, refreshKey]);
+  }, [activeTab, query, refreshKey, t, translateMessage]);
 
   const refresh = () => setRefreshKey((value) => value + 1);
 
@@ -145,12 +149,16 @@ export default function FriendsHub() {
 
       toast.success(
         result.autoAccepted
-          ? `${player.name} joined your party.`
-          : `Friend request sent to ${player.name}.`,
+          ? t("{name} joined your party.", { name: player.name })
+          : t("Friend request sent to {name}.", { name: player.name }),
       );
       refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Request failed.");
+      toast.error(
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Request failed."),
+      );
     } finally {
       setBusyKey("");
     }
@@ -165,10 +173,14 @@ export default function FriendsHub() {
         method: "PATCH",
         body: JSON.stringify({ action: "accept" }),
       });
-      toast.success(`${player.name} is now your friend.`);
+      toast.success(t("{name} is now your friend.", { name: player.name }));
       refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Request failed.");
+      toast.error(
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Request failed."),
+      );
     } finally {
       setBusyKey("");
     }
@@ -183,10 +195,14 @@ export default function FriendsHub() {
         method: "PATCH",
         body: JSON.stringify({ action: "decline" }),
       });
-      toast.success("Friend request declined.");
+      toast.success(t("Friend request declined."));
       refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Request failed.");
+      toast.error(
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Request failed."),
+      );
     } finally {
       setBusyKey("");
     }
@@ -200,10 +216,14 @@ export default function FriendsHub() {
       await requestJson(`/api/friends/requests/${player.relationshipId}`, {
         method: "DELETE",
       });
-      toast.success("Friend request cancelled.");
+      toast.success(t("Friend request cancelled."));
       refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Request failed.");
+      toast.error(
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Request failed."),
+      );
     } finally {
       setBusyKey("");
     }
@@ -211,7 +231,9 @@ export default function FriendsHub() {
 
   const removeFriend = async (player: PublicPlayer) => {
     if (!player.relationshipId) return;
-    if (!window.confirm(`Remove ${player.name} from your friends?`)) return;
+    if (!window.confirm(t("Remove {name} from your friends?", { name: player.name }))) {
+      return;
+    }
 
     setBusyKey(`remove-${player.userId}`);
 
@@ -219,10 +241,16 @@ export default function FriendsHub() {
       await requestJson(`/api/friends/${player.relationshipId}`, {
         method: "DELETE",
       });
-      toast.success(`${player.name} was removed from your friends.`);
+      toast.success(
+        t("{name} was removed from your friends.", { name: player.name }),
+      );
       refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Request failed.");
+      toast.error(
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Request failed."),
+      );
     } finally {
       setBusyKey("");
     }
@@ -236,17 +264,17 @@ export default function FriendsHub() {
   }> = [
     {
       id: "friends",
-      label: "My friends",
+      label: t("My friends"),
       count: friends.total,
       icon: UsersRound,
     },
     {
       id: "requests",
-      label: "Requests",
+      label: t("Requests"),
       count: requests.incoming.length,
       icon: Inbox,
     },
-    { id: "discover", label: "Find players", icon: Search },
+    { id: "discover", label: t("Find players"), icon: Search },
   ];
 
   return (
@@ -260,22 +288,23 @@ export default function FriendsHub() {
         <div className="relative flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
             <p className="font-pixel text-xs uppercase tracking-[0.28em] text-[#899DFF]">
-              Social hub
+              {t("Social hub")}
             </p>
             <h1 className="mt-2 font-pixel text-4xl text-white sm:text-5xl lg:text-6xl">
-              Build your <span className="text-[#FFD400]">party</span>
+              {t("Build your")} <span className="text-[#FFD400]">{t("party")}</span>
             </h1>
             <p className="mt-4 max-w-2xl font-sans text-base leading-7 text-white/55 sm:text-lg">
-              Find other adventurers, grow your coding party and inspect each
-              player&apos;s CodeQuest progress.
+              {t(
+                "Find other adventurers, grow your coding party and inspect each player's CodeQuest progress.",
+              )}
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
-              { label: "Friends", value: friends.total },
-              { label: "Incoming", value: requests.incoming.length },
-              { label: "Sent", value: requests.outgoing.length },
+              { label: t("Friends"), value: friends.total },
+              { label: t("Incoming"), value: requests.incoming.length },
+              { label: t("Sent"), value: requests.outgoing.length },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -294,7 +323,7 @@ export default function FriendsHub() {
       </section>
 
       <nav
-        aria-label="Friends sections"
+        aria-label={t("Friends sections")}
         className="mt-9 grid gap-2 border-b border-white/10 pb-4 sm:grid-cols-3"
       >
         {tabs.map((tab) => {
@@ -333,21 +362,21 @@ export default function FriendsHub() {
       {loadState === "loading" && activeTab !== "discover" && (
         <div className="flex min-h-64 items-center justify-center text-[#899DFF]">
           <Loader2 className="size-7 animate-spin" />
-          <span className="ml-3 font-pixel text-lg">Loading party...</span>
+          <span className="ml-3 font-pixel text-lg">{t("Loading party...")}</span>
         </div>
       )}
 
       {loadState === "error" && activeTab !== "discover" && (
         <div className="mt-8 border border-red-400/35 bg-red-400/10 p-6 text-center">
           <p className="font-pixel text-lg text-red-300">
-            Could not load your friends.
+            {t("Could not load your friends.")}
           </p>
           <button
             type="button"
             onClick={refresh}
             className="mt-4 cursor-pointer border border-red-300/40 px-4 py-2 font-pixel text-red-200"
           >
-            Try again
+            {t("Try again")}
           </button>
         </div>
       )}
@@ -368,9 +397,11 @@ export default function FriendsHub() {
           ) : (
             <EmptyState
               icon={UsersRound}
-              title="Your party is empty"
-              description="Find another CodeQuest player and send your first friend request."
-              actionLabel="Find players"
+              title={t("Your party is empty")}
+              description={t(
+                "Find another CodeQuest player and send your first friend request.",
+              )}
+              actionLabel={t("Find players")}
               onAction={() => setActiveTab("discover")}
             />
           )}
@@ -382,7 +413,7 @@ export default function FriendsHub() {
           <div>
             <SectionTitle
               icon={Inbox}
-              title="Incoming requests"
+              title={t("Incoming requests")}
               count={requests.incoming.length}
             />
 
@@ -406,7 +437,7 @@ export default function FriendsHub() {
                           {player.name}
                         </Link>
                         <p className="mt-1 font-pixel text-xs text-[#FFD400]">
-                          {player.points.toLocaleString("en-US")} XP
+                          {formatNumber(player.points)} XP
                         </p>
                       </div>
                     </div>
@@ -418,7 +449,7 @@ export default function FriendsHub() {
                         onClick={() => void acceptRequest(player)}
                         className="flex h-10 cursor-pointer items-center justify-center gap-2 border-2 border-[#6FFFA2] bg-[#6FFFA2]/10 font-pixel text-sm text-[#6FFFA2] hover:bg-[#6FFFA2] hover:text-[#07080C] disabled:opacity-50"
                       >
-                        <Check className="size-4" /> Accept
+                        <Check className="size-4" /> {t("Accept")}
                       </button>
                       <button
                         type="button"
@@ -426,7 +457,7 @@ export default function FriendsHub() {
                         onClick={() => void declineRequest(player)}
                         className="flex h-10 cursor-pointer items-center justify-center gap-2 border border-red-400/35 bg-red-400/5 font-pixel text-sm text-red-300 hover:bg-red-400/15 disabled:opacity-50"
                       >
-                        <X className="size-4" /> Decline
+                        <X className="size-4" /> {t("Decline")}
                       </button>
                     </div>
                   </article>
@@ -434,7 +465,7 @@ export default function FriendsHub() {
               </div>
             ) : (
               <p className="mt-4 border border-white/10 bg-white/[0.02] p-5 font-sans text-white/40">
-                No incoming friend requests right now.
+                {t("No incoming friend requests right now.")}
               </p>
             )}
           </div>
@@ -442,7 +473,7 @@ export default function FriendsHub() {
           <div>
             <SectionTitle
               icon={Send}
-              title="Sent requests"
+              title={t("Sent requests")}
               count={requests.outgoing.length}
             />
 
@@ -459,7 +490,7 @@ export default function FriendsHub() {
               </div>
             ) : (
               <p className="mt-4 border border-white/10 bg-white/[0.02] p-5 font-sans text-white/40">
-                You have no pending sent requests.
+                {t("You have no pending sent requests.")}
               </p>
             )}
           </div>
@@ -473,7 +504,7 @@ export default function FriendsHub() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by player name or exact email..."
+              placeholder={t("Search by player name or exact email...")}
               className="h-14 w-full border-2 border-[#899DFF]/40 bg-[#10152A] pl-12 pr-12 font-sans text-base text-white outline-none placeholder:text-white/25 focus:border-[#FFD400]"
             />
             {searching && (
@@ -483,8 +514,10 @@ export default function FriendsHub() {
 
           <p className="mt-3 font-sans text-sm text-white/35">
             {query.trim()
-              ? `Searching CodeQuest players for “${query.trim()}”`
-              : "Top adventurers you may want in your party."}
+              ? t("Searching CodeQuest players for “{query}”", {
+                  query: query.trim(),
+                })
+              : t("Top adventurers you may want in your party.")}
           </p>
 
           {!searching && players.length > 0 && (
@@ -511,8 +544,10 @@ export default function FriendsHub() {
           {!searching && players.length === 0 && (
             <EmptyState
               icon={UserPlus}
-              title="No players found"
-              description="Try another name or enter the full email linked to their CodeQuest account."
+              title={t("No players found")}
+              description={t(
+                "Try another name or enter the full email linked to their CodeQuest account.",
+              )}
             />
           )}
         </section>

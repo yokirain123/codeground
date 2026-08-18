@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   getGitSandboxMission,
+  getGitSandboxMissions,
   gitSandboxMissions,
   type GitSandboxMission,
 } from "@/lib/labs/git/catalog";
@@ -47,6 +49,7 @@ function difficultyClass(difficulty: GitSandboxMission["difficulty"]) {
 }
 
 function CommitTree({ state }: { state: GitSandboxState }) {
+  const { t } = useI18n();
   const commits = useMemo(
     () => Object.values(state.commits).sort((a, b) => b.order - a.order),
     [state.commits],
@@ -88,7 +91,9 @@ function CommitTree({ state }: { state: GitSandboxState }) {
                 </span>
               ))}
               {commit.parents.length > 1 ? (
-                <span className="font-pixel text-[10px] text-[#62FB60]">MERGE</span>
+                <span className="font-pixel text-[10px] text-[#62FB60]">
+                  {t("MERGE")}
+                </span>
               ) : null}
             </div>
             <p className="mt-1 truncate font-sans text-sm text-white/65">
@@ -102,8 +107,10 @@ function CommitTree({ state }: { state: GitSandboxState }) {
 }
 
 export default function GitSandbox() {
+  const { locale, t, formatNumber, translateMessage } = useI18n();
+  const missions = useMemo(() => getGitSandboxMissions(locale), [locale]);
   const [missionSlug, setMissionSlug] = useState(gitSandboxMissions[0].slug);
-  const mission = getGitSandboxMission(missionSlug) ?? gitSandboxMissions[0];
+  const mission = getGitSandboxMission(missionSlug, locale) ?? missions[0];
   const [state, setState] = useState<GitSandboxState>(() =>
     createGitSandboxState(mission.slug),
   );
@@ -169,7 +176,7 @@ export default function GitSandbox() {
   const checkMission = async () => {
     if (isChecking) return;
     setIsChecking(true);
-    setFeedback("Checking repository state...");
+    setFeedback(t("Checking repository state..."));
 
     try {
       const response = await fetch("/api/labs/git-sandbox/complete", {
@@ -184,22 +191,30 @@ export default function GitSandbox() {
       if (!response.ok) {
         const message =
           data.validationErrors?.join("\n") ||
-          data.error ||
-          "The Git quest is not complete yet.";
+          (data.error ? translateMessage(data.error) : "") ||
+          t("The Git quest is not complete yet.");
         setFeedback(message);
-        toast.error(data.error || "Quest requirements are not complete");
+        toast.error(
+          data.error
+            ? translateMessage(data.error)
+            : t("Quest requirements are not complete"),
+        );
         return;
       }
 
       setCompletedSlugs((current) => new Set(current).add(mission.slug));
       const message = data.alreadyCompleted
-        ? "Quest replay cleared. XP was already awarded."
-        : `Quest complete · +${data.xpEarned ?? 0} XP`;
+        ? t("Quest replay cleared. XP was already awarded.")
+        : t("Quest complete · +{count} XP", {
+            count: formatNumber(data.xpEarned ?? 0),
+          });
       setFeedback(message);
       toast.success(message);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Could not check the quest.";
+        error instanceof Error
+          ? translateMessage(error.message)
+          : t("Could not check the quest.");
       setFeedback(message);
       toast.error(message);
     } finally {
@@ -215,17 +230,20 @@ export default function GitSandbox() {
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div>
             <p className="font-pixel text-xs uppercase tracking-[0.2em] text-[#899DFF]">
-              Quest line
+              {t("Quest line")}
             </p>
             <p className="mt-1 font-pixel text-2xl text-white">
-              {completedSlugs.size}/{gitSandboxMissions.length} cleared
+              {t("{completed}/{total} cleared", {
+                completed: formatNumber(completedSlugs.size),
+                total: formatNumber(missions.length),
+              })}
             </p>
           </div>
           <GitBranch className="size-7 text-[#FFD400]" />
         </div>
 
         <div className="mt-4 space-y-2">
-          {gitSandboxMissions.map((item, index) => {
+          {missions.map((item, index) => {
             const active = item.slug === mission.slug;
             const cleared = completedSlugs.has(item.slug);
 
@@ -241,7 +259,9 @@ export default function GitSandbox() {
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-pixel text-xs text-[#899DFF]">0{index + 1}</span>
+                  <span className="font-pixel text-xs text-[#899DFF]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                   {cleared ? (
                     <CheckCircle2 className="size-4 text-[#62FB60]" />
                   ) : null}
@@ -249,9 +269,15 @@ export default function GitSandbox() {
                 <p className="mt-1 font-pixel text-lg text-white">{item.title}</p>
                 <div className="mt-1 flex items-center justify-between font-pixel text-xs">
                   <span className={difficultyClass(item.difficulty)}>
-                    {item.difficulty}
+                    {item.difficulty === "Easy"
+                      ? t("Easy")
+                      : item.difficulty === "Medium"
+                        ? t("Medium")
+                        : t("Hard")}
                   </span>
-                  <span className="text-[#FFD400]">{item.xp} XP</span>
+                  <span className="text-[#FFD400]">
+                    {formatNumber(item.xp)} XP
+                  </span>
                 </div>
               </button>
             );
@@ -266,7 +292,7 @@ export default function GitSandbox() {
               <h2 className="font-pixel text-3xl text-white">{mission.title}</h2>
               {isCompleted ? (
                 <span className="border border-[#62FB60]/45 bg-[#62FB60]/10 px-2 py-1 font-pixel text-xs text-[#62FB60]">
-                  CLEARED
+                  {t("CLEARED")}
                 </span>
               ) : null}
             </div>
@@ -279,7 +305,7 @@ export default function GitSandbox() {
               onClick={() => resetMission()}
               className="cursor-pointer rounded-none border-[#899DFF]/60 bg-transparent font-pixel text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C]"
             >
-              <RotateCcw className="size-4" /> Reset repo
+              <RotateCcw className="size-4" /> {t("Reset repo")}
             </Button>
             <Button
               type="button"
@@ -292,7 +318,7 @@ export default function GitSandbox() {
               ) : (
                 <Trophy className="size-4" />
               )}
-              Check quest
+              {t("Check quest")}
             </Button>
           </div>
         </div>
@@ -302,7 +328,7 @@ export default function GitSandbox() {
             <div className="grid lg:grid-cols-[16rem_minmax(0,1fr)]">
               <div className="border-b border-white/10 p-4 lg:border-r lg:border-b-0">
                 <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[#899DFF]">
-                  Objectives
+                  {t("Objectives")}
                 </p>
                 <ol className="mt-3 space-y-3">
                   {mission.objective.map((objective, index) => (
@@ -319,7 +345,7 @@ export default function GitSandbox() {
                   className="mt-5 flex cursor-pointer items-center gap-2 font-pixel text-sm text-[#FFD400]"
                 >
                   <Lightbulb className="size-4" />
-                  {hintVisible ? "Hide hint" : "Show hint"}
+                  {hintVisible ? t("Hide hint") : t("Show hint")}
                 </button>
                 {hintVisible ? (
                   <p className="mt-2 border border-[#FFD400]/25 bg-[#FFD400]/5 p-3 font-sans text-xs leading-5 text-white/55">
@@ -328,7 +354,7 @@ export default function GitSandbox() {
                 ) : null}
 
                 <p className="mt-6 font-pixel text-xs uppercase tracking-[0.18em] text-[#899DFF]">
-                  Command deck
+                  {t("Command deck")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {mission.suggestedCommands.map((suggestion) => (
@@ -372,7 +398,7 @@ export default function GitSandbox() {
                     )
                   }
                   spellCheck={false}
-                  aria-label={`${activeFile} contents`}
+                  aria-label={t("{file} contents", { file: activeFile })}
                   className="min-h-[24rem] flex-1 resize-none bg-[#090B14] p-5 font-mono text-sm leading-7 text-[#E7E9F8] outline-none selection:bg-[#899DFF]/35"
                 />
               </div>
@@ -380,7 +406,7 @@ export default function GitSandbox() {
 
             <div className="border-t border-white/10">
               <div className="flex items-center gap-2 border-b border-white/10 bg-[#0B0E18] px-4 py-3 font-pixel text-sm text-[#AAB6FF]">
-                <Terminal className="size-4" /> Training terminal
+                <Terminal className="size-4" /> {t("Training terminal")}
               </div>
               <div className="h-56 overflow-auto bg-[#05060A] p-4 font-mono text-xs leading-5 text-white/65">
                 {state.terminal.map((line, index) => (
@@ -405,7 +431,7 @@ export default function GitSandbox() {
                   value={command}
                   onChange={(event) => setCommand(event.target.value)}
                   placeholder="git status"
-                  aria-label="Git command"
+                  aria-label={t("Git command")}
                   autoComplete="off"
                   maxLength={500}
                   className="min-w-0 flex-1 bg-transparent py-3 font-mono text-sm text-white outline-none placeholder:text-white/20"
@@ -414,7 +440,7 @@ export default function GitSandbox() {
                   type="submit"
                   className="m-1.5 h-9 cursor-pointer rounded-none bg-[#899DFF] px-4 font-pixel text-[#07080C] hover:bg-[#FFD400]"
                 >
-                  <Play className="size-4" /> Run
+                  <Play className="size-4" /> {t("Run")}
                 </Button>
               </form>
             </div>
@@ -423,7 +449,8 @@ export default function GitSandbox() {
           <aside className="min-w-0 p-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <p className="flex items-center gap-2 font-pixel text-lg text-white">
-                <GitCommitHorizontal className="size-5 text-[#FFD400]" /> Commit tree
+                <GitCommitHorizontal className="size-5 text-[#FFD400]" />{" "}
+                {t("Commit tree")}
               </p>
               <span className="font-pixel text-xs text-[#899DFF]">
                 {state.currentBranch}
@@ -435,16 +462,18 @@ export default function GitSandbox() {
 
             <div className="mt-6 border-t border-white/10 pt-5">
               <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[#899DFF]">
-                Repository
+                {t("Repository")}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2 font-pixel text-sm">
                 <div className="border border-white/10 bg-black/15 p-3">
-                  <p className="text-white/35">Branch</p>
+                  <p className="text-white/35">{t("Branch")}</p>
                   <p className="mt-1 truncate text-[#FFD400]">{state.currentBranch}</p>
                 </div>
                 <div className="border border-white/10 bg-black/15 p-3">
-                  <p className="text-white/35">Commits</p>
-                  <p className="mt-1 text-[#62FB60]">{Object.keys(state.commits).length}</p>
+                  <p className="text-white/35">{t("Commits")}</p>
+                  <p className="mt-1 text-[#62FB60]">
+                    {formatNumber(Object.keys(state.commits).length)}
+                  </p>
                 </div>
               </div>
 

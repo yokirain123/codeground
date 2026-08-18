@@ -1,5 +1,8 @@
+"use client";
+
 import { Check, LoaderCircle, Swords } from "lucide-react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface ChallengeSubmitButtonProps {
@@ -13,6 +16,8 @@ export default function ChallengeSubmitButton({
   isCompleted,
   onClick,
 }: ChallengeSubmitButtonProps) {
+  const { t } = useI18n();
+
   return (
     <Button
       type="button"
@@ -28,10 +33,10 @@ export default function ChallengeSubmitButton({
         <Swords className="size-4" />
       )}
       {isSubmitting
-        ? "Checking..."
+        ? t("Checking...")
         : isCompleted
-          ? "Completed"
-          : "Submit challenge"}
+          ? t("Completed")
+          : t("Submit challenge")}
     </Button>
   );
 }

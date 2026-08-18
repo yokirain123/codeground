@@ -20,6 +20,7 @@ interface GenerateExercisesBody {
   courseId?: unknown;
   chapterId?: unknown;
   overwrite?: unknown;
+  locale?: unknown;
 }
 
 interface GeneratedExerciseRecord {
@@ -525,6 +526,11 @@ export async function POST(request: Request) {
     const courseId = Number(body.courseId);
     const chapterId = Number(body.chapterId);
     const overwrite = body.overwrite === true;
+    const locale = body.locale === "uk" ? "uk" : "en";
+    const learnerLanguageInstruction =
+      locale === "uk"
+        ? "Write all learner-facing prose in natural Ukrainian. This includes content, task, and hint. Keep code, filenames, identifiers, exerciseId, exerciseName, validationRegex, and expectedOutput unchanged or in the language required by the exercise."
+        : "Write all learner-facing prose in English.";
 
     if (!Number.isInteger(courseId) || courseId <= 0) {
       return NextResponse.json(
@@ -611,7 +617,7 @@ export async function POST(request: Request) {
       input: [
         {
           role: "system",
-          content: GENERATOR_INSTRUCTIONS,
+          content: `${GENERATOR_INSTRUCTIONS}\n${learnerLanguageInstruction}`,
         },
         {
           role: "user",
@@ -771,7 +777,7 @@ export async function POST(request: Request) {
               input: [
                 {
                   role: "system",
-                  content: `${GENERATOR_INSTRUCTIONS}\n${REPAIR_INSTRUCTIONS}`,
+                  content: `${GENERATOR_INSTRUCTIONS}\n${REPAIR_INSTRUCTIONS}\n${learnerLanguageInstruction}`,
                 },
                 {
                   role: "user",

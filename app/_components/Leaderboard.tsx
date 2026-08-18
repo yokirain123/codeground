@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Crown, Medal, RefreshCw, Swords, Trophy, Users } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface LeaderboardPlayer {
   rank: number;
@@ -27,8 +28,6 @@ const emptyLeaderboard: LeaderboardResponse = {
   currentPlayer: null,
   totalPlayers: 0,
 };
-
-const numberFormatter = new Intl.NumberFormat("en-US");
 
 function getInitials(name: string) {
   const initials = name
@@ -67,10 +66,12 @@ function PlayerAvatar({ player }: { player: LeaderboardPlayer }) {
 }
 
 function RankBadge({ rank }: { rank: number }) {
+  const { t } = useI18n();
+
   if (rank === 1) {
     return (
       <span
-        aria-label="Rank 1"
+        aria-label={t("Rank {rank}", { rank: 1 })}
         className="flex size-10 items-center justify-center border-2 border-[#FFD400] bg-[#FFD400]/10 text-[#FFD400] shadow-[3px_3px_0_#020307]"
       >
         <Crown aria-hidden="true" className="size-5" strokeWidth={2.4} />
@@ -81,7 +82,7 @@ function RankBadge({ rank }: { rank: number }) {
   if (rank === 2) {
     return (
       <span
-        aria-label="Rank 2"
+        aria-label={t("Rank {rank}", { rank: 2 })}
         className="flex size-10 items-center justify-center border-2 border-[#C9D2E3] bg-[#C9D2E3]/10 text-[#C9D2E3] shadow-[3px_3px_0_#020307]"
       >
         <Medal aria-hidden="true" className="size-5" strokeWidth={2.4} />
@@ -92,7 +93,7 @@ function RankBadge({ rank }: { rank: number }) {
   if (rank === 3) {
     return (
       <span
-        aria-label="Rank 3"
+        aria-label={t("Rank {rank}", { rank: 3 })}
         className="flex size-10 items-center justify-center border-2 border-[#C9865A] bg-[#C9865A]/10 text-[#E5A174] shadow-[3px_3px_0_#020307]"
       >
         <Medal aria-hidden="true" className="size-5" strokeWidth={2.4} />
@@ -102,7 +103,7 @@ function RankBadge({ rank }: { rank: number }) {
 
   return (
     <span
-      aria-label={`Rank ${rank}`}
+      aria-label={t("Rank {rank}", { rank })}
       className="flex size-10 items-center justify-center border border-[#899DFF]/40 bg-[#07080C] font-pixel text-sm text-white/55"
     >
       {String(rank).padStart(2, "0")}
@@ -120,6 +121,7 @@ function PlayerRow({
   animationDelay: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
+  const { t, formatNumber } = useI18n();
 
   return (
     <motion.li
@@ -148,13 +150,13 @@ function PlayerRow({
 
             {isCurrentPlayer && (
               <span className="shrink-0 border border-[#FFD400]/60 bg-[#FFD400]/10 px-1.5 py-0.5 font-pixel text-[9px] uppercase tracking-wider text-[#FFD400]">
-                You
+                {t("You")}
               </span>
             )}
           </div>
 
           <p className="mt-1 font-pixel text-[11px] text-white/40 sm:hidden">
-            {numberFormatter.format(player.completedExercises)} quests cleared
+            {formatNumber(player.completedExercises)} {t("quests cleared")}
           </p>
         </div>
       </div>
@@ -162,13 +164,13 @@ function PlayerRow({
       <div className="hidden items-center justify-end gap-2 text-white/55 sm:flex">
         <Swords aria-hidden="true" className="size-4 text-[#899DFF]" />
         <span className="font-pixel text-sm">
-          {numberFormatter.format(player.completedExercises)}
+          {formatNumber(player.completedExercises)}
         </span>
       </div>
 
       <div className="text-right">
         <p className="font-pixel text-lg text-[#FFD400] sm:text-xl">
-          {numberFormatter.format(player.points)}
+          {formatNumber(player.points)}
         </p>
         <p className="font-pixel text-[9px] uppercase tracking-[0.18em] text-white/35">
           XP
@@ -179,9 +181,11 @@ function PlayerRow({
 }
 
 function LoadingRows() {
+  const { t } = useI18n();
+
   return (
     <div
-      aria-label="Loading leaderboard"
+      aria-label={t("Loading leaderboard")}
       className="divide-y divide-[#899DFF]/15"
     >
       {Array.from({ length: 5 }, (_, index) => (
@@ -204,6 +208,7 @@ function LoadingRows() {
 
 export default function Leaderboard() {
   const shouldReduceMotion = useReducedMotion();
+  const { t, formatNumber } = useI18n();
   const [leaderboard, setLeaderboard] =
     useState<LeaderboardResponse>(emptyLeaderboard);
   const [status, setStatus] = useState<LoadingStatus>("loading");
@@ -274,17 +279,19 @@ export default function Leaderboard() {
           <div className="mb-4 flex items-center justify-center gap-2 text-[#899DFF]">
             <Trophy aria-hidden="true" className="size-5" />
             <p className="font-pixel text-sm uppercase tracking-[0.3em]">
-              Community ranking
+              {t("Community ranking")}
             </p>
           </div>
 
           <h2 className="font-pixel text-4xl uppercase text-white [text-shadow:4px_4px_0_#020307] sm:text-5xl lg:text-6xl">
-            Hall of <span className="text-[#FFD400]">Heroes</span>
+            {t("Hall of")}{" "}
+            <span className="text-[#FFD400]">{t("Heroes")}</span>
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl font-pixel text-base leading-relaxed text-white/55 sm:text-lg">
-            Real XP. Real completed coding quests. See who is leading the
-            CodeQuest journey and where you stand.
+            {t(
+              "Real XP. Real completed coding quests. See who is leading the CodeQuest journey and where you stand.",
+            )}
           </p>
         </motion.div>
 
@@ -299,10 +306,10 @@ export default function Leaderboard() {
             <div className="flex flex-col gap-3 border-b-2 border-[#899DFF]/30 bg-[#0B0F20] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div>
                 <p className="font-pixel text-lg uppercase text-white">
-                  Top adventurers
+                  {t("Top adventurers")}
                 </p>
                 <p className="mt-1 font-pixel text-xs text-white/35">
-                  XP decides rank · cleared quests break ties
+                  {t("XP decides rank · cleared quests break ties")}
                 </p>
               </div>
 
@@ -310,8 +317,10 @@ export default function Leaderboard() {
                 <Users aria-hidden="true" className="size-4 text-[#899DFF]" />
                 <span className="font-pixel text-xs uppercase tracking-wider">
                   {status === "loading"
-                    ? "Loading players"
-                    : `${numberFormatter.format(leaderboard.totalPlayers)} players`}
+                    ? t("Loading players")
+                    : t("{count} players", {
+                        count: formatNumber(leaderboard.totalPlayers),
+                      })}
                 </span>
               </div>
             </div>
@@ -322,10 +331,10 @@ export default function Leaderboard() {
               <div className="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center">
                 <Trophy aria-hidden="true" className="size-10 text-white/15" />
                 <p className="mt-4 font-pixel text-lg text-white">
-                  The ranking board is unavailable
+                  {t("The ranking board is unavailable")}
                 </p>
                 <p className="mt-2 max-w-sm font-pixel text-sm leading-relaxed text-white/40">
-                  The quest data could not be loaded. Try once more.
+                  {t("The quest data could not be loaded. Try once more.")}
                 </p>
                 <button
                   type="button"
@@ -333,7 +342,7 @@ export default function Leaderboard() {
                   className="mt-6 inline-flex items-center gap-2 border-2 border-[#899DFF] bg-[#899DFF]/10 px-4 py-2 font-pixel text-sm uppercase text-[#AAB8FF] shadow-[4px_4px_0_#020307] transition-transform hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <RefreshCw aria-hidden="true" className="size-4" />
-                  Retry
+                  {t("Retry")}
                 </button>
               </div>
             )}
@@ -345,10 +354,12 @@ export default function Leaderboard() {
                   className="size-11 text-[#FFD400]/35"
                 />
                 <p className="mt-4 font-pixel text-xl text-white">
-                  The throne is empty
+                  {t("The throne is empty")}
                 </p>
                 <p className="mt-2 max-w-md font-pixel text-sm leading-relaxed text-white/40">
-                  Complete the first coding quest and become hero number one.
+                  {t(
+                    "Complete the first coding quest and become hero number one.",
+                  )}
                 </p>
               </div>
             )}

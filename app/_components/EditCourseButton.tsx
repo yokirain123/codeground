@@ -3,6 +3,7 @@
 import {
   type FormEvent,
   type MouseEvent,
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -10,6 +11,7 @@ import { createPortal } from "react-dom";
 import { Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import type { Course } from "./CreateCourseButton";
 
@@ -32,6 +34,7 @@ export default function EditCourseButton({
   course,
   onUpdated,
 }: EditCourseButtonProps) {
+  const { t, translateMessage } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] =
     useState(false);
@@ -51,7 +54,7 @@ export default function EditCourseButton({
     setIsOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     if (isSubmitting) {
       return;
     }
@@ -59,7 +62,7 @@ export default function EditCourseButton({
     setIsOpen(false);
     setError("");
     setForm(getInitialForm(course));
-  };
+  }, [course, isSubmitting]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -93,7 +96,7 @@ export default function EditCourseButton({
         handleKeyDown,
       );
     };
-  }, [isOpen, isSubmitting]);
+  }, [closeModal, isOpen]);
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>,
@@ -128,8 +131,7 @@ export default function EditCourseButton({
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-            "Failed to edit course",
+          translateMessage(data.error || t("Failed to edit course")),
         );
       }
 
@@ -138,8 +140,8 @@ export default function EditCourseButton({
     } catch (error) {
       setError(
         error instanceof Error
-          ? error.message
-          : "Failed to edit course",
+          ? translateMessage(error.message)
+          : t("Failed to edit course"),
       );
     } finally {
       setIsSubmitting(false);
@@ -176,14 +178,14 @@ export default function EditCourseButton({
                 id={`edit-course-${course.id}`}
                 className="font-pixel text-4xl text-accent"
               >
-                Edit course
+                {t("Edit course")}
               </h2>
 
               <button
                 type="button"
                 onClick={closeModal}
                 disabled={isSubmitting}
-                aria-label="Close modal"
+                aria-label={t("Close modal")}
                 className="cursor-pointer font-pixel text-3xl transition-colors hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
               >
                 ×
@@ -201,7 +203,7 @@ export default function EditCourseButton({
                       event.target.value,
                   }))
                 }
-                placeholder="Course title"
+                placeholder={t("Course title")}
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               />
 
@@ -215,7 +217,7 @@ export default function EditCourseButton({
                     desc: event.target.value,
                   }))
                 }
-                placeholder="Course description"
+                placeholder={t("Course description")}
                 className="resize-none border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               />
 
@@ -230,7 +232,7 @@ export default function EditCourseButton({
                       event.target.value,
                   }))
                 }
-                placeholder="Banner image URL"
+                placeholder={t("Banner image URL")}
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               />
 
@@ -246,13 +248,13 @@ export default function EditCourseButton({
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               >
                 <option value="Beginner">
-                  Beginner
+                  {t("Beginner")}
                 </option>
                 <option value="Intermediate">
-                  Intermediate
+                  {t("Intermediate")}
                 </option>
                 <option value="Advanced">
-                  Advanced
+                  {t("Advanced")}
                 </option>
               </select>
 
@@ -264,7 +266,7 @@ export default function EditCourseButton({
                     tags: event.target.value,
                   }))
                 }
-                placeholder="Tags separated by commas"
+                placeholder={t("Tags separated by commas")}
                 className="border-2 border-accent bg-background px-4 py-3 font-pixel text-xl outline-none"
               />
             </div>
@@ -282,7 +284,7 @@ export default function EditCourseButton({
                 onClick={closeModal}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
 
               <Button
@@ -291,8 +293,8 @@ export default function EditCourseButton({
                 className="bg-accent font-pixel text-xl text-black hover:bg-accent-hover hover:text-white"
               >
                 {isSubmitting
-                  ? "Saving..."
-                  : "Save changes"}
+                  ? t("Saving...")
+                  : t("Save changes")}
               </Button>
             </div>
           </form>
@@ -309,7 +311,7 @@ export default function EditCourseButton({
         className="border bg-accent px-3 py-2 font-pixel text-lg text-black shadow-[3px_3px_0_0_#FF8C00] hover:bg-accent-hover hover:text-white"
       >
         <Pencil className="size-4" />
-        Edit
+        {t("Edit")}
       </Button>
 
       {modal}

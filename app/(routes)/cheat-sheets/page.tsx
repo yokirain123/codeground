@@ -2,17 +2,24 @@ import type { Metadata } from "next";
 import { BookOpenCheck, Braces, Copy } from "lucide-react";
 
 import Footer from "@/app/_components/Footer";
+import { getServerI18n } from "@/lib/i18n/server";
+import { formatLocalizedNumber } from "@/lib/i18n/translate";
 import { CHEAT_SHEETS } from "@/lib/resources/cheat-sheets";
 
 import CheatSheetsExplorer from "./_components/CheatSheetsExplorer";
 
-export const metadata: Metadata = {
-  title: "Cheat Sheets | CodeQuest",
-  description:
-    "Search practical HTML, CSS, JavaScript, React, Python, C#, and C++ code patterns.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return {
+    title: t("Cheat Sheets | CodeQuest"),
+    description: t(
+      "Search practical HTML, CSS, JavaScript, React, Python, C#, and C++ code patterns.",
+    ),
+  };
+}
 
-export default function CheatSheetsPage() {
+export default async function CheatSheetsPage() {
+  const { locale, t } = await getServerI18n();
   const patternCount = CHEAT_SHEETS.reduce(
     (total, sheet) =>
       total +
@@ -39,16 +46,17 @@ export default function CheatSheetsPage() {
           <div>
             <div className="inline-flex items-center gap-2 border border-[#FFD400]/40 bg-[#FFD400]/5 px-3 py-2 font-pixel text-xs uppercase tracking-[0.2em] text-[#FFD400]">
               <BookOpenCheck className="size-4" />
-              Developer field guide
+              {t("Developer field guide")}
             </div>
 
             <h1 className="mt-6 font-pixel text-6xl leading-[0.82] sm:text-7xl lg:text-8xl">
-              CHEAT <span className="text-[#FFD400]">SHEETS</span>
+              {t("CHEAT")} <span className="text-[#FFD400]">{t("SHEETS")}</span>
             </h1>
 
             <p className="mt-6 max-w-2xl font-sans text-lg leading-8 text-white/55">
-              Quick syntax, practical patterns, and copy-ready examples for the
-              languages you use across CodeQuest.
+              {t(
+                "Quick syntax, practical patterns, and copy-ready examples for the languages you use across CodeQuest.",
+              )}
             </p>
           </div>
 
@@ -56,26 +64,26 @@ export default function CheatSheetsPage() {
             <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
               <Braces className="mx-auto size-5 text-[#899DFF]" />
               <p className="mt-2 font-pixel text-3xl text-white">
-                {CHEAT_SHEETS.length}
+                {formatLocalizedNumber(locale, CHEAT_SHEETS.length)}
               </p>
               <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
-                Languages
+                {t("Languages")}
               </p>
             </div>
             <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
               <Copy className="mx-auto size-5 text-[#FFD400]" />
               <p className="mt-2 font-pixel text-3xl text-[#FFD400]">
-                {patternCount}
+                {formatLocalizedNumber(locale, patternCount)}
               </p>
               <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
-                Patterns
+                {t("Patterns")}
               </p>
             </div>
             <div className="min-w-24 p-4 text-center">
               <span className="font-pixel text-xl text-[#6FFFA2]">⌘</span>
               <p className="mt-2 font-pixel text-3xl text-[#6FFFA2]">1</p>
               <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
-                Click copy
+                {t("Click copy")}
               </p>
             </div>
           </div>

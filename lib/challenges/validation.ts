@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { Locale } from "@/lib/i18n/config";
+
 import { getChallengeBySlug } from "./catalog";
 
 interface ValidationRule {
@@ -16,6 +18,102 @@ interface ChallengeValidation {
   };
   referenceFiles: Record<string, string>;
   referenceOutput?: string;
+}
+
+const UK_VALIDATION_MESSAGES: Record<string, string> = {
+  "Keep the profile inside an article element.":
+    "Залиш профіль усередині елемента article.",
+  "Add the player name as an h1 heading.":
+    "Додай ім’я гравця як заголовок h1.",
+  "Add an image with meaningful alt text.":
+    "Додай зображення зі змістовним текстом alt.",
+  "Add a link with a real href destination.":
+    "Додай посилання зі справжньою адресою href.",
+  "Wrap the preview in an article element.":
+    "Огорни прев’ю в елемент article.",
+  "Add an article header containing a heading.":
+    "Додай до статті header із заголовком.",
+  "Add a time element with a datetime attribute.":
+    "Додай елемент time з атрибутом datetime.",
+  "Add an article footer with author information.":
+    "Додай footer статті з інформацією про автора.",
+  "Create a form element.": "Створи елемент form.",
+  "Add connected visible labels for both fields.":
+    "Додай пов’язані видимі підписи для обох полів.",
+  "Use a required email input.":
+    "Використай обов’язкове поле типу email.",
+  "Make both fields required.": "Зроби обидва поля обов’язковими.",
+  "Add a submit button.": "Додай кнопку надсилання.",
+  "Center the portal inside the full-height body with Grid or Flexbox.":
+    "Відцентруй портал у body на всю висоту за допомогою Grid або Flexbox.",
+  "Use display: grid on .quest-grid.":
+    "Застосуй display: grid до .quest-grid.",
+  "Define grid-template-columns.": "Задай grid-template-columns.",
+  "Add a responsive media query.": "Додай адаптивний медіазапит.",
+  "Add visible spacing between the quest cards.":
+    "Додай помітні проміжки між картками квестів.",
+  "Declare at least one custom property in :root.":
+    "Оголоси щонайменше одну CSS-змінну в :root.",
+  "Use CSS Grid for .dashboard.": "Використай CSS Grid для .dashboard.",
+  "Use repeat() or minmax() for the dashboard columns.":
+    "Використай repeat() або minmax() для колонок панелі.",
+  "Add a media query for a layout adjustment.":
+    "Додай медіазапит для зміни макета.",
+  "Create numeric state with useState(0).":
+    "Створи числовий стан через useState(0).",
+  "Call the state setter from the button onClick handler.":
+    "Виклич setter стану з обробника onClick кнопки.",
+  "Display the current state value in the strong element.":
+    "Покажи поточне значення стану в елементі strong.",
+  "Store the search text with useState.":
+    "Зберігай текст пошуку через useState.",
+  "Make the search input controlled with value and onChange.":
+    "Зроби поле пошуку керованим через value та onChange.",
+  "Filter the inventory based on the search text.":
+    "Фільтруй інвентар за текстом пошуку.",
+  "Render the filtered result with map().":
+    "Рендер відфільтрованого результату виконай через map().",
+  "Store the quest array in state.": "Зберігай масив квестів у стані.",
+  "Use filter() to derive visible quests.":
+    "Використай filter(), щоб отримати видимі квести.",
+  "Render the visible quests with map().":
+    "Рендер видимих квестів виконай через map().",
+  "Update quest state from an onClick handler.":
+    "Оновлюй стан квестів з обробника onClick.",
+  "Read a value with input().": "Прочитай значення через input().",
+  "Convert the input to an integer.": "Перетвори введення на ціле число.",
+  "Use the modulo operator with 2.": "Використай оператор % із числом 2.",
+  "Use an if/else conditional.": "Використай умову if/else.",
+  "Print the result.": "Виведи результат.",
+  "Run the current code and produce exactly Even or Odd.":
+    "Запусти поточний код і виведи рівно Even або Odd.",
+  "Read a sentence with input().": "Прочитай речення через input().",
+  "Split the sentence into words.": "Розділи речення на слова.",
+  "Count the resulting list with len().":
+    "Порахуй елементи отриманого списку через len().",
+  "Print the numeric result.": "Виведи числовий результат.",
+  "Run the current code and print only the numeric word count.":
+    "Запусти поточний код і виведи лише числову кількість слів.",
+  "Keep the inventory in a dictionary.":
+    "Залиш інвентар у словнику.",
+  "Process the inventory with a loop, comprehension or sum().":
+    "Оброби інвентар циклом, comprehension-виразом або sum().",
+  "Read values from the inventory dictionary.":
+    "Прочитай значення зі словника інвентарю.",
+  "Print the final total.": "Виведи підсумкове значення.",
+  "The finished program should calculate a total value of 145.":
+    "Готова програма має обчислити загальну вартість 145.",
+  "Challenge validation is not configured.":
+    "Перевірку цього випробування не налаштовано.",
+  "Submit between 1 and 10 code files.":
+    "Надішли від 1 до 10 файлів із кодом.",
+  "One of the submitted files is too large.":
+    "Один із надісланих файлів завеликий.",
+};
+
+function localizeValidationErrors(locale: Locale, errors: string[]) {
+  if (locale === "en") return errors;
+  return errors.map((error) => UK_VALIDATION_MESSAGES[error] ?? error);
 }
 
 const CHALLENGE_VALIDATIONS: Record<string, ChallengeValidation> = {
@@ -493,6 +591,7 @@ export function validateChallengeSubmission(
   slug: string,
   rawFiles: Record<string, unknown>,
   executionOutput = "",
+  locale: Locale = "en",
 ) {
   const challenge = getChallengeBySlug(slug);
   const validation = CHALLENGE_VALIDATIONS[slug];
@@ -500,7 +599,9 @@ export function validateChallengeSubmission(
   if (!challenge || !validation) {
     return {
       valid: false,
-      errors: ["Challenge validation is not configured."],
+      errors: localizeValidationErrors(locale, [
+        "Challenge validation is not configured.",
+      ]),
     };
   }
 
@@ -510,18 +611,25 @@ export function validateChallengeSubmission(
   if (entries.length === 0 || entries.length > 10) {
     return {
       valid: false,
-      errors: ["Submit between 1 and 10 code files."],
+      errors: localizeValidationErrors(locale, [
+        "Submit between 1 and 10 code files.",
+      ]),
     };
   }
 
   if (entries.some(([, code]) => code.length > 100_000)) {
     return {
       valid: false,
-      errors: ["One of the submitted files is too large."],
+      errors: localizeValidationErrors(locale, [
+        "One of the submitted files is too large.",
+      ]),
     };
   }
 
-  const errors = runRules(validation, files, executionOutput);
+  const errors = localizeValidationErrors(
+    locale,
+    runRules(validation, files, executionOutput),
+  );
 
   return {
     valid: errors.length === 0,

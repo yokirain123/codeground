@@ -7,8 +7,11 @@ import {
   coursesTable,
   usersTable,
 } from "@/config/schema";
+import { getServerI18n } from "@/lib/i18n/server";
 
 export async function GET() {
+  const { t } = await getServerI18n();
+
   try {
     const courses = await db
       .select({
@@ -27,19 +30,21 @@ export async function GET() {
     console.error("Courses loading error:", error);
 
     return NextResponse.json(
-      { error: "Failed to load courses" },
+      { error: t("Failed to load courses") },
       { status: 500 },
     );
   }
 }
 
 export async function POST(request: Request) {
+  const { t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: t("Unauthorized") },
         { status: 401 },
       );
     }
@@ -52,14 +57,14 @@ export async function POST(request: Request) {
 
     if (!currentUser) {
       return NextResponse.json(
-        { error: "User not found" },
+        { error: t("User not found") },
         { status: 404 },
       );
     }
 
     if (currentUser.role !== "admin") {
       return NextResponse.json(
-        { error: "Only admins can create courses" },
+        { error: t("Only admins can create courses") },
         { status: 403 },
       );
     }
@@ -78,7 +83,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Title, description and banner image are required",
+            t("Title, description and banner image are required"),
         },
         { status: 400 },
       );
@@ -101,19 +106,21 @@ export async function POST(request: Request) {
     console.error("Course creation error:", error);
 
     return NextResponse.json(
-      { error: "Failed to create course" },
+      { error: t("Failed to create course") },
       { status: 500 },
     );
   }
 }
 
 export async function PATCH(request: Request) {
+  const { t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: t("Unauthorized") },
         { status: 401 },
       );
     }
@@ -126,14 +133,14 @@ export async function PATCH(request: Request) {
 
     if (!currentUser) {
       return NextResponse.json(
-        { error: "User not found" },
+        { error: t("User not found") },
         { status: 404 },
       );
     }
 
     if (currentUser.role !== "admin") {
       return NextResponse.json(
-        { error: "Only admins can edit courses" },
+        { error: t("Only admins can edit courses") },
         { status: 403 },
       );
     }
@@ -174,7 +181,7 @@ export async function PATCH(request: Request) {
       courseId <= 0
     ) {
       return NextResponse.json(
-        { error: "Valid course ID is required" },
+        { error: t("Valid course ID is required") },
         { status: 400 },
       );
     }
@@ -183,7 +190,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Title, description and banner image are required",
+            t("Title, description and banner image are required"),
         },
         { status: 400 },
       );
@@ -203,7 +210,7 @@ export async function PATCH(request: Request) {
 
     if (!updatedCourse) {
       return NextResponse.json(
-        { error: "Course not found" },
+        { error: t("Course not found") },
         { status: 404 },
       );
     }
@@ -213,7 +220,7 @@ export async function PATCH(request: Request) {
     console.error("Course editing error:", error);
 
     return NextResponse.json(
-      { error: "Failed to edit course" },
+      { error: t("Failed to edit course") },
       { status: 500 },
     );
   }

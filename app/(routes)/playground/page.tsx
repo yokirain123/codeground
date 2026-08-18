@@ -28,6 +28,7 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 import { ChevronDown, Code2, Play, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 import { codeQuestSandpackTheme } from "@/app/sandpack/sandpackTheme";
 
@@ -54,6 +55,8 @@ function ConfirmDialog({
   onConfirm,
   onOpenChange,
 }: ConfirmDialogProps) {
+  const { t } = useI18n();
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="rounded-none border-2 border-[#899DFF] bg-[#10152A] text-white shadow-[6px_6px_0_0_#020307] sm:max-w-md">
@@ -69,7 +72,7 @@ function ConfirmDialog({
 
         <AlertDialogFooter className="mt-4 gap-3 sm:gap-3">
           <AlertDialogCancel className="h-10 cursor-pointer rounded-none border border-[#899DFF] bg-transparent px-5 font-pixel text-lg text-[#AAB6FF] hover:bg-[#899DFF]/15 hover:text-white">
-            Cancel
+            {t("Cancel")}
           </AlertDialogCancel>
 
           <AlertDialogAction
@@ -124,11 +127,19 @@ function PlaygroundToolbar({
   presetId,
   onPresetChange,
 }: PlaygroundToolbarProps) {
+  const { t } = useI18n();
   const { sandpack } = useSandpack();
 
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
-  const preset = playgroundPresets[presetId];
+  const presetDescriptions: Record<PlaygroundPresetId, string> = {
+    html: t("Classic static website"),
+    javascript: t("Vanilla JavaScript project"),
+    typescript: t("Vanilla TypeScript project"),
+    react: t("React with JavaScript"),
+    "react-typescript": t("Typed React components"),
+    "react-tailwind": t("React with Tailwind CSS"),
+  };
 
   const resetCode = () => {
     sandpack.resetAllFiles();
@@ -149,11 +160,11 @@ function PlaygroundToolbar({
 
           <div className="min-w-0">
             <h1 className="truncate font-pixel text-2xl text-[#FFD400] md:text-3xl">
-              Code Playground
+              {t("Code Playground")}
             </h1>
 
             <p className="truncate text-sm text-white/50">
-              {preset.description}
+              {presetDescriptions[presetId]}
             </p>
           </div>
         </div>
@@ -161,7 +172,7 @@ function PlaygroundToolbar({
         <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 sm:w-auto">
           <div className="relative min-w-0">
             <label htmlFor="playground-preset" className="sr-only">
-              Playground type
+              {t("Playground type")}
             </label>
 
             <select
@@ -196,19 +207,19 @@ function PlaygroundToolbar({
             onClick={() => {
               setIsResetDialogOpen(true);
             }}
-            aria-label="Reset playground"
+            aria-label={t("Reset playground")}
             className="h-9 cursor-pointer rounded-none border-[#899DFF] bg-transparent px-3 font-pixel text-base text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C]"
           >
             <RotateCcw className="size-4" />
 
-            <span className="hidden sm:inline">Reset</span>
+            <span className="hidden sm:inline">{t("Reset")}</span>
           </Button>
 
           <Button
             type="button"
             variant="default"
             onClick={runCode}
-            aria-label="Run code"
+            aria-label={t("Run code")}
             className="group relative h-9 cursor-pointer overflow-hidden rounded-none border-2 border-[#FFD400] bg-[#FFD400] px-4 font-pixel text-base text-[#07080C] shadow-[3px_3px_0_0_#899DFF] transition-all duration-300 hover:translate-x-px hover:translate-y-px hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#899DFF] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
           >
             <span
@@ -219,7 +230,7 @@ function PlaygroundToolbar({
             <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-[#07080C]">
               <Play className="size-4" />
 
-              <span className="hidden sm:inline">Run code</span>
+              <span className="hidden sm:inline">{t("Run code")}</span>
             </span>
           </Button>
         </div>
@@ -227,9 +238,11 @@ function PlaygroundToolbar({
 
       <ConfirmDialog
         open={isResetDialogOpen}
-        title="Reset playground?"
-        description="All your changes will be replaced with the original starter code. This action cannot be undone."
-        confirmText="Reset code"
+        title={t("Reset playground?")}
+        description={t(
+          "All your changes will be replaced with the original starter code. This action cannot be undone.",
+        )}
+        confirmText={t("Reset code")}
         onConfirm={resetCode}
         onOpenChange={setIsResetDialogOpen}
       />
@@ -238,6 +251,7 @@ function PlaygroundToolbar({
 }
 
 export default function PlaygroundPage() {
+  const { t } = useI18n();
   const [presetId, setPresetId] = useState<PlaygroundPresetId>("html");
 
   const [pendingPresetId, setPendingPresetId] =
@@ -397,9 +411,11 @@ export default function PlaygroundPage() {
 
       <ConfirmDialog
         open={pendingPresetId !== null}
-        title="Change playground?"
-        description="Changing the playground type will reset your current code. This action cannot be undone."
-        confirmText="Change template"
+        title={t("Change playground?")}
+        description={t(
+          "Changing the playground type will reset your current code. This action cannot be undone.",
+        )}
+        confirmText={t("Change template")}
         onConfirm={confirmPresetChange}
         onOpenChange={handlePresetDialogChange}
       />

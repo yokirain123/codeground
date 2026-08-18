@@ -1,27 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { FaGithub, FaSteam, FaTelegram } from "react-icons/fa";
 
 import Logo from "./Logo";
-
-const footerLinks = [
-  {
-    title: "Explore",
-    links: [
-      { label: "Courses", href: "/courses" },
-      { label: "Challenges", href: "/challenges" },
-      { label: "Playground", href: "/playground" },
-      { label: "Dashboard", href: "/dashboard" },
-    ],
-  },
-  {
-    title: "CodeQuest",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "FAQ", href: "/faq" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-] as const;
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 const socialLinks = [
   {
@@ -45,6 +28,27 @@ const linkStyles =
   "font-pixel text-base text-white/50 transition-colors duration-300 hover:text-[#FFD400]";
 
 export default function Footer() {
+  const { t } = useI18n();
+  const footerLinks = [
+    {
+      title: t("Explore"),
+      links: [
+        { label: t("Courses"), href: "/courses" },
+        { label: t("Challenges"), href: "/challenges" },
+        { label: t("Playground"), href: "/playground" },
+        { label: t("Dashboard"), href: "/dashboard" },
+      ],
+    },
+    {
+      title: t("CodeQuest"),
+      links: [
+        { label: t("About"), href: "/about" },
+        { label: t("FAQ"), href: "/faq" },
+        { label: t("Contact"), href: "/contact" },
+      ],
+    },
+  ] as const;
+
   return (
     <footer className="border-t border-white/10 bg-[#07080C] text-white">
       <div className="mx-auto w-full max-w-7xl px-6 pt-12 md:px-10 lg:px-12">
@@ -53,12 +57,13 @@ export default function Footer() {
             <Logo />
 
             <p className="mt-5 font-sans text-sm leading-6 text-white/60">
-              Learn programming through interactive courses, practical
-              challenges, and quests designed to make coding more enjoyable.
+              {t(
+                "Learn programming through interactive courses, practical challenges, and quests designed to make coding more enjoyable.",
+              )}
             </p>
 
             <div className="mt-5 inline-flex border border-[#FFD400]/30 bg-[#FFD400]/5 px-3 py-2 font-pixel text-sm text-[#FFD400]">
-              Learn • Practice • Level up
+              {t("Learn • Practice • Level up")}
             </div>
           </div>
 
@@ -80,18 +85,20 @@ export default function Footer() {
             </nav>
           ))}
 
-          <nav aria-label="Resources">
-            <h2 className="mb-4 font-pixel text-lg text-white">Resources</h2>
+          <nav aria-label={t("Resources")}>
+            <h2 className="mb-4 font-pixel text-lg text-white">
+              {t("Resources")}
+            </h2>
 
             <ul className="space-y-3">
               <li>
                 <Link href="/cheat-sheets" className={linkStyles}>
-                  Cheat Sheets
+                  {t("Cheat Sheets")}
                 </Link>
               </li>
               <li>
                 <Link href="/code-glossary" className={linkStyles}>
-                  Code Glossary
+                  {t("Code Glossary")}
                 </Link>
               </li>
               <li>
@@ -101,7 +108,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className={linkStyles}
                 >
-                  GitHub project ↗
+                  {t("GitHub project ↗")}
                 </a>
               </li>
             </ul>
@@ -110,7 +117,7 @@ export default function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-5 py-6 sm:flex-row">
           <p className="order-2 font-pixel text-sm text-white/40 sm:order-1">
-            © 2026 CodeQuest. All rights reserved.
+            {t("© 2026 CodeQuest. All rights reserved.")}
           </p>
 
           <div className="order-1 flex items-center gap-3 sm:order-2">

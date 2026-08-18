@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface GenerateExercisesButtonProps {
   courseId: number;
@@ -23,6 +24,7 @@ export default function GenerateExercisesButton({
   chapterId,
   overwrite = false,
 }: GenerateExercisesButtonProps) {
+  const { locale, t, translateMessage } = useI18n();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generateExercises = async () => {
@@ -33,7 +35,7 @@ export default function GenerateExercisesButton({
     try {
       setIsGenerating(true);
 
-      const response = await fetch("/api/admin/generate-exercises", {
+      const response = await fetch("/api/admin/generate-exercises-v3", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,33 +44,41 @@ export default function GenerateExercisesButton({
           courseId,
           chapterId,
           overwrite,
+          locale,
         }),
       });
 
       const data = (await response.json()) as GenerateExercisesResponse;
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to generate exercises");
+        throw new Error(
+          translateMessage(data.error || t("Failed to generate exercises")),
+        );
       }
 
       if ((data.generated ?? 0) === 0) {
-        toast.info("Nothing to generate", {
-          description: data.message,
+        toast.info(t("Nothing to generate"), {
+          description:
+            locale === "uk"
+              ? t("All exercises in this chapter already have content.")
+              : data.message,
         });
         return;
       }
 
-      toast.success("Exercises generated!", {
-        description: `${data.generated} exercises were saved to the database.`,
+      toast.success(t("Exercises generated!"), {
+        description: t("{count} exercises were saved to the database.", {
+          count: data.generated,
+        }),
       });
     } catch (error) {
       console.error("Exercise generation error:", error);
 
-      toast.error("Generation failed", {
+      toast.error(t("Generation failed"), {
         description:
           error instanceof Error
-            ? error.message
-            : "Failed to generate exercises",
+            ? translateMessage(error.message)
+            : t("Failed to generate exercises"),
       });
     } finally {
       setIsGenerating(false);
@@ -90,7 +100,7 @@ export default function GenerateExercisesButton({
       />
 
       <span className="relative z-10 transition-colors duration-500 group-hover:text-white">
-        {isGenerating ? "Generating..." : "Generate exercises with AI"}
+        {isGenerating ? t("Generating...") : t("Generate exercises with AI")}
       </span>
     </Button>
   );

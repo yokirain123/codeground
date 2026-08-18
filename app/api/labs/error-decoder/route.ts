@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { getOpenAIClient } from "@/lib/openai";
 import { isLabLanguage } from "@/lib/labs/types";
+import { getServerI18n } from "@/lib/i18n/server";
 
 const ErrorDecoderResultSchema = z.object({
   headline: z.string(),
@@ -44,11 +45,13 @@ requirements. Never include Markdown fences around fixedCode.
 `;
 
 export async function POST(request: Request) {
+  const { locale, t } = await getServerI18n();
+
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: t("Unauthorized") }, { status: 401 });
     }
 
     const body = (await request.json()) as ErrorDecoderBody;
@@ -59,21 +62,21 @@ export async function POST(request: Request) {
 
     if (!isLabLanguage(language)) {
       return NextResponse.json(
-        { error: "Choose the programming language." },
+        { error: t("Choose the programming language.") },
         { status: 400 },
       );
     }
 
     if (!code.trim() || !errorMessage.trim()) {
       return NextResponse.json(
-        { error: "Paste both the code and the error message." },
+        { error: t("Paste both the code and the error message.") },
         { status: 400 },
       );
     }
 
     if (code.length > 40_000 || errorMessage.length > 8_000) {
       return NextResponse.json(
-        { error: "The code or error message is too large." },
+        { error: t("The code or error message is too large.") },
         { status: 413 },
       );
     }
@@ -84,7 +87,14 @@ export async function POST(request: Request) {
       model,
       store: false,
       input: [
-        { role: "system", content: SYSTEM_INSTRUCTIONS },
+        {
+          role: "system",
+          content:
+            SYSTEM_INSTRUCTIONS +
+            (locale === "uk"
+              ? "\nWrite every explanatory field in Ukrainian. Keep source code, identifiers, exact error text and technical terms unchanged where needed."
+              : "\nWrite every explanatory field in English."),
+        },
         {
           role: "user",
           content: JSON.stringify({ language, code, errorMessage }, null, 2),
@@ -110,7 +120,7 @@ export async function POST(request: Request) {
         error:
           process.env.NODE_ENV === "development" && error instanceof Error
             ? error.message
-            : "Error Decoder is temporarily unavailable.",
+            : t("Error Decoder is temporarily unavailable."),
       },
       { status: 500 },
     );

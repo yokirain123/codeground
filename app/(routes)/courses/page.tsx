@@ -12,9 +12,11 @@ import CreateCourseButton, {
 import EditCourseButton from "@/app/_components/EditCourseButton";
 import Footer from "@/app/_components/Footer";
 import CoursesIMG from "@/components/images/courseBG.png";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { UserDetailContext } from "@/context/UserDetailContext";
 
 export default function Courses() {
+  const { t, translateMessage } = useI18n();
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,12 +35,14 @@ export default function Courses() {
 
     if (!response.ok || !Array.isArray(data)) {
       throw new Error(
-        !Array.isArray(data) && data.error ? data.error : "Failed to load courses",
+        !Array.isArray(data) && data.error
+          ? translateMessage(data.error)
+          : t("Failed to load courses"),
       );
     }
 
     setCourses(data);
-  }, []);
+  }, [t, translateMessage]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -50,7 +54,11 @@ export default function Courses() {
         await loadCourses(controller.signal);
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
-          setError(error.message || "Could not load courses");
+          setError(
+            error.message
+              ? translateMessage(error.message)
+              : t("Could not load courses"),
+          );
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -61,7 +69,7 @@ export default function Courses() {
 
     void load();
     return () => controller.abort();
-  }, [loadCourses]);
+  }, [loadCourses, t, translateMessage]);
 
   return (
     <main className="bg-[#07080C] text-white">
@@ -77,16 +85,16 @@ export default function Courses() {
 
         <div className="relative z-10 max-w-3xl px-6 md:px-10 lg:px-14">
           <p className="font-pixel text-sm uppercase tracking-[0.28em] text-[#899DFF]">
-            Course archive
+            {t("Course archive")}
           </p>
           <h1 className="mt-3 font-pixel text-4xl font-bold text-white [text-shadow:4px_4px_0_#28336B] md:text-7xl">
-            Explore all{" "}
+            {t("Explore all")} {" "}
             <span className="text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
-              courses
+              {t("courses")}
             </span>
           </h1>
           <p className="mt-5 font-sans text-lg text-white/65 md:text-xl">
-            Choose a learning path and level up one quest at a time.
+            {t("Choose a learning path and level up one quest at a time.")}
           </p>
         </div>
       </section>
@@ -94,7 +102,7 @@ export default function Courses() {
       <section className="mx-auto w-full max-w-7xl px-6 py-12">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
           <h2 className="font-pixel text-4xl font-bold text-white">
-            Available <span className="text-[#FFD400]">courses</span>
+            {t("Available")} <span className="text-[#FFD400]">{t("courses")}</span>
           </h2>
 
           {userDetail?.role === "admin" && (
@@ -124,19 +132,21 @@ export default function Courses() {
 
                     if (!response.ok) {
                       throw new Error(
-                        data.error || "Failed to create course chapters",
+                        translateMessage(
+                          data.error || t("Failed to create course chapters"),
+                        ),
                       );
                     }
 
-                    toast.success("Course chapters created", {
+                    toast.success(t("Course chapters created"), {
                       description: data.message,
                     });
                   } catch (error) {
-                    toast.error("Course created without chapters", {
+                    toast.error(t("Course created without chapters"), {
                       description:
                         error instanceof Error
-                          ? error.message
-                          : "Open the course and try adding chapters again.",
+                          ? translateMessage(error.message)
+                          : t("Open the course and try adding chapters again."),
                     });
                   }
                 })();
@@ -147,7 +157,7 @@ export default function Courses() {
 
         {isLoading && (
           <p className="font-pixel text-2xl text-[#899DFF]">
-            Loading courses...
+            {t("Loading courses...")}
           </p>
         )}
 
@@ -159,7 +169,9 @@ export default function Courses() {
 
         {!isLoading && !error && courses.length === 0 && (
           <div className="border-2 border-[#899DFF]/45 bg-[#10152A] p-8 text-center shadow-[6px_6px_0_0_#020307]">
-            <p className="font-pixel text-2xl">There are no courses yet.</p>
+            <p className="font-pixel text-2xl">
+              {t("There are no courses yet.")}
+            </p>
           </div>
         )}
 
@@ -195,7 +207,13 @@ export default function Courses() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#07080C] via-[#07080C]/30 to-transparent" />
                     <span className="absolute right-3 bottom-3 border-2 border-black bg-[#FFD400] px-3 py-1 font-pixel text-lg text-black shadow-[3px_3px_0_#FF8C00]">
-                      {course.level}
+                      {course.level === "Beginner"
+                        ? t("Beginner")
+                        : course.level === "Intermediate"
+                          ? t("Intermediate")
+                          : course.level === "Advanced"
+                            ? t("Advanced")
+                            : course.level}
                     </span>
                   </div>
 

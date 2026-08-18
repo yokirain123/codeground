@@ -1,6 +1,7 @@
 "use client";
 
 import Footer from "@/app/_components/Footer";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
 
@@ -22,7 +23,7 @@ const categories: Category[] = [
   "Playground",
 ];
 
-const faqEntries: FaqEntry[] = [
+const faqEntries = [
   {
     id: "what-is-codequest",
     category: "General",
@@ -114,21 +115,32 @@ const faqEntries: FaqEntry[] = [
     answer:
       "Check the console message first. Most problems come from a syntax error, a missing value, or output that does not match the quest objective. The highlighted line usually points to the first place to inspect.",
   },
-];
+] as const satisfies readonly FaqEntry[];
 
 function normalize(value: string) {
   return value.trim().toLowerCase();
 }
 
 export default function FAQPage() {
+  const { t, formatNumber } = useI18n();
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState<string | null>(faqEntries[0].id);
 
+  const localizedFaqEntries = useMemo(
+    () =>
+      faqEntries.map((entry) => ({
+        ...entry,
+        question: t(entry.question),
+        answer: t(entry.answer),
+      })),
+    [t],
+  );
+
   const filteredEntries = useMemo(() => {
     const normalizedQuery = normalize(query);
 
-    return faqEntries.filter((entry) => {
+    return localizedFaqEntries.filter((entry) => {
       const matchesCategory =
         activeCategory === "All" || entry.category === activeCategory;
       const matchesQuery =
@@ -139,7 +151,7 @@ export default function FAQPage() {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, localizedFaqEntries, query]);
 
   const chooseCategory = (category: Category) => {
     setActiveCategory(category);
@@ -162,37 +174,40 @@ export default function FAQPage() {
           <div>
             <div className="mb-5 inline-flex items-center gap-3 border border-[#ffd400]/35 bg-[#ffd400]/5 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[#ffd400] sm:text-xs">
               <span className="size-2 animate-pulse bg-[#ffd400] shadow-[0_0_10px_#ffd400]" />
-              Help archive // online
+              {t("Help archive // online")}
             </div>
 
             <p className="font-pixel text-sm font-bold uppercase tracking-[0.28em] text-[#899dff]">
-              Adventurer support menu
+              {t("Adventurer support menu")}
             </p>
             <h1 className="mt-3 max-w-4xl font-pixel text-5xl font-black uppercase leading-[0.9] tracking-[-0.05em] text-white [text-shadow:4px_4px_0_#28336b] sm:text-7xl lg:text-[6.2rem]">
-              Frequently Asked
+              {t("Frequently Asked")}
               <span className="block text-[#ffd400] [text-shadow:4px_4px_0_#ff8c00]">
-                Quests
+                {t("Quests")}
               </span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-white/55 sm:text-lg">
-              Lost on the map? Search the archive for answers about courses,
-              progress, accounts, and the CodeQuest Playground.
+              {t(
+                "Lost on the map? Search the archive for answers about courses, progress, accounts, and the CodeQuest Playground.",
+              )}
             </p>
           </div>
 
           <div className="hidden min-w-64 border-2 border-[#899dff]/45 bg-[#10152a] p-1 shadow-[6px_6px_0_rgba(0,0,0,0.45)] md:block">
             <div className="border border-white/10 px-5 py-4 font-mono text-xs uppercase tracking-[0.16em]">
               <div className="flex justify-between border-b border-white/10 pb-3 text-white/45">
-                <span>Archive status</span>
-                <span className="text-[#6fffa2]">Online</span>
+                <span>{t("Archive status")}</span>
+                <span className="text-[#6fffa2]">{t("Online")}</span>
               </div>
               <div className="mt-3 flex justify-between text-white/45">
-                <span>Records found</span>
-                <span className="text-white">{faqEntries.length.toString().padStart(2, "0")}</span>
+                <span>{t("Records found")}</span>
+                <span className="text-white">
+                  {formatNumber(faqEntries.length)}
+                </span>
               </div>
               <div className="mt-2 flex justify-between text-white/45">
-                <span>Region</span>
-                <span className="text-white">Global</span>
+                <span>{t("Region")}</span>
+                <span className="text-white">{t("Global")}</span>
               </div>
             </div>
           </div>
@@ -203,7 +218,7 @@ export default function FAQPage() {
             <span aria-hidden="true" className="font-mono text-xl text-[#ffd400]">
               &gt;_
             </span>
-            <span className="sr-only">Search the help archive</span>
+            <span className="sr-only">{t("Search the help archive")}</span>
             <input
               type="search"
               value={query}
@@ -216,11 +231,11 @@ export default function FAQPage() {
                   setActiveCategory("All");
                 }
               }}
-              placeholder="SEARCH THE HELP ARCHIVE..."
+              placeholder={t("SEARCH THE HELP ARCHIVE...")}
               className="min-w-0 flex-1 bg-transparent py-5 font-mono text-sm uppercase tracking-[0.08em] text-white outline-none placeholder:text-white/25 sm:text-base"
             />
             <kbd className="hidden border border-white/15 bg-white/5 px-2 py-1 font-mono text-[10px] text-white/35 sm:block">
-              {filteredEntries.length} FOUND
+              {formatNumber(filteredEntries.length)} {t("FOUND")}
             </kbd>
           </label>
         </div>
@@ -229,15 +244,15 @@ export default function FAQPage() {
           <aside>
             <div className="lg:sticky lg:top-6">
               <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
-                Select category
+                {t("Select category")}
               </p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
                 {categories.map((category, index) => {
                   const active = activeCategory === category;
                   const amount =
                     category === "All"
-                      ? faqEntries.length
-                      : faqEntries.filter((entry) => entry.category === category)
+                      ? localizedFaqEntries.length
+                      : localizedFaqEntries.filter((entry) => entry.category === category)
                           .length;
 
                   return (
@@ -259,7 +274,7 @@ export default function FAQPage() {
                         >
                           {index.toString().padStart(2, "0")}
                         </span>
-                        {category}
+                        {t(category)}
                       </span>
                       <span
                         className={`font-mono text-[10px] ${active ? "text-black/60" : "text-white/20"}`}
@@ -277,14 +292,18 @@ export default function FAQPage() {
             <div className="mb-4 flex items-end justify-between gap-4">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
-                  Current archive
+                  {t("Current archive")}
                 </p>
                 <h2 className="mt-1 font-pixel text-2xl font-black uppercase text-white sm:text-3xl">
-                  {query ? "Search results" : `${activeCategory} records`}
+                  {query
+                    ? t("Search results")
+                    : t("{category} records", {
+                        category: t(activeCategory),
+                      })}
                 </h2>
               </div>
               <span className="font-mono text-xs text-[#ffd400]">
-                {filteredEntries.length.toString().padStart(2, "0")} / {faqEntries.length.toString().padStart(2, "0")}
+                {formatNumber(filteredEntries.length)} / {formatNumber(faqEntries.length)}
               </span>
             </div>
 
@@ -321,7 +340,7 @@ export default function FAQPage() {
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="mb-1 block font-mono text-[9px] uppercase tracking-[0.2em] text-[#899dff] sm:text-[10px]">
-                              {entry.category}
+                              {t(entry.category)}
                             </span>
                             <span className="block font-pixel text-base font-bold leading-snug text-white sm:text-lg">
                               {entry.question}
@@ -359,11 +378,12 @@ export default function FAQPage() {
               <div className="border-2 border-dashed border-white/15 bg-white/[0.02] px-6 py-16 text-center">
                 <span className="font-mono text-4xl text-[#ffd400]">?!</span>
                 <h3 className="mt-4 font-pixel text-2xl font-black uppercase">
-                  No records found
+                  {t("No records found")}
                 </h3>
                 <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/45">
-                  The archive has no match for that command. Try another keyword
-                  or return to all categories.
+                  {t(
+                    "The archive has no match for that command. Try another keyword or return to all categories.",
+                  )}
                 </p>
                 <button
                   type="button"
@@ -373,7 +393,7 @@ export default function FAQPage() {
                   }}
                   className="mt-6 border-2 border-black bg-[#ffd400] px-5 py-3 font-pixel text-sm font-black uppercase text-black shadow-[4px_4px_0_#ff8c00] transition-transform hover:translate-x-0.5 hover:translate-y-0.5"
                 >
-                  Reset archive
+                  {t("Reset archive")}
                 </button>
               </div>
             )}
@@ -387,21 +407,22 @@ export default function FAQPage() {
             </div>
             <div className="relative">
               <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-black/55">
-                Side quest available
+                {t("Side quest available")}
               </p>
               <h2 className="mt-2 font-pixel text-2xl font-black uppercase sm:text-3xl">
-                Still trapped in the dungeon?
+                {t("Still trapped in the dungeon?")}
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-black/65 sm:text-base">
-                Tell us where you got stuck and the guild will help you find the
-                next path.
+                {t(
+                  "Tell us where you got stuck and the guild will help you find the next path.",
+                )}
               </p>
             </div>
             <Link
               href="/contact"
               className="relative inline-flex min-h-12 items-center justify-center gap-3 border-2 border-black bg-[#0a0b10] px-6 font-pixel text-sm font-black uppercase tracking-[0.08em] text-white shadow-[4px_4px_0_rgba(0,0,0,0.35)] transition-all hover:-translate-y-0.5 hover:text-[#ffd400]"
             >
-              Contact the guild <span aria-hidden="true">→</span>
+              {t("Contact the guild")} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>

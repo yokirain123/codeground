@@ -2,6 +2,8 @@ import { ClerkProvider } from "@/components/clerk-provider";
 import { Header } from "@/app/_components/Header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import { HTML_LOCALES } from "@/lib/i18n/config";
+import { getServerI18n } from "@/lib/i18n/server";
 
 import Provider from "./provider";
 
@@ -32,19 +34,27 @@ const accentFont = Nabla({
   weight: "400",
 });
 
-export const metadata: Metadata = {
-  title: "Code Quest",
-  description: "Beginner-friendly coding courses and projects",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
 
-export default function RootLayout({
+  return {
+    title: t("CodeQuest — Learn programming through quests"),
+    description: t(
+      "Beginner-friendly coding courses, practical challenges, and developer labs.",
+    ),
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { locale } = await getServerI18n();
+
   return (
     <html
-      lang="uk"
+      lang={HTML_LOCALES[locale]}
       suppressHydrationWarning
       className={cn(
         "h-full",
@@ -60,11 +70,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClerkProvider>
-            <Provider>
+          <ClerkProvider locale={locale}>
+            <Provider initialLocale={locale}>
               <Header />
               {children}
-              <Toaster/>
+              <Toaster />
             </Provider>
           </ClerkProvider>
         </ThemeProvider>

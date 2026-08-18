@@ -2,6 +2,7 @@
 
 import { Check, Loader2 } from "lucide-react";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface CompleteExerciseButtonProps {
@@ -17,6 +18,7 @@ export default function CompleteExerciseButton({
   isCompleted,
   onClick,
 }: CompleteExerciseButtonProps) {
+  const { t } = useI18n();
   const isBusy = isChecking || isCompleting;
 
   return (
@@ -32,12 +34,12 @@ export default function CompleteExerciseButton({
         <Check className="size-4" />
       )}
       {isChecking
-  ? "Loading status..."
+  ? t("Loading status...")
   : isCompleting
-    ? "Checking solution..."
+    ? t("Checking solution...")
     : isCompleted
-      ? "Completed"
-      : "Check solution"}
+      ? t("Completed")
+      : t("Check solution")}
     </Button>
   );
 }

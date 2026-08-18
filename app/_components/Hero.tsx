@@ -11,26 +11,7 @@ import BlurOutUp from "@/components/HeroText";
 import bgImage from "@/components/images/bg.gif";
 import Token from "@/components/images/Token.png";
 import { Button } from "@/components/ui/shadcn/button";
-
-const tokenMessage =
-  "The first chapter is ready. Choose your path, learn the basics, and turn every mistake into experience.";
-
-const commands = [
-  {
-    number: "01",
-    label: "Start adventure",
-    description: "Choose your first course",
-    href: "/courses",
-    primary: true,
-  },
-  {
-    number: "02",
-    label: "Open playground",
-    description: "Experiment with code",
-    href: "/playground",
-    primary: false,
-  },
-];
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 interface HeroStats {
   player: {
@@ -157,8 +138,28 @@ function TypewriterText({
 
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
+  const { t, formatNumber } = useI18n();
   const [heroStats, setHeroStats] = useState<HeroStats>(emptyHeroStats);
   const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const tokenMessage = t(
+    "The first chapter is ready. Choose your path, learn the basics, and turn every mistake into experience.",
+  );
+  const commands = [
+    {
+      number: "01",
+      label: t("Start adventure"),
+      description: t("Choose your first course"),
+      href: "/courses",
+      primary: true,
+    },
+    {
+      number: "02",
+      label: t("Open playground"),
+      description: t("Experiment with code"),
+      href: "/playground",
+      primary: false,
+    },
+  ];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -203,24 +204,26 @@ export default function Hero() {
     ? "--"
     : heroStats.player
       ? String(heroStats.player.id).padStart(2, "0")
-      : "GUEST";
+      : t("GUEST");
 
   const eyebrow = isStatsLoading
-    ? "Syncing quest log..."
+    ? t("Syncing quest log...")
     : heroStats.course
       ? `${heroStats.course.title} · ${
-          heroStats.isCourseCompleted ? "Course complete" : "Next quest"
+          heroStats.isCourseCompleted
+            ? t("Course complete")
+            : t("Next quest")
         }`
-      : "New adventure · Choose your first course";
+      : t("New adventure · Choose your first course");
 
   const activeQuestTitle = isStatsLoading
-    ? "Loading quest..."
+    ? t("Loading quest...")
     : (heroStats.activeQuest?.title ??
       (heroStats.isCourseCompleted
-        ? "Course completed!"
+        ? t("Course completed!")
         : heroStats.course
-          ? "No exercises available yet"
-          : "Choose your first course"));
+          ? t("No exercises available yet")
+          : t("Choose your first course")));
 
   const activeQuestHref = heroStats.activeQuest?.href ?? "/courses";
 
@@ -229,7 +232,7 @@ export default function Hero() {
     : heroStats.activeQuest
       ? `+${heroStats.activeQuest.xp} XP`
       : heroStats.player
-        ? `${heroStats.player.points} XP TOTAL`
+        ? `${formatNumber(heroStats.player.points)} ${t("XP TOTAL")}`
         : "0 XP";
 
   return (
@@ -285,19 +288,20 @@ export default function Hero() {
           </h1>
 
           <p className="mt-7 max-w-xl font-pixel text-2xl leading-tight text-white md:text-4xl">
-            Your programming adventure starts with one line of code.
+            {t("Your programming adventure starts with one line of code.")}
           </p>
 
           <p className="mt-4 max-w-xl font-sans text-base leading-7 text-white/60 md:text-lg">
-            Learn the fundamentals, solve practical challenges, earn XP, and
-            unlock new chapters at your own pace.
+            {t(
+              "Learn the fundamentals, solve practical challenges, earn XP, and unlock new chapters at your own pace.",
+            )}
           </p>
 
           <div className="mt-7 grid max-w-xl grid-cols-3 border-y border-white/15 py-4">
             {[
-              ["LEARN", "New skills"],
-              ["BUILD", "Real projects"],
-              ["LEVEL UP", "Earn XP"],
+              [t("LEARN"), t("New skills")],
+              [t("BUILD"), t("Real projects")],
+              [t("LEVEL UP"), t("Earn XP")],
             ].map(([title, subtitle], index) => (
               <div
                 key={title}
@@ -322,7 +326,7 @@ export default function Hero() {
           }
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ delay: 0.25, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          aria-label="Game menu"
+          aria-label={t("Game menu")}
           className="relative z-10 mx-auto w-full max-w-md lg:mx-0 lg:justify-self-end"
         >
           <span
@@ -339,15 +343,15 @@ export default function Hero() {
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <p className="font-pixel text-sm tracking-[0.24em] text-[#899DFF]">
-                    MAIN MENU
+                    {t("MAIN MENU")}
                   </p>
                   <h2 className="mt-1 font-pixel text-3xl text-white">
-                    Select command
+                    {t("Select command")}
                   </h2>
                 </div>
 
                 <div className="text-right font-pixel">
-                  <p className="text-xs text-white/40">PLAYER</p>
+                  <p className="text-xs text-white/40">{t("PLAYER")}</p>
                   <p
                     className="max-w-24 truncate text-lg text-[#FFD400]"
                     title={heroStats.player?.name}
@@ -409,7 +413,7 @@ export default function Hero() {
                 <div className="flex items-end justify-between gap-4">
                   <div>
                     <p className="font-pixel text-xs tracking-[0.2em] text-[#899DFF]">
-                      ACTIVE QUEST
+                      {t("ACTIVE QUEST")}
                     </p>
                     <Link
                       href={activeQuestHref}
@@ -427,7 +431,7 @@ export default function Hero() {
                 <div
                   className="mt-3 h-2 border border-white/15 bg-black/40 p-px"
                   role="progressbar"
-                  aria-label="Journey progress"
+                  aria-label={t("Journey progress")}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={isStatsLoading ? 0 : progressPercent}
@@ -443,7 +447,7 @@ export default function Hero() {
                 </div>
 
                 <div className="mt-2 flex justify-between font-pixel text-xs text-white/35">
-                  <span>Journey progress</span>
+                  <span>{t("Journey progress")}</span>
                   <span>
                     {isStatsLoading
                       ? "--"
@@ -479,7 +483,7 @@ export default function Hero() {
                 >
                   <Image
                     src={Token}
-                    alt="Token, the Quest Master"
+                    alt={t("Token, the Quest Master")}
                     fill
                     priority
                     unoptimized
@@ -502,7 +506,7 @@ export default function Hero() {
               />
 
               <p className="mt-3 hidden font-pixel text-xs uppercase tracking-[0.18em] text-white/35 sm:block">
-                Click the dialogue to reveal the full message
+                {t("Click the dialogue to reveal the full message")}
               </p>
 
               <motion.span

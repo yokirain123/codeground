@@ -13,6 +13,7 @@ import { RotateCcw } from "lucide-react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import { codeQuestSandpackTheme } from "@/app/sandpack/sandpackTheme";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import { getChallengeDraftKey } from "@/lib/challenges/draft";
 import type { ChallengeDefinition } from "@/lib/challenges/types";
@@ -82,6 +83,7 @@ function EditorControls({
   isCompleted,
   onSubmit,
 }: EditorControlsProps) {
+  const { t } = useI18n();
   const { sandpack } = useSandpack();
   const starterComparison = useMemo(
     () => comparableFiles(starterFiles),
@@ -125,7 +127,7 @@ function EditorControls({
   return (
     <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[#899DFF]/25 bg-[#10152A] px-4 py-3">
       <p className="hidden font-pixel text-xs text-white/30 sm:block">
-        Draft saved automatically
+        {t("Draft saved automatically")}
       </p>
 
       <div className="ml-auto flex items-center gap-3">
@@ -137,7 +139,7 @@ function EditorControls({
           className="h-10 cursor-pointer rounded-none border-[#899DFF] bg-transparent px-4 font-pixel text-[#AAB6FF] hover:bg-[#899DFF] hover:text-[#07080C]"
         >
           <RotateCcw className="size-4" />
-          Reset
+          {t("Reset")}
         </Button>
 
         <ChallengeSubmitButton
@@ -191,6 +193,7 @@ export default function WebChallengeEditor({
   initialCompleted,
   onCompletionChange,
 }: WebChallengeEditorProps) {
+  const { t } = useI18n();
   const orientation = useEditorOrientation();
   const [initialFiles, setInitialFiles] = useState<Record<
     string,
@@ -215,7 +218,7 @@ export default function WebChallengeEditor({
   if (!initialFiles) {
     return (
       <div className="grid h-full place-items-center bg-[#07080C] font-pixel text-sm text-[#899DFF]">
-        Loading editor...
+        {t("Loading editor...")}
       </div>
     );
   }
@@ -229,7 +232,9 @@ export default function WebChallengeEditor({
   return (
     <div
       role="region"
-      aria-label={`${challenge.title} code editor`}
+      aria-label={t("{challenge} code editor", {
+        challenge: challenge.title,
+      })}
       className="h-full min-h-0 w-full overflow-hidden bg-[#07080C]"
     >
       <SandpackProvider
