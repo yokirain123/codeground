@@ -21,9 +21,9 @@ const clerkAppearance = {
   },
 
   elements: {
-    rootBox: "w-full",
+    rootBox: "w-full max-w-md",
     cardBox: "w-full shadow-none",
-    card: "w-full rounded-none border-2 border-black bg-black/90 shadow-[6px_6px_0_#FF8C00]",
+    card: "w-full max-w-[calc(100vw_-_2rem)] rounded-none border-2 border-black bg-black/90 shadow-[6px_6px_0_#FF8C00]",
 
     headerTitle: "font-accent text-4xl text-accent",
     headerSubtitle: "font-pixel text-lg text-white/70",
@@ -57,7 +57,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
   const isSignIn = mode === "sign-in";
 
   return (
-    <main className="relative flex min-h-[calc(100svh-72px)] items-center justify-center overflow-hidden px-4 py-12">
+    <main className="relative flex min-h-[calc(100svh-64px)] items-center justify-center overflow-hidden px-4 py-8 sm:py-12">
       <Image
         src={bgImage}
         alt=""

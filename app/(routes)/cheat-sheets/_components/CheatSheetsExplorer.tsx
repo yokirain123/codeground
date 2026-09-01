@@ -79,7 +79,7 @@ export default function CheatSheetsExplorer() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-5 py-10 md:px-8 lg:px-10 lg:py-14">
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 md:px-8 lg:px-10 lg:py-14">
       <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="h-fit border-2 border-[#899DFF]/35 bg-[#10152A] p-4 shadow-[6px_6px_0_#020307] lg:sticky lg:top-24">
           <p className="px-2 font-pixel text-xs uppercase tracking-[0.22em] text-[#899DFF]">
@@ -133,7 +133,7 @@ export default function CheatSheetsExplorer() {
         </aside>
 
         <div className="min-w-0">
-          <div className="border-2 border-[#899DFF]/35 bg-[#10152A] p-5 shadow-[6px_6px_0_#020307] sm:p-6">
+          <div className="border-2 border-[#899DFF]/35 bg-[#10152A] p-4 shadow-[6px_6px_0_#020307] sm:p-6">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -154,7 +154,7 @@ export default function CheatSheetsExplorer() {
                   </span>
                 </div>
 
-                <h2 className="mt-3 font-pixel text-4xl text-white sm:text-5xl">
+                <h2 className="mt-3 break-words font-pixel text-3xl text-white sm:text-5xl">
                   {t("{language} quick reference", {
                     language: activeSheet.name,
                   })}
@@ -166,7 +166,7 @@ export default function CheatSheetsExplorer() {
 
               <Link
                 href={`/playground?language=${activeSheet.playgroundLanguage}`}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 border-2 border-[#FFD400] bg-[#FFD400] px-5 font-pixel text-base text-[#07080C] shadow-[4px_4px_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 border-2 border-[#FFD400] bg-[#FFD400] px-5 py-2 text-center font-pixel text-base text-[#07080C] shadow-[4px_4px_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
               >
                 <TerminalSquare className="size-4" />
                 {t("Open Playground")}

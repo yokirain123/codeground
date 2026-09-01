@@ -148,14 +148,14 @@ export default async function AdminExercisesPage() {
   );
 
   return (
-    <main className="min-h-[calc(100dvh-64px)] bg-background px-6 py-10 md:px-10 lg:px-16">
+    <main className="min-h-[calc(100dvh-64px)] bg-background px-4 py-8 sm:px-6 sm:py-10 md:px-10 lg:px-16">
       <header className="mb-10 flex flex-col gap-5 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm uppercase tracking-wider text-foreground/40">
             {t("Admin panel")}
           </p>
 
-          <h1 className="mt-1 font-pixel text-4xl text-accent md:text-6xl">
+          <h1 className="mt-1 break-words font-pixel text-3xl text-accent sm:text-4xl md:text-6xl">
             {t("AI Exercise Forge")}
           </h1>
 
@@ -168,7 +168,7 @@ export default async function AdminExercisesPage() {
 
         <Link
           href="/courses"
-          className="w-fit border border-accent bg-accent px-4 py-2 text-xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#FF8C00]"
+          className="w-full border border-accent bg-accent px-4 py-2 text-center text-xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_0_#FF8C00] sm:w-fit"
         >
           {t("View courses")}
         </Link>

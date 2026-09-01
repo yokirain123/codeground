@@ -297,7 +297,7 @@ export default function AdminExerciseGenerator({
 
   if (courses.length === 0) {
     return (
-      <section className="border-2 border-accent p-8 text-center shadow-[6px_6px_0_0_#FF8C00]">
+      <section className="border-2 border-accent p-5 text-center shadow-[6px_6px_0_0_#FF8C00] sm:p-8">
         <h2 className="font-pixel text-3xl text-accent">
           {t("No courses yet")}
         </h2>
@@ -334,7 +334,7 @@ export default function AdminExerciseGenerator({
         return (
           <section
             key={course.id}
-            className="border-2 border-accent bg-background shadow-[7px_7px_0_0_#FF8C00]"
+            className="border-2 border-accent bg-background shadow-[6px_6px_0_0_#FF8C00] sm:shadow-[7px_7px_0_0_#FF8C00]"
           >
             <header
               className={`flex flex-col gap-5 bg-card p-5 lg:flex-row lg:items-center lg:justify-between md:p-6 ${
@@ -369,7 +369,7 @@ export default function AdminExerciseGenerator({
 
                 <span className="min-w-0">
                   <span className="flex flex-wrap items-center gap-3">
-                    <span className="font-pixel text-3xl text-accent md:text-4xl">
+                    <span className="break-words font-pixel text-2xl text-accent sm:text-3xl md:text-4xl">
                       {course.title}
                     </span>
 
@@ -407,10 +407,10 @@ export default function AdminExerciseGenerator({
                 </span>
               </button>
 
-              <div className="flex shrink-0 flex-wrap items-center gap-4 pl-14 lg:pl-0">
+              <div className="grid shrink-0 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-4 sm:pl-14 lg:pl-0">
                 <Link
                   href={`/courses/${course.id}`}
-                  className="border border-border bg-secondary px-4 py-2 text-lg transition-colors hover:border-accent hover:text-accent"
+                  className="min-h-10 px-4 py-2 text-center text-lg transition-colors border border-border bg-secondary hover:border-accent hover:text-accent"
                 >
                   {t("Open course")}
                 </Link>
@@ -526,7 +526,7 @@ export default function AdminExerciseGenerator({
                             </div>
                           </div>
 
-                          <div className="flex shrink-0 flex-wrap gap-3">
+                          <div className="grid shrink-0 gap-3 sm:flex sm:flex-wrap">
                             <Button
                               type="button"
                               variant="outline"
@@ -543,7 +543,7 @@ export default function AdminExerciseGenerator({
                                   true,
                                 );
                               }}
-                              className="cursor-pointer border-border bg-secondary px-3 py-2 text-lg hover:border-red-400 hover:bg-red-400/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
+                              className="h-auto min-h-10 cursor-pointer border-border bg-secondary px-3 py-2 text-lg whitespace-normal hover:border-red-400 hover:bg-red-400/10 hover:text-red-400 disabled:pointer-events-none disabled:opacity-50"
                             >
                               {t("Regenerate all")}
                             </Button>
@@ -599,7 +599,7 @@ function PixelButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="group relative cursor-pointer overflow-hidden border bg-accent px-4 py-2 text-lg text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+      className="group relative h-auto min-h-10 cursor-pointer overflow-hidden border bg-accent px-4 py-2 text-center text-lg whitespace-normal text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
     >
       <span
         aria-hidden="true"

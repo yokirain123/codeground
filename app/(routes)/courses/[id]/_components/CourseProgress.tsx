@@ -51,7 +51,7 @@ export default function CourseProgress({
   const isComplete = totalExercises > 0 && progress === 100;
 
   return (
-    <aside className="border-2 border-[#899DFF]/45 bg-[#10152A] p-6 text-white shadow-[6px_6px_0_#020307] lg:sticky lg:top-24 lg:mt-[4.5rem]">
+    <aside className="border-2 border-[#899DFF]/45 bg-[#10152A] p-5 text-white shadow-[6px_6px_0_#020307] sm:p-6 lg:sticky lg:top-24 lg:mt-[4.5rem]">
       <div className="mb-6 flex items-center gap-3 border-b border-white/10 pb-5">
         <div className="flex size-12 shrink-0 items-center justify-center border border-[#899DFF]/35 bg-[#899DFF]/5 text-[#899DFF]">
           <svg

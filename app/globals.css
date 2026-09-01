@@ -215,10 +215,25 @@
 
   html {
     @apply font-sans antialiased;
+
+    min-width: 0;
+    overflow-x: clip;
+    scroll-padding-top: 5rem;
   }
 
   body {
     @apply bg-background font-sans text-foreground;
+
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  main,
+  section,
+  article,
+  aside,
+  nav {
+    min-width: 0;
   }
 
   /*

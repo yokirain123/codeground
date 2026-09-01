@@ -115,12 +115,12 @@ function CourseChapterItem({
       }}
       className="group border-b border-white/10 last:border-b-0"
     >
-      <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-5 outline-none transition-all duration-300 hover:bg-[#899DFF]/5 focus-visible:bg-[#899DFF]/10 [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 outline-none transition-all duration-300 hover:bg-[#899DFF]/5 focus-visible:bg-[#899DFF]/10 sm:gap-4 sm:px-5 sm:py-5 [&::-webkit-details-marker]:hidden">
         <span className="flex size-9 shrink-0 items-center justify-center border border-[#899DFF]/35 bg-[#899DFF]/5 font-pixel text-xl text-[#899DFF]">
           {chapter.chapterId}
         </span>
 
-        <h3 className="min-w-0 flex-1 font-pixel text-2xl font-bold text-white">
+        <h3 className="min-w-0 flex-1 break-words font-pixel text-xl font-bold text-white sm:text-2xl">
           {chapter.name}
         </h3>
 
@@ -133,7 +133,7 @@ function CourseChapterItem({
         <ChevronIcon />
       </summary>
 
-      <div className="border-t border-white/10 bg-black/15 px-5 py-5 sm:px-8">
+      <div className="border-t border-white/10 bg-black/15 px-4 py-5 sm:px-8">
         <p className="mb-5 font-sans text-base leading-7 text-white/60">
           {chapter.desc}
         </p>
@@ -174,19 +174,19 @@ function CourseChapterItem({
             return (
               <div
                 key={exercise.slug}
-                className={`grid gap-3 border-t border-white/10 px-3 py-3 first:border-t-0 sm:grid-cols-[90px_1fr_auto_auto] sm:items-center sm:gap-4 ${
+                className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-t border-white/10 px-2 py-3 first:border-t-0 sm:grid-cols-[90px_1fr_auto_auto] sm:gap-4 sm:px-3 ${
                   isCompleted ? "bg-[#6FFFA2]/[0.035]" : ""
                 }`}
               >
-                <span className="font-pixel text-sm text-white/40">
+                <span className="col-start-1 row-start-1 font-pixel text-sm text-white/40 sm:col-auto sm:row-auto">
                   {t("Exercise {number}", {
                     number: formatNumber(exerciseIndex + 1),
                   })}
                 </span>
 
-                <div>
+                <div className="col-start-1 row-start-2 min-w-0 sm:col-auto sm:row-auto">
                   <p
-                    className={`font-pixel text-lg ${
+                    className={`break-words font-pixel text-lg ${
                       isCompleted ? "text-[#6FFFA2]" : "text-white"
                     }`}
                   >
@@ -211,7 +211,7 @@ function CourseChapterItem({
                 </div>
 
                 <span
-                  className={`font-pixel text-lg ${
+                  className={`col-start-2 row-start-1 text-right font-pixel text-lg sm:col-auto sm:row-auto ${
                     isCompleted
                       ? "text-[#6FFFA2]"
                       : canStart
@@ -236,7 +236,7 @@ function CourseChapterItem({
                           })
                         : t("Start {exercise}", { exercise: exercise.name })
                     }
-                    className={`flex size-9 items-center justify-center border transition-all duration-300 ${
+                    className={`col-start-2 row-start-2 flex size-9 items-center justify-center justify-self-end border transition-all duration-300 sm:col-auto sm:row-auto sm:justify-self-auto ${
                       isCompleted
                         ? "border-[#6FFFA2] bg-[#6FFFA2] text-black"
                         : "border-[#FFD400] bg-[#FFD400] text-black shadow-[3px_3px_0_#FF8C00] hover:translate-x-px hover:translate-y-px hover:shadow-none"
@@ -258,7 +258,7 @@ function CourseChapterItem({
                     aria-label={t("{exercise} is locked", {
                       exercise: exercise.name,
                     })}
-                    className="flex size-9 cursor-not-allowed items-center justify-center border border-white/10 bg-white/[0.025] text-white/20"
+                    className="col-start-2 row-start-2 flex size-9 cursor-not-allowed items-center justify-center justify-self-end border border-white/10 bg-white/[0.025] text-white/20 sm:col-auto sm:row-auto sm:justify-self-auto"
                   >
                     <LockIcon />
                   </button>
@@ -424,7 +424,7 @@ export default function CourseChapters({
         {t("Quest log")}
       </p>
 
-      <h2 className="mb-6 mt-2 font-pixel text-4xl text-white [text-shadow:3px_3px_0_#28336B] md:text-5xl">
+      <h2 className="mb-6 mt-2 break-words font-pixel text-3xl text-white [text-shadow:3px_3px_0_#28336B] sm:text-4xl md:text-5xl">
         {t("Course")} {" "}
         <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">
           {t("chapters")}
@@ -445,7 +445,7 @@ export default function CourseChapters({
 
           <Link
             href={`/courses/${courseId}/${nextExercise.chapterId}/${encodeURIComponent(nextExercise.exercise.slug)}`}
-            className="border-2 border-black bg-[#FFD400] px-4 py-2 font-pixel text-xl text-black shadow-[3px_3px_0_#FF8C00] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-none"
+            className="w-full border-2 border-black bg-[#FFD400] px-4 py-2 text-center font-pixel text-xl text-black shadow-[3px_3px_0_#FF8C00] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-none sm:w-auto"
           >
             {t("Start next exercise")}
           </Link>

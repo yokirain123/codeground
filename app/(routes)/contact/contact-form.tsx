@@ -95,7 +95,7 @@ export default function ContactForm() {
           <p className="font-mono text-xs uppercase tracking-[0.28em] text-[#899DFF]">
             {t("Contact terminal")}
           </p>
-          <h2 className="mt-3 font-pixel text-5xl leading-none sm:text-7xl">
+          <h2 className="mt-3 break-words font-pixel text-4xl leading-none sm:text-7xl">
             {t("Send your")} <span className="text-[#FFD400]">{t("message")}</span>
           </h2>
           <p className="mt-5 max-w-lg text-base leading-7 text-white/55 sm:text-lg">
@@ -132,7 +132,7 @@ export default function ContactForm() {
 
           <form
             onSubmit={submitMessage}
-            className="border border-white/10 p-5 sm:p-7"
+            className="border border-white/10 p-4 sm:p-7"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -279,7 +279,7 @@ export default function ContactForm() {
               <button
                 type="submit"
                 disabled={isSending}
-                className="group relative h-12 min-w-44 cursor-pointer overflow-hidden rounded-none border-2 border-black bg-[#FFD400] px-6 font-pixel text-2xl text-black shadow-[4px_4px_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:cursor-wait disabled:opacity-60"
+                className="group relative h-auto min-h-12 w-full cursor-pointer overflow-hidden rounded-none border-2 border-black bg-[#FFD400] px-6 py-2 font-pixel text-xl whitespace-normal text-black shadow-[4px_4px_0_#FF8C00] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:cursor-wait disabled:opacity-60 sm:w-auto sm:min-w-44 sm:text-2xl"
               >
                 {isSending ? t("Sending...") : t("Send message ▶")}
               </button>

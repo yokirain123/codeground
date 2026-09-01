@@ -236,7 +236,7 @@ export default function CourseDetailsBanner({
       <div className="absolute inset-0 bg-[linear-gradient(to_left,rgba(16,21,42,0.08)_0%,rgba(7,8,12,0.55)_40%,rgba(7,8,12,0.97)_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(7,8,12,0.18)_0%,transparent_45%,rgba(7,8,12,0.88)_100%)]" />
 
-      <div className="relative z-10 flex w-full max-w-3xl flex-col items-start px-6 py-12 text-left md:px-10 lg:px-14">
+      <div className="relative z-10 flex w-full max-w-3xl flex-col items-start px-4 py-10 text-left sm:px-6 sm:py-12 md:px-10 lg:px-14">
         <span className="mb-4 border-2 border-black bg-[#FFD400] px-3 py-1 font-pixel text-lg text-black shadow-[3px_3px_0_#FF8C00] md:text-xl">
           {course.level === "Beginner"
             ? t("Beginner")
@@ -247,7 +247,7 @@ export default function CourseDetailsBanner({
                 : course.level}
         </span>
 
-        <h1 className="font-pixel text-4xl font-bold text-white [text-shadow:4px_4px_0_#28336B] md:text-7xl">
+        <h1 className="break-words font-pixel text-3xl font-bold text-white [text-shadow:4px_4px_0_#28336B] sm:text-5xl md:text-7xl">
           {course.title}
         </h1>
 
@@ -255,14 +255,14 @@ export default function CourseDetailsBanner({
           {course.desc}
         </p>
 
-        <div className="mt-7 flex flex-wrap items-center gap-4">
+        <div className="mt-7 flex w-full flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           {!isEnrolled ? (
             <Button
               type="button"
               variant="default"
               onClick={enrollCourse}
               disabled={isBusy}
-              className="group relative h-auto cursor-pointer overflow-hidden border-2 border-black bg-[#FFD400] px-6 py-3 font-pixel text-xl text-black shadow-[4px_4px_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 md:text-2xl"
+              className="group relative h-auto w-full cursor-pointer overflow-hidden border-2 border-black bg-[#FFD400] px-6 py-3 font-pixel text-xl whitespace-normal text-black shadow-[4px_4px_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 sm:w-auto md:text-2xl"
             >
               <span
                 aria-hidden="true"
@@ -279,7 +279,7 @@ export default function CourseDetailsBanner({
             </Button>
           ) : (
             <>
-              <div className="border-2 border-[#6FFFA2]/50 bg-[#6FFFA2]/10 px-6 py-3 font-pixel text-xl text-[#6FFFA2] md:text-2xl">
+              <div className="w-full border-2 border-[#6FFFA2]/50 bg-[#6FFFA2]/10 px-6 py-3 text-center font-pixel text-xl text-[#6FFFA2] sm:w-auto md:text-2xl">
                 {t("Enrolled")} ✓
               </div>
 
@@ -288,7 +288,7 @@ export default function CourseDetailsBanner({
                 variant="outline"
                 onClick={leaveCourse}
                 disabled={isLeaving}
-                className="h-auto cursor-pointer border-2 border-red-500/70 bg-[#07080C]/80 px-5 py-3 font-pixel text-xl text-red-400 shadow-[4px_4px_0_#7F1D1D] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_#7F1D1D] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 md:text-2xl"
+                className="h-auto w-full cursor-pointer border-2 border-red-500/70 bg-[#07080C]/80 px-5 py-3 font-pixel text-xl whitespace-normal text-red-400 shadow-[4px_4px_0_#7F1D1D] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-red-500 hover:text-white hover:shadow-[2px_2px_0_#7F1D1D] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60 sm:w-auto md:text-2xl"
               >
                 {isLeaving ? t("Leaving...") : t("Leave course")}
               </Button>

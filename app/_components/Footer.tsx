@@ -51,8 +51,8 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-white/10 bg-[#07080C] text-white">
-      <div className="mx-auto w-full max-w-7xl px-6 pt-12 md:px-10 lg:px-12">
-        <div className="grid gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.7fr_0.7fr_1.2fr]">
+      <div className="mx-auto w-full max-w-7xl px-4 pt-10 sm:px-6 sm:pt-12 md:px-10 lg:px-12">
+        <div className="grid gap-x-6 gap-y-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.7fr_0.7fr_1.2fr]">
           <div className="max-w-sm">
             <Logo />
 
@@ -115,8 +115,8 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-5 py-6 sm:flex-row">
-          <p className="order-2 font-pixel text-sm text-white/40 sm:order-1">
+        <div className="flex flex-col items-center justify-between gap-5 py-6 text-center sm:flex-row sm:text-left">
+          <p className="order-2 font-pixel text-sm leading-5 text-white/40 sm:order-1">
             {t("© 2026 CodeQuest. All rights reserved.")}
           </p>
 

@@ -164,19 +164,19 @@ export default function EditCourseButton({
               closeModal();
             }
           }}
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/80 p-3 backdrop-blur-sm sm:p-4"
         >
           <form
             onSubmit={handleSubmit}
             onClick={(event) =>
               event.stopPropagation()
             }
-            className="my-auto w-full max-w-xl border-2 border-accent bg-background p-6 text-foreground shadow-[8px_8px_0_0_#FF8C00]"
+            className="my-auto w-full max-w-xl border-2 border-accent bg-background p-4 text-foreground shadow-[8px_8px_0_0_#FF8C00] sm:p-6"
           >
             <div className="mb-6 flex items-center justify-between gap-4">
               <h2
                 id={`edit-course-${course.id}`}
-                className="font-pixel text-4xl text-accent"
+                className="break-words font-pixel text-3xl text-accent sm:text-4xl"
               >
                 {t("Edit course")}
               </h2>
@@ -277,12 +277,13 @@ export default function EditCourseButton({
               </p>
             )}
 
-            <div className="mt-6 flex justify-end gap-4">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={closeModal}
                 disabled={isSubmitting}
+                className="h-11 w-full sm:w-auto"
               >
                 {t("Cancel")}
               </Button>
@@ -290,7 +291,7 @@ export default function EditCourseButton({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-accent font-pixel text-xl text-black hover:bg-accent-hover hover:text-white"
+                className="h-11 w-full bg-accent font-pixel text-xl whitespace-normal text-black hover:bg-accent-hover hover:text-white sm:w-auto"
               >
                 {isSubmitting
                   ? t("Saving...")

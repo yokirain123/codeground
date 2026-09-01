@@ -104,19 +104,19 @@ export default function CreateCourseButton({
       <Button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group relative cursor-pointer overflow-hidden border bg-accent px-4 py-5 font-pixel text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent-hover hover:text-white hover:shadow-[2px_2px_0_0_#FF8C00]"
+        className="group relative w-full cursor-pointer overflow-hidden border bg-accent px-4 py-3 font-pixel text-xl whitespace-normal text-black shadow-[4px_4px_0_0_#FF8C00] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-accent-hover hover:text-white hover:shadow-[2px_2px_0_0_#FF8C00] sm:w-auto sm:py-5 sm:text-2xl"
       >
         + {t("Create course")}
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-3 sm:p-4">
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-xl border-2 border-accent bg-background p-6 shadow-[8px_8px_0_0_#FF8C00]"
+            className="my-auto w-full max-w-xl border-2 border-accent bg-background p-4 shadow-[8px_8px_0_0_#FF8C00] sm:p-6"
           >
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-pixel text-4xl text-accent">
+              <h2 className="break-words font-pixel text-3xl text-accent sm:text-4xl">
                 {t("Create course")}
               </h2>
 
@@ -203,12 +203,13 @@ export default function CreateCourseButton({
               <p className="mt-4 font-pixel text-xl text-red-400">{error}</p>
             )}
 
-            <div className="mt-6 flex justify-end gap-4">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsOpen(false)}
                 disabled={isSubmitting}
+                className="h-11 w-full sm:w-auto"
               >
                 {t("Cancel")}
               </Button>
@@ -216,7 +217,7 @@ export default function CreateCourseButton({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-accent font-pixel text-xl text-black hover:bg-accent-hover hover:text-white"
+                className="h-11 w-full bg-accent font-pixel text-xl whitespace-normal text-black hover:bg-accent-hover hover:text-white sm:w-auto"
               >
                 {isSubmitting ? t("Creating...") : t("Create course")}
               </Button>

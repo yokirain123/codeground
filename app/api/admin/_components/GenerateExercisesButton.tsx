@@ -92,7 +92,7 @@ export default function GenerateExercisesButton({
         void generateExercises();
       }}
       disabled={isGenerating}
-      className="group relative cursor-pointer overflow-hidden border bg-accent px-4 py-2 text-xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60"
+      className="group relative h-auto min-h-10 cursor-pointer overflow-hidden border bg-accent px-4 py-2 text-center text-xl whitespace-normal text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-60"
     >
       <span
         aria-hidden="true"

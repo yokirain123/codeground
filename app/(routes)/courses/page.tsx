@@ -73,7 +73,7 @@ export default function Courses() {
 
   return (
     <main className="bg-[#07080C] text-white">
-      <section className="relative flex min-h-[calc(50svh-64px)] items-center overflow-hidden">
+      <section className="relative flex min-h-[calc(50svh-64px)] items-center overflow-hidden py-12 sm:py-16">
         <Image
           src={CoursesIMG}
           alt=""
@@ -83,11 +83,11 @@ export default function Courses() {
         />
         <div className="absolute inset-0 bg-[linear-gradient(to_left,rgba(16,21,42,0.16)_0%,rgba(7,8,12,0.55)_38%,rgba(7,8,12,0.96)_100%)]" />
 
-        <div className="relative z-10 max-w-3xl px-6 md:px-10 lg:px-14">
+        <div className="relative z-10 max-w-3xl px-4 sm:px-6 md:px-10 lg:px-14">
           <p className="font-pixel text-sm uppercase tracking-[0.28em] text-[#899DFF]">
             {t("Course archive")}
           </p>
-          <h1 className="mt-3 font-pixel text-4xl font-bold text-white [text-shadow:4px_4px_0_#28336B] md:text-7xl">
+          <h1 className="mt-3 break-words font-pixel text-3xl font-bold text-white [text-shadow:4px_4px_0_#28336B] sm:text-5xl md:text-7xl">
             {t("Explore all")} {" "}
             <span className="text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
               {t("courses")}
@@ -99,9 +99,9 @@ export default function Courses() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-12">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
-          <h2 className="font-pixel text-4xl font-bold text-white">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 md:px-8 lg:px-10">
+        <div className="mb-8 flex flex-col items-stretch gap-4 border-b border-white/10 pb-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <h2 className="break-words font-pixel text-3xl font-bold text-white sm:text-4xl">
             {t("Available")} <span className="text-[#FFD400]">{t("courses")}</span>
           </h2>
 
@@ -176,7 +176,7 @@ export default function Courses() {
         )}
 
         {!isLoading && courses.length > 0 && (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
             {courses.map((course) => (
               <article
                 key={course.id}
@@ -218,7 +218,7 @@ export default function Courses() {
                   </div>
 
                   <div className="p-5">
-                    <h3 className="font-pixel text-3xl font-bold text-white">
+                    <h3 className="break-words font-pixel text-2xl font-bold text-white sm:text-3xl">
                       {course.title}
                     </h3>
                     <p className="mt-2 line-clamp-3 text-base leading-6 text-white/60">

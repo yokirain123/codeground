@@ -10,11 +10,11 @@ import WelcomeBanner from "./_components/WelcomeBanner";
 export default function Dashboard() {
   return (
     <main className="min-h-[calc(100svh-64px)] bg-[#07080C] text-white">
-      <div className="mx-auto w-full max-w-7xl px-6 py-10 md:px-10 lg:px-12 lg:py-14">
+      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 md:px-10 lg:px-12 lg:py-14">
         <WelcomeBanner />
 
-        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
-          <div className="flex min-w-0 flex-col gap-12">
+        <div className="mt-8 grid items-start gap-8 sm:mt-10 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+          <div className="flex min-w-0 flex-col gap-10 sm:gap-12">
             <EnrolledCourses />
             <ExploreMore />
             <InviteFriend />
