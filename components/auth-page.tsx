@@ -53,6 +53,12 @@ const clerkAppearance = {
   },
 };
 
+/**
+ * Renders the authentication page for sign-in or sign-up.
+ *
+ * @param mode - Selects whether to display the sign-in or sign-up form.
+ * @returns The authentication page content.
+ */
 export default function AuthPage({ mode }: AuthPageProps) {
   const isSignIn = mode === "sign-in";
 

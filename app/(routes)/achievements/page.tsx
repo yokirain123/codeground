@@ -27,6 +27,9 @@ interface AchievementsResponse {
   achievements: Achievement[];
 }
 
+/**
+ * Displays the user's achievement progress with localized names, descriptions, and progress indicators.
+ */
 export default function AchievementsPage() {
   const { locale, t, formatNumber, translateMessage } = useI18n();
   const [data, setData] = useState<AchievementsResponse | null>(null);

@@ -26,6 +26,11 @@ const initialForm = {
   tags: "",
 };
 
+/**
+ * Opens a modal for creating a course and notifies the parent when creation succeeds.
+ *
+ * @param onCreated - Callback invoked with the newly created course
+ */
 export default function CreateCourseButton({
   onCreated,
 }: CreateCourseButtonProps) {

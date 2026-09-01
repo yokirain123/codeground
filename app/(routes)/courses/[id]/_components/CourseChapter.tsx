@@ -97,6 +97,15 @@ function calculateCourseProgress(
   };
 }
 
+/**
+ * Renders an expandable course chapter with its exercises and availability controls.
+ *
+ * @param chapter - The chapter and its exercises to display
+ * @param isEnrolled - Whether the user is enrolled in the course
+ * @param isCompletedDataReady - Whether the user's completion data is available
+ * @param completedExerciseKeys - Keys identifying the exercises the user has completed
+ * @param nextExerciseKey - The key of the next exercise the user can start
+ */
 function CourseChapterItem({
   chapter,
   isEnrolled,
@@ -272,6 +281,13 @@ function CourseChapterItem({
   );
 }
 
+/**
+ * Renders the course chapters and tracks exercise completion for enrolled users.
+ *
+ * @param chapters - The chapters and exercises to display.
+ * @param isEnrolled - Whether the current user is enrolled in the course.
+ * @param onProgressChange - Callback invoked with the calculated course progress.
+ */
 export default function CourseChapters({
   chapters,
   isEnrolled,

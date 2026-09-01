@@ -136,6 +136,9 @@ function TypewriterText({
   );
 }
 
+/**
+ * Renders the localized programming adventure landing page hero section.
+ */
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
   const { t, formatNumber } = useI18n();

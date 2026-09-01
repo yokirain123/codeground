@@ -21,6 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * Renders the localized code glossary page.
+ *
+ * @returns The glossary page with localized metadata, statistics, explorer, and footer.
+ */
 export default async function CodeGlossaryPage() {
   const { locale, t } = await getServerI18n();
   return (

@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 import { Search, UsersRound } from "lucide-react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
+/**
+ * Renders a player-search panel for finding CodeQuest players.
+ *
+ * @returns The player-search panel element
+ */
 export default function InviteFriend() {
   const router = useRouter();
   const { t } = useI18n();

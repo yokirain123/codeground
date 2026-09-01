@@ -135,6 +135,9 @@ function getNotificationCopy(
   return { title: notification.title, message: notification.message };
 }
 
+/**
+ * Displays a notification bell with unread counts, notification details, and notification actions.
+ */
 export default function NotificationBell() {
   const { locale, t, translateMessage } = useI18n();
   const rootRef = useRef<HTMLDivElement>(null);

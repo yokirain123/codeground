@@ -3,6 +3,9 @@
 import { Button } from "@/components/ui/shadcn/button";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
+/**
+ * Renders a localized sign-up button with responsive styling and hover effects.
+ */
 function SignButton() {
   const { t } = useI18n();
 

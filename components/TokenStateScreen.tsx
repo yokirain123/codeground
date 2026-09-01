@@ -20,6 +20,11 @@ interface TokenStateScreenProps {
   mode: TokenStateMode;
 }
 
+/**
+ * Displays a loading or not-found state for the Token quest interface.
+ *
+ * @param mode - Whether to display the loading state or the not-found state.
+ */
 export default function TokenStateScreen({
   mode,
 }: TokenStateScreenProps) {

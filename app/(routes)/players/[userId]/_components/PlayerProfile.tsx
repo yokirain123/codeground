@@ -42,6 +42,9 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return data;
 }
 
+/**
+ * Displays a player's profile, statistics, enrolled courses, and friendship actions.
+ */
 export default function PlayerProfile() {
   const { t, formatDate, formatNumber, translateMessage } = useI18n();
   const params = useParams<{ userId: string | string[] }>();

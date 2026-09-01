@@ -6,6 +6,11 @@ interface LogoProps {
   compactOnMobile?: boolean;
 }
 
+/**
+ * Renders the CodeQuest logo with an optional compact layout on small screens.
+ *
+ * @param compactOnMobile - Whether to reduce the image size and hide the wordmark below the `sm` breakpoint
+ */
 function Logo({ compactOnMobile = false }: LogoProps) {
   return (
     <div className="flex min-w-0 items-center gap-2">

@@ -7,6 +7,9 @@ import InviteFriend from "./_components/InviteFriend";
 import UserStatus from "./_components/UserStatus";
 import WelcomeBanner from "./_components/WelcomeBanner";
 
+/**
+ * Renders the dashboard page with course content, user status, friend summaries, and the shared footer.
+ */
 export default function Dashboard() {
   return (
     <main className="min-h-[calc(100svh-64px)] bg-[#07080C] text-white">

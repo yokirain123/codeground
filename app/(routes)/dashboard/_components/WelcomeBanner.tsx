@@ -6,6 +6,11 @@ import { useUser } from "@clerk/nextjs";
 import pixWelcome from "@/components/images/pc.gif";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
+/**
+ * Displays a personalized welcome banner with session status and course guidance.
+ *
+ * @returns The rendered welcome banner.
+ */
 export default function WelcomeBanner() {
   const { isLoaded, user } = useUser();
   const { t } = useI18n();

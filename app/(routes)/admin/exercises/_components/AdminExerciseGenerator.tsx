@@ -59,6 +59,11 @@ function difficultyColor(difficulty: AdminExercise["difficulty"]) {
   return "text-green-400";
 }
 
+/**
+ * Renders the administrative interface for generating exercises across courses and chapters.
+ *
+ * @param courses - Courses, chapters, and exercise readiness data to display and manage
+ */
 export default function AdminExerciseGenerator({
   courses,
 }: AdminExerciseGeneratorProps) {
@@ -585,6 +590,13 @@ export default function AdminExerciseGenerator({
   );
 }
 
+/**
+ * Renders a pixel-styled button with animated hover and active states.
+ *
+ * @param children - The content displayed inside the button
+ * @param disabled - Whether the button is disabled
+ * @param onClick - The handler invoked when the button is clicked
+ */
 function PixelButton({
   children,
   disabled,
