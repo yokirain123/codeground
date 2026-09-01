@@ -41,7 +41,7 @@ export default function TokenStateScreen({
           ? "polite"
           : undefined
       }
-      className="relative isolate flex min-h-[calc(100dvh-64px)] items-center justify-center overflow-hidden bg-background px-6 py-12"
+      className="relative isolate flex min-h-[calc(100dvh-64px)] items-center justify-center overflow-hidden bg-background px-4 py-10 sm:px-6 sm:py-12"
     >
       <div
         aria-hidden="true"
@@ -76,8 +76,8 @@ export default function TokenStateScreen({
         className="relative z-10 w-full max-w-xl bg-black p-1 shadow-[8px_8px_0_0_#FF8C00]"
       >
         <div className="border-4 border-accent bg-[#111111] p-1">
-          <div className="relative flex flex-col items-center border-2 border-white/15 px-6 py-9 text-center md:px-10">
-            <span className="absolute -top-5 left-1/2 -translate-x-1/2 border-2 border-black bg-accent px-4 py-1 font-pixel text-xl whitespace-nowrap text-black shadow-[3px_3px_0_0_#FF8C00]">
+          <div className="relative flex flex-col items-center border-2 border-white/15 px-4 py-8 text-center sm:px-6 sm:py-9 md:px-10">
+            <span className="absolute -top-5 left-1/2 max-w-[calc(100%_-_1rem)] -translate-x-1/2 border-2 border-black bg-accent px-3 py-1 text-center font-pixel text-lg leading-tight text-black shadow-[3px_3px_0_0_#FF8C00] sm:px-4 sm:text-xl sm:whitespace-nowrap">
               {t("Quest Master")}
             </span>
 
@@ -98,7 +98,7 @@ export default function TokenStateScreen({
                 transition={{
                   delay: 0.2,
                 }}
-                className="font-pixel text-7xl leading-none text-accent [text-shadow:4px_4px_0_#FF8C00] md:text-9xl"
+                className="font-pixel text-6xl leading-none text-accent [text-shadow:4px_4px_0_#FF8C00] sm:text-7xl md:text-9xl"
               >
                 404
               </motion.p>
@@ -179,7 +179,7 @@ export default function TokenStateScreen({
               transition={{
                 delay: 0.25,
               }}
-              className="mt-6 font-pixel text-3xl text-accent [text-shadow:2px_2px_0_#000] md:text-4xl"
+              className="mt-6 break-words font-pixel text-2xl text-accent [text-shadow:2px_2px_0_#000] sm:text-3xl md:text-4xl"
             >
               {isLoading
                 ? t("Preparing your quest...")
@@ -200,7 +200,7 @@ export default function TokenStateScreen({
               transition={{
                 delay: 0.4,
               }}
-              className="mt-3 max-w-md font-pixel text-xl leading-relaxed text-white/65 md:text-2xl"
+              className="mt-3 max-w-md break-words font-pixel text-lg leading-relaxed text-white/65 sm:text-xl md:text-2xl"
             >
               {isLoading
                 ? t(
@@ -291,11 +291,11 @@ export default function TokenStateScreen({
                   stiffness: 220,
                   damping: 18,
                 }}
-                className="mt-7 flex flex-wrap justify-center gap-4"
+                className="mt-7 flex w-full flex-col justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-4"
               >
                 <Button
                   variant="default"
-                  className="group relative h-auto cursor-pointer overflow-hidden border-2 border-black bg-accent px-5 py-3 font-pixel text-2xl text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  className="group relative h-auto w-full cursor-pointer overflow-hidden border-2 border-black bg-accent px-5 py-3 font-pixel text-xl whitespace-normal text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-accent hover:shadow-[2px_2px_0_0_#FF8C00] active:translate-x-1 active:translate-y-1 active:shadow-none sm:w-auto sm:text-2xl"
                 >
                   <Link href="/">
                     <span
@@ -311,7 +311,7 @@ export default function TokenStateScreen({
 
                 <Button
                   variant="outline"
-                  className="h-auto cursor-pointer border-2 border-white/20 bg-black px-5 py-3 font-pixel text-2xl text-white shadow-[4px_4px_0_0_#333] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:border-accent hover:bg-accent/10 hover:text-accent hover:shadow-[2px_2px_0_0_#FF8C00]"
+                  className="h-auto w-full cursor-pointer border-2 border-white/20 bg-black px-5 py-3 font-pixel text-xl whitespace-normal text-white shadow-[4px_4px_0_0_#333] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:border-accent hover:bg-accent/10 hover:text-accent hover:shadow-[2px_2px_0_0_#FF8C00] sm:w-auto sm:text-2xl"
                 >
                   <Link href="/courses">
                     {t("View courses")}

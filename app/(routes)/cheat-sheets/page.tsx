@@ -42,14 +42,14 @@ export default async function CheatSheetsPage() {
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_30%,rgba(137,157,255,0.18),transparent_28%),radial-gradient(circle_at_20%_75%,rgba(255,212,0,0.07),transparent_25%)]"
         />
 
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 py-14 md:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-10 lg:py-20">
+        <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-14 md:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-10 lg:py-20">
           <div>
             <div className="inline-flex items-center gap-2 border border-[#FFD400]/40 bg-[#FFD400]/5 px-3 py-2 font-pixel text-xs uppercase tracking-[0.2em] text-[#FFD400]">
               <BookOpenCheck className="size-4" />
               {t("Developer field guide")}
             </div>
 
-            <h1 className="mt-6 font-pixel text-6xl leading-[0.82] sm:text-7xl lg:text-8xl">
+            <h1 className="mt-6 break-words font-pixel text-4xl leading-[0.86] sm:text-7xl lg:text-8xl">
               {t("CHEAT")} <span className="text-[#FFD400]">{t("SHEETS")}</span>
             </h1>
 
@@ -60,29 +60,29 @@ export default async function CheatSheetsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 border-2 border-[#899DFF]/35 bg-[#10152A] shadow-[6px_6px_0_#020307]">
-            <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
+          <div className="grid w-full grid-cols-3 border-2 border-[#899DFF]/35 bg-[#10152A] shadow-[6px_6px_0_#020307] lg:w-auto">
+            <div className="min-w-0 border-r border-[#899DFF]/20 px-1.5 py-3 text-center sm:p-4 lg:min-w-24">
               <Braces className="mx-auto size-5 text-[#899DFF]" />
               <p className="mt-2 font-pixel text-3xl text-white">
                 {formatLocalizedNumber(locale, CHEAT_SHEETS.length)}
               </p>
-              <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
+              <p className="break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/35 sm:text-[10px] sm:tracking-widest">
                 {t("Languages")}
               </p>
             </div>
-            <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
+            <div className="min-w-0 border-r border-[#899DFF]/20 px-1.5 py-3 text-center sm:p-4 lg:min-w-24">
               <Copy className="mx-auto size-5 text-[#FFD400]" />
               <p className="mt-2 font-pixel text-3xl text-[#FFD400]">
                 {formatLocalizedNumber(locale, patternCount)}
               </p>
-              <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
+              <p className="break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/35 sm:text-[10px] sm:tracking-widest">
                 {t("Patterns")}
               </p>
             </div>
-            <div className="min-w-24 p-4 text-center">
+            <div className="min-w-0 px-1.5 py-3 text-center sm:p-4 lg:min-w-24">
               <span className="font-pixel text-xl text-[#6FFFA2]">⌘</span>
               <p className="mt-2 font-pixel text-3xl text-[#6FFFA2]">1</p>
-              <p className="font-pixel text-[10px] uppercase tracking-widest text-white/35">
+              <p className="break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/35 sm:text-[10px] sm:tracking-widest">
                 {t("Click copy")}
               </p>
             </div>

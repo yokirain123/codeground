@@ -22,7 +22,7 @@ export default function InviteFriend() {
   };
 
   return (
-    <section className="relative overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] px-6 py-7 shadow-[6px_6px_0_#020307] sm:px-8">
+    <section className="relative overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] px-4 py-6 shadow-[6px_6px_0_#020307] sm:px-8 sm:py-7">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-10 -top-16 size-56 rounded-full bg-[#899DFF]/10 blur-3xl"
@@ -47,7 +47,7 @@ export default function InviteFriend() {
             )}
           </p>
 
-          <form onSubmit={findPlayers} className="mt-5 flex gap-2">
+          <form onSubmit={findPlayers} className="mt-5 flex flex-col gap-2 sm:flex-row">
             <label htmlFor="dashboard-player-search" className="sr-only">
               {t("Search CodeQuest players")}
             </label>
@@ -63,7 +63,7 @@ export default function InviteFriend() {
             </div>
             <button
               type="submit"
-              className="flex h-12 cursor-pointer items-center justify-center border-2 border-black bg-[#FFD400] px-4 font-pixel text-lg text-black shadow-[4px_4px_0_#FF8C00] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00]"
+              className="flex h-12 w-full cursor-pointer items-center justify-center border-2 border-black bg-[#FFD400] px-4 font-pixel text-lg text-black shadow-[4px_4px_0_#FF8C00] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#FF8C00] sm:w-auto"
             >
               {t("Find")}
             </button>

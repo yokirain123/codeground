@@ -207,7 +207,7 @@ export default function PlaygroundPromo() {
   const demo = demos[demoId];
 
   return (
-    <section className="relative px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
+    <section className="relative px-4 py-16 text-white sm:px-6 sm:py-20 md:px-10 lg:px-16 lg:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
@@ -215,7 +215,7 @@ export default function PlaygroundPromo() {
               {t("Live preview")}
             </p>
 
-            <h2 className="mt-3 font-pixel text-4xl text-white [text-shadow:4px_4px_0_#28336B] md:text-6xl">
+            <h2 className="mt-3 break-words font-pixel text-3xl text-white [text-shadow:4px_4px_0_#28336B] sm:text-4xl md:text-6xl">
               {t("Try the")}{" "}
               <span className="text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
                 {t("Playground")}
@@ -229,8 +229,8 @@ export default function PlaygroundPromo() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="relative">
+          <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="relative w-full sm:w-auto">
               <label htmlFor="promo-demo" className="sr-only">
                 {t("Demo technology")}
               </label>
@@ -241,7 +241,7 @@ export default function PlaygroundPromo() {
                 onChange={(event) => {
                   setDemoId(event.target.value as DemoId);
                 }}
-                className="h-11 min-w-52 cursor-pointer appearance-none border border-[#899DFF]/45 bg-[#10152A] py-2 pr-10 pl-4 font-pixel text-lg text-white outline-none transition-colors hover:border-[#FFD400]/70 focus:ring-2 focus:ring-[#899DFF]/40"
+                className="h-11 w-full cursor-pointer appearance-none border border-[#899DFF]/45 bg-[#10152A] py-2 pr-10 pl-4 font-pixel text-lg text-white outline-none transition-colors hover:border-[#FFD400]/70 focus:ring-2 focus:ring-[#899DFF]/40 sm:min-w-52"
               >
                 {(Object.keys(demos) as DemoId[]).map((id) => (
                   <option
@@ -257,7 +257,7 @@ export default function PlaygroundPromo() {
               <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#FFD400]" />
             </div>
 
-            <Button className="group relative h-11 cursor-pointer overflow-hidden border-2 border-black bg-[#FFD400] px-5 text-lg text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#FF8C00]">
+            <Button className="group relative h-11 w-full cursor-pointer overflow-hidden border-2 border-black bg-[#FFD400] px-5 text-lg text-black shadow-[4px_4px_0_0_#FF8C00] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#FF8C00] sm:w-auto">
               <Link href="/playground">
                 <span
                   aria-hidden="true"

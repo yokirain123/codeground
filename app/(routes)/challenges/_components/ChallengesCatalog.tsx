@@ -169,14 +169,14 @@ export default function ChallengesCatalog({
           className="absolute -top-24 right-[8%] size-72 rounded-full bg-[#899DFF]/15 blur-3xl"
         />
 
-        <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-5 py-12 md:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-10 lg:py-16">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-12 md:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-10 lg:py-16">
           <div>
             <div className="inline-flex items-center gap-2 border border-[#FFD400]/40 bg-[#FFD400]/5 px-3 py-2 font-pixel text-xs uppercase tracking-[0.2em] text-[#FFD400]">
               <Zap className="size-4" />
               {t("Challenge Arena")}
             </div>
 
-            <h1 className="mt-5 max-w-4xl font-pixel text-5xl leading-[0.9] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-5 max-w-4xl break-words font-pixel text-4xl leading-[0.9] sm:text-6xl lg:text-7xl">
               {t("TEST YOUR")} <span className="text-[#FFD400]">{t("SKILLS")}</span>
             </h1>
 
@@ -187,28 +187,28 @@ export default function ChallengesCatalog({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 border-2 border-[#899DFF]/35 bg-[#10152A] shadow-[6px_6px_0_0_#020307]">
-            <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
+          <div className="grid w-full grid-cols-3 border-2 border-[#899DFF]/35 bg-[#10152A] shadow-[6px_6px_0_0_#020307] lg:w-auto">
+            <div className="min-w-0 border-r border-[#899DFF]/20 px-1.5 py-3 text-center sm:p-4 lg:min-w-24">
               <p className="font-pixel text-3xl text-[#FFD400]">
                 {formatNumber(completions.length)}
               </p>
-              <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-white/40">
+              <p className="mt-1 break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/40 sm:text-[10px] sm:tracking-widest">
                 {t("Cleared")}
               </p>
             </div>
-            <div className="min-w-24 border-r border-[#899DFF]/20 p-4 text-center">
+            <div className="min-w-0 border-r border-[#899DFF]/20 px-1.5 py-3 text-center sm:p-4 lg:min-w-24">
               <p className="font-pixel text-3xl text-[#62FB60]">
                 {formatNumber(activeDraftCount)}
               </p>
-              <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-white/40">
+              <p className="mt-1 break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/40 sm:text-[10px] sm:tracking-widest">
                 {t("Active")}
               </p>
             </div>
-            <div className="min-w-24 p-4 text-center">
+            <div className="min-w-0 px-1.5 py-3 text-center sm:p-4 lg:min-w-24">
               <p className="font-pixel text-3xl text-[#899DFF]">
                 {formatNumber(completedXp)}
               </p>
-              <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-white/40">
+              <p className="mt-1 break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/40 sm:text-[10px] sm:tracking-widest">
                 XP
               </p>
             </div>
@@ -216,7 +216,7 @@ export default function ChallengesCatalog({
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-7xl px-5 py-10 md:px-8 lg:px-10">
+      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 md:px-8 lg:px-10">
         {dailyChallenge && (
           <section className="relative overflow-hidden border-2 border-[#FFD400] bg-[#10152A] shadow-[8px_8px_0_0_#FF8C00]">
             <div
@@ -224,7 +224,7 @@ export default function ChallengesCatalog({
               className="absolute top-0 right-0 h-full w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(255,212,0,0.22),transparent_60%)]"
             />
 
-            <div className="relative grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="relative grid gap-6 p-4 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center gap-2 bg-[#FFD400] px-3 py-1.5 font-pixel text-xs uppercase tracking-widest text-[#07080C]">
@@ -247,7 +247,7 @@ export default function ChallengesCatalog({
                   </span>
                 </div>
 
-                <h2 className="mt-5 font-pixel text-4xl text-white sm:text-5xl">
+                <h2 className="mt-5 break-words font-pixel text-3xl text-white sm:text-5xl">
                   {dailyChallenge.title}
                 </h2>
                 <p className="mt-3 max-w-2xl font-sans leading-7 text-white/60">
@@ -274,7 +274,7 @@ export default function ChallengesCatalog({
               </div>
 
               <Button
-                className="group h-12 flex rounded-none border-2 border-[#FFD400] bg-[#FFD400] px-6 font-pixel text-lg text-[#07080C] shadow-[4px_4px_0_0_#899DFF] hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#899DFF]"
+                className="group flex h-auto min-h-12 w-full rounded-none border-2 border-[#FFD400] bg-[#FFD400] px-6 py-2 font-pixel text-lg whitespace-normal text-[#07080C] shadow-[4px_4px_0_0_#899DFF] hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-[#FFD400] hover:shadow-[2px_2px_0_0_#899DFF] lg:w-auto"
               >
                 <Link href={`/challenges/${dailyChallenge.slug}`}>
                   {completedSlugs.has(dailyChallenge.slug)
@@ -440,7 +440,7 @@ export default function ChallengesCatalog({
                         </span>
                       </div>
 
-                      <h3 className="mt-4 font-pixel text-3xl leading-none text-white transition-colors group-hover:text-[#FFD400]">
+                      <h3 className="mt-4 break-words font-pixel text-2xl leading-none text-white transition-colors group-hover:text-[#FFD400] sm:text-3xl">
                         {challenge.title}
                       </h3>
                       <p className="mt-3 line-clamp-3 font-sans text-sm leading-6 text-white/50">
@@ -458,7 +458,7 @@ export default function ChallengesCatalog({
                         ))}
                       </div>
 
-                      <div className="mt-auto flex items-end justify-between gap-4 pt-6">
+                      <div className="mt-auto flex flex-col items-stretch gap-4 pt-6 min-[420px]:flex-row min-[420px]:items-end min-[420px]:justify-between">
                         <div>
                           <p className="font-pixel text-[10px] uppercase tracking-widest text-white/30">
                             {t("Reward")}
@@ -470,7 +470,7 @@ export default function ChallengesCatalog({
 
                         <Link
                           href={`/challenges/${challenge.slug}`}
-                          className="flex h-10 items-center gap-2 border border-[#899DFF] px-4 font-pixel text-sm text-[#AAB6FF] transition-all hover:border-[#FFD400] hover:bg-[#FFD400] hover:text-[#07080C]"
+                          className="flex min-h-10 items-center justify-center gap-2 border border-[#899DFF] px-4 py-2 text-center font-pixel text-sm text-[#AAB6FF] transition-all hover:border-[#FFD400] hover:bg-[#FFD400] hover:text-[#07080C]"
                         >
                           {challengeStatus === "completed"
                             ? t("Replay")

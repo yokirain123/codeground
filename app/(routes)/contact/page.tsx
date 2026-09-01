@@ -112,7 +112,7 @@ function ContactCard({ channel }: { channel: ContactChannel }) {
   );
 
   const className =
-    "group relative flex min-h-72 flex-col border-2 border-[#899DFF]/35 bg-[#10152A] p-6 shadow-[6px_6px_0_#020307] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:border-[#FFD400]/70 hover:shadow-[3px_3px_0_#020307] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD400] focus-visible:ring-offset-4 focus-visible:ring-offset-[#07080C] sm:p-7";
+    "group relative flex min-h-64 flex-col border-2 border-[#899DFF]/35 bg-[#10152A] p-5 shadow-[6px_6px_0_#020307] transition-all duration-300 hover:translate-x-0.5 hover:translate-y-0.5 hover:border-[#FFD400]/70 hover:shadow-[3px_3px_0_#020307] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD400] focus-visible:ring-offset-4 focus-visible:ring-offset-[#07080C] sm:min-h-72 sm:p-7";
 
   if (channel.external) {
     return (
@@ -163,7 +163,7 @@ export default async function ContactPage() {
               {t("Support hub // online")}
             </div>
 
-            <h1 className="mt-7 max-w-3xl font-pixel text-[clamp(5rem,11vw,9.5rem)] leading-[0.66] tracking-[-0.035em]">
+            <h1 className="mt-7 max-w-3xl break-words font-pixel text-[clamp(3.5rem,14vw,9.5rem)] leading-[0.72] tracking-[-0.025em] sm:leading-[0.66] sm:tracking-[-0.035em]">
               {t("NEED A")}
               <span className="mt-3 block text-[#FFD400] [text-shadow:5px_5px_0_#FF8C00]">
                 {t("GUIDE?")}
@@ -203,7 +203,7 @@ export default async function ContactPage() {
                   </span>
                 </div>
 
-                <div className="space-y-5 p-5 font-mono text-sm leading-6 sm:p-7">
+                <div className="space-y-5 break-words p-4 font-mono text-sm leading-6 sm:p-7">
                   <p className="text-white/35">
                     <span className="text-[#899DFF]">$</span> open support-menu
                   </p>
@@ -238,7 +238,7 @@ export default async function ContactPage() {
             <p className="font-pixel text-sm uppercase tracking-[0.28em] text-[#899DFF]">
               {t("Choose your route")}
             </p>
-            <h2 className="mt-3 font-pixel text-5xl tracking-tight sm:text-7xl">
+            <h2 className="mt-3 break-words font-pixel text-4xl tracking-tight sm:text-7xl">
               {t("How can we")} <span className="text-[#FFD400]">{t("help?")}</span>
             </h2>
             <p className="mt-5 max-w-xl font-sans text-base leading-7 text-white/55 sm:text-lg">

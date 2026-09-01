@@ -258,7 +258,7 @@ export default function Leaderboard() {
   }, [reloadKey]);
 
   return (
-    <section className="relative overflow-hidden bg-[#07080C] px-5 py-20 sm:px-8 sm:py-24">
+    <section className="relative overflow-hidden bg-[#07080C] px-4 py-16 sm:px-8 sm:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-28 top-24 size-72 rounded-full bg-[#899DFF]/10 blur-[110px]"
@@ -283,7 +283,7 @@ export default function Leaderboard() {
             </p>
           </div>
 
-          <h2 className="font-pixel text-4xl uppercase text-white [text-shadow:4px_4px_0_#020307] sm:text-5xl lg:text-6xl">
+          <h2 className="break-words font-pixel text-3xl uppercase text-white [text-shadow:4px_4px_0_#020307] sm:text-5xl lg:text-6xl">
             {t("Hall of")}{" "}
             <span className="text-[#FFD400]">{t("Heroes")}</span>
           </h2>
@@ -295,7 +295,7 @@ export default function Leaderboard() {
           </p>
         </motion.div>
 
-        <div className="mt-12 grid gap-6 lg:items-stretch">
+        <div className="mt-10 grid gap-6 sm:mt-12 lg:items-stretch">
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}

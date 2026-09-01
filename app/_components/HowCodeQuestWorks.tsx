@@ -33,14 +33,14 @@ export default function HowCodeQuestWorks() {
   ] as const;
 
   return (
-    <section className="relative px-6 py-20 text-white md:px-10 lg:px-16 lg:py-28">
+    <section className="relative px-4 py-16 text-white sm:px-6 sm:py-20 md:px-10 lg:px-16 lg:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-2xl text-center">
           <p className="font-pixel text-sm uppercase tracking-[0.3em] text-[#899DFF]">
             {t("Your journey")}
           </p>
 
-          <h2 className="mt-3 font-pixel text-4xl text-white [text-shadow:4px_4px_0_#28336B] md:text-6xl">
+          <h2 className="mt-3 break-words font-pixel text-3xl text-white [text-shadow:4px_4px_0_#28336B] sm:text-4xl md:text-6xl">
             {t("How")}{" "}
             <span className="text-[#FFD400] [text-shadow:4px_4px_0_#FF8C00]">
               CodeQuest
@@ -55,7 +55,7 @@ export default function HowCodeQuestWorks() {
           </p>
         </div>
 
-        <div className="relative mt-16 grid gap-10 md:grid-cols-3 md:gap-8">
+        <div className="relative mt-12 grid gap-8 sm:mt-16 md:grid-cols-3 md:gap-8">
           <div
             aria-hidden="true"
             className="absolute top-12 right-[16.66%] left-[16.66%] hidden border-t-2 border-dashed border-[#899DFF]/35 md:block"
@@ -71,7 +71,7 @@ export default function HowCodeQuestWorks() {
                   index === 1 ? "md:-translate-y-4" : "md:translate-y-4"
                 }`}
               >
-                <div className="h-full border-2 border-[#899DFF]/45 bg-[#10152A] p-6 shadow-[6px_6px_0_0_#020307] transition-all duration-300 group-hover:translate-x-0.5 group-hover:translate-y-0.5 group-hover:border-[#FFD400]/70 group-hover:shadow-[3px_3px_0_0_#020307]">
+                <div className="h-full border-2 border-[#899DFF]/45 bg-[#10152A] p-5 shadow-[6px_6px_0_0_#020307] transition-all duration-300 group-hover:translate-x-0.5 group-hover:translate-y-0.5 group-hover:border-[#FFD400]/70 group-hover:shadow-[3px_3px_0_0_#020307] sm:p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex size-16 items-center justify-center border-2 border-black bg-[#FFD400] text-black shadow-[3px_3px_0_0_#FF8C00]">
                       <Icon className="size-8" />
@@ -82,7 +82,7 @@ export default function HowCodeQuestWorks() {
                     </span>
                   </div>
 
-                  <h3 className="mt-7 font-pixel text-3xl text-white">
+                  <h3 className="mt-7 break-words font-pixel text-2xl text-white sm:text-3xl">
                     {step.title}
                   </h3>
 

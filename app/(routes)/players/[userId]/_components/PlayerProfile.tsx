@@ -91,7 +91,7 @@ export default function PlayerProfile() {
 
   if (error || !profile) {
     return (
-      <div className="mx-auto flex min-h-[65svh] max-w-xl flex-col items-center justify-center px-6 text-center">
+      <div className="mx-auto flex min-h-[65svh] max-w-xl flex-col items-center justify-center px-4 text-center sm:px-6">
         <h1 className="font-pixel text-3xl text-white">
           {t("Player unavailable")}
         </h1>
@@ -209,7 +209,7 @@ export default function PlayerProfile() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 lg:px-10 lg:py-14">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-14">
       <Link
         href="/friends"
         className="inline-flex items-center gap-2 font-pixel text-sm text-[#899DFF] transition hover:text-white"
@@ -217,7 +217,7 @@ export default function PlayerProfile() {
         <ArrowLeft className="size-4" /> {t("Back to friends")}
       </Link>
 
-      <section className="relative mt-5 overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] p-6 shadow-[7px_7px_0_#020307] sm:p-8 lg:p-10">
+      <section className="relative mt-5 overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] p-4 shadow-[7px_7px_0_#020307] sm:p-8 lg:p-10">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[#899DFF]/12 blur-[100px]"
@@ -227,7 +227,7 @@ export default function PlayerProfile() {
           className="pointer-events-none absolute -bottom-24 left-1/4 size-64 rounded-full bg-[#FFD400]/[0.055] blur-[100px]"
         />
 
-        <div className="relative flex flex-col gap-7 sm:flex-row sm:items-center">
+        <div className="relative flex flex-col items-center gap-7 text-center sm:flex-row sm:text-left">
           <PlayerAvatar
             name={player.name}
             imageUrl={player.avatarUrl}
@@ -239,10 +239,10 @@ export default function PlayerProfile() {
             <p className="font-pixel text-xs uppercase tracking-[0.25em] text-[#899DFF]">
               {t("CodeQuest adventurer")}
             </p>
-            <h1 className="mt-2 break-words font-pixel text-4xl text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-2 break-words font-pixel text-3xl text-white sm:text-5xl lg:text-6xl">
               {player.name}
             </h1>
-            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:justify-start">
               <span className="font-pixel text-xl text-[#FFD400]">
                 {formatNumber(Math.max(0, player.points))} XP
               </span>
@@ -253,7 +253,7 @@ export default function PlayerProfile() {
             </div>
           </div>
 
-          <div className="sm:self-end">{renderRelationshipAction()}</div>
+          <div className="w-full sm:w-auto sm:self-end">{renderRelationshipAction()}</div>
         </div>
       </section>
 
@@ -338,7 +338,7 @@ export default function PlayerProfile() {
 
   function renderRelationshipAction() {
     const baseClass =
-      "flex h-12 min-w-44 items-center justify-center gap-2 px-5 font-pixel text-base transition disabled:cursor-wait disabled:opacity-55";
+      "flex min-h-12 w-full min-w-0 items-center justify-center gap-2 px-5 py-2 text-center font-pixel text-base whitespace-normal transition disabled:cursor-wait disabled:opacity-55 sm:w-auto sm:min-w-44";
 
     if (player.relationship === "self") {
       return (

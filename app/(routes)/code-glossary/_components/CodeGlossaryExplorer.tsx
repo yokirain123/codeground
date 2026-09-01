@@ -78,8 +78,8 @@ export default function CodeGlossaryExplorer() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-5 py-10 md:px-8 lg:px-10 lg:py-14">
-      <div className="border-2 border-[#899DFF]/35 bg-[#10152A] p-5 shadow-[6px_6px_0_#020307] sm:p-6">
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 md:px-8 lg:px-10 lg:py-14">
+      <div className="border-2 border-[#899DFF]/35 bg-[#10152A] p-4 shadow-[6px_6px_0_#020307] sm:p-6">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <label className="flex min-w-0 items-center gap-3 border border-[#899DFF]/30 bg-[#07080C] px-4 py-3 focus-within:border-[#FFD400]">
             <Search className="size-5 shrink-0 text-[#899DFF]" />
@@ -199,13 +199,13 @@ export default function CodeGlossaryExplorer() {
                     id={`term-${entry.slug}`}
                     className="group scroll-mt-28 border border-[#899DFF]/25 bg-[#10152A] shadow-[4px_4px_0_#020307] open:border-[#899DFF]/55"
                   >
-                    <summary className="flex cursor-pointer list-none items-center gap-4 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FFD400] [&::-webkit-details-marker]:hidden">
+                    <summary className="flex cursor-pointer list-none items-center gap-3 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FFD400] sm:gap-4 sm:p-5 [&::-webkit-details-marker]:hidden">
                       <div className="flex size-10 shrink-0 items-center justify-center border border-[#899DFF]/25 bg-[#899DFF]/5">
                         <Hash className="size-4 text-[#899DFF]" />
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-pixel text-2xl text-white">
+                        <h3 className="break-words font-pixel text-xl text-white sm:text-2xl">
                           {entry.term}
                         </h3>
                         <span
@@ -218,7 +218,7 @@ export default function CodeGlossaryExplorer() {
                       <ChevronDown className="size-5 shrink-0 text-[#899DFF] transition-transform duration-200 group-open:rotate-180" />
                     </summary>
 
-                    <div className="border-t border-white/10 px-5 py-5">
+                    <div className="border-t border-white/10 px-4 py-5 sm:px-5">
                       <p className="font-sans text-base leading-7 text-white/65">
                         {entry.definition}
                       </p>
@@ -228,7 +228,7 @@ export default function CodeGlossaryExplorer() {
                           <div className="flex items-center gap-2 font-pixel text-[10px] uppercase tracking-[0.18em] text-[#FFD400]">
                             <BookA className="size-3.5" /> {t("Example")}
                           </div>
-                          <p className="mt-2 font-mono text-sm leading-6 text-[#DCE2FF]">
+                          <p className="mt-2 break-words font-mono text-sm leading-6 text-[#DCE2FF]">
                             {entry.example}
                           </p>
                         </div>

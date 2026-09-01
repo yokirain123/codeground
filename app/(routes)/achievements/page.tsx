@@ -124,13 +124,13 @@ export default function AchievementsPage() {
 
   return (
     <main className="min-h-[calc(100svh-64px)] bg-[#07080C] text-white">
-      <section className="mx-auto w-full max-w-7xl px-6 py-12 md:px-10 lg:px-12">
-        <div className="mb-8 flex items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 md:px-10 lg:px-12">
+        <div className="mb-8 flex flex-col items-start gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="font-pixel text-sm uppercase tracking-[0.25em] text-[#899DFF]">
               {t("Trophy archive")}
             </p>
-            <h1 className="mt-2 font-pixel text-4xl text-white [text-shadow:3px_3px_0_#28336B] md:text-5xl">
+            <h1 className="mt-2 break-words font-pixel text-3xl text-white [text-shadow:3px_3px_0_#28336B] sm:text-4xl md:text-5xl">
               {t("Your")} {" "}
               <span className="text-[#FFD400] [text-shadow:3px_3px_0_#FF8C00]">
                 {t("achievements")}
@@ -167,7 +167,7 @@ export default function AchievementsPage() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
-                    <h4 className="truncate font-pixel text-xl text-white">
+                    <h4 className="line-clamp-2 break-words font-pixel text-xl leading-tight text-white">
                       {copy.name}
                     </h4>
 

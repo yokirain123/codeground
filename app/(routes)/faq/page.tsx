@@ -169,7 +169,7 @@ export default function FAQPage() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(63,86,189,0.26),transparent_40%),radial-gradient(circle_at_85%_55%,rgba(255,212,0,0.08),transparent_32%)]"
       />
 
-      <section className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 pt-12 sm:px-8 sm:pt-16 lg:px-10 lg:pt-20">
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-10 sm:px-8 sm:pb-20 sm:pt-16 lg:px-10 lg:pt-20">
         <div className="grid items-end gap-8 border-b border-white/10 pb-10 lg:grid-cols-[1fr_auto] lg:pb-12">
           <div>
             <div className="mb-5 inline-flex items-center gap-3 border border-[#ffd400]/35 bg-[#ffd400]/5 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[#ffd400] sm:text-xs">
@@ -180,7 +180,7 @@ export default function FAQPage() {
             <p className="font-pixel text-sm font-bold uppercase tracking-[0.28em] text-[#899dff]">
               {t("Adventurer support menu")}
             </p>
-            <h1 className="mt-3 max-w-4xl font-pixel text-5xl font-black uppercase leading-[0.9] tracking-[-0.05em] text-white [text-shadow:4px_4px_0_#28336b] sm:text-7xl lg:text-[6.2rem]">
+            <h1 className="mt-3 max-w-4xl break-words font-pixel text-4xl font-black uppercase leading-[0.9] tracking-[-0.04em] text-white [text-shadow:4px_4px_0_#28336b] sm:text-7xl lg:text-[6.2rem]">
               {t("Frequently Asked")}
               <span className="block text-[#ffd400] [text-shadow:4px_4px_0_#ff8c00]">
                 {t("Quests")}
@@ -364,7 +364,7 @@ export default function FAQPage() {
                         hidden={!isOpen}
                         className="px-4 pb-5 sm:px-6 sm:pb-6"
                       >
-                        <div className="ml-12 border-l-2 border-[#ffd400]/50 pl-4 sm:ml-14 sm:pl-6">
+                        <div className="ml-0 border-l-2 border-[#ffd400]/50 pl-4 sm:ml-14 sm:pl-6">
                           <p className="max-w-3xl text-sm leading-7 text-white/62 sm:text-base">
                             {entry.answer}
                           </p>
@@ -420,7 +420,7 @@ export default function FAQPage() {
             </div>
             <Link
               href="/contact"
-              className="relative inline-flex min-h-12 items-center justify-center gap-3 border-2 border-black bg-[#0a0b10] px-6 font-pixel text-sm font-black uppercase tracking-[0.08em] text-white shadow-[4px_4px_0_rgba(0,0,0,0.35)] transition-all hover:-translate-y-0.5 hover:text-[#ffd400]"
+              className="relative inline-flex min-h-12 w-full items-center justify-center gap-3 border-2 border-black bg-[#0a0b10] px-6 py-2 text-center font-pixel text-sm font-black uppercase tracking-[0.08em] text-white shadow-[4px_4px_0_rgba(0,0,0,0.35)] transition-all hover:-translate-y-0.5 hover:text-[#ffd400] lg:w-auto"
             >
               {t("Contact the guild")} <span aria-hidden="true">→</span>
             </Link>

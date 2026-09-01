@@ -270,9 +270,9 @@ export default function Hero() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10"
         >
-          <div className="mb-5 flex items-center gap-3 font-pixel text-sm uppercase tracking-[0.22em] text-[#899DFF] md:text-base">
-            <span className="h-px w-10 bg-[#FFD400]" />
-            {eyebrow}
+          <div className="mb-5 flex items-start gap-3 font-pixel text-xs uppercase tracking-[0.18em] text-[#899DFF] sm:items-center sm:text-sm sm:tracking-[0.22em] md:text-base">
+            <span className="mt-2 h-px w-8 shrink-0 bg-[#FFD400] sm:mt-0 sm:w-10" />
+            <span className="min-w-0 break-words">{eyebrow}</span>
           </div>
 
           <h1 className="font-accent text-[clamp(4.5rem,11vw,9.5rem)] leading-[0.72] tracking-tight">
@@ -309,7 +309,7 @@ export default function Hero() {
                   index > 0 ? "border-l border-white/15" : ""
                 }`}
               >
-                <p className="font-pixel text-lg text-[#FFD400] md:text-xl">
+                <p className="font-pixel text-base leading-tight text-[#FFD400] sm:text-lg md:text-xl">
                   {title}
                 </p>
                 <p className="mt-1 font-sans text-xs text-white/45 md:text-sm">
@@ -339,7 +339,7 @@ export default function Hero() {
           />
 
           <div className="border-2 border-[#899DFF]/45 bg-[#10152A]/95 p-1 shadow-[10px_10px_0_0_rgba(2,3,7,0.72)] backdrop-blur-sm">
-            <div className="border border-white/10 p-5 md:p-6">
+            <div className="border border-white/10 p-4 sm:p-5 md:p-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <p className="font-pixel text-sm tracking-[0.24em] text-[#899DFF]">
@@ -411,13 +411,13 @@ export default function Hero() {
 
               <div className="mt-6 border-t border-white/10 pt-5">
                 <div className="flex items-end justify-between gap-4">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="font-pixel text-xs tracking-[0.2em] text-[#899DFF]">
                       {t("ACTIVE QUEST")}
                     </p>
                     <Link
                       href={activeQuestHref}
-                      className="mt-1 block font-pixel text-xl text-white transition-colors hover:text-[#FFD400]"
+                      className="mt-1 block break-words font-pixel text-xl leading-tight text-white transition-colors hover:text-[#FFD400]"
                     >
                       {activeQuestTitle}
                     </Link>
@@ -466,8 +466,8 @@ export default function Hero() {
           className="relative z-20 lg:col-span-2"
         >
           <div className="relative border-2 border-[#899DFF]/45 bg-[#10152A]/95 p-1 shadow-[8px_8px_0_0_rgba(2,3,7,0.75)] backdrop-blur-sm">
-            <div className="relative min-h-36 border border-white/10 py-5 pr-5 pl-32 md:min-h-40 md:py-6 md:pr-8 md:pl-44">
-              <div className="absolute bottom-0 left-3 h-[calc(100%+1.25rem)] w-28 overflow-hidden md:left-7 md:w-32">
+            <div className="relative min-h-36 border border-white/10 py-5 pr-4 pl-24 sm:pr-5 sm:pl-32 md:min-h-40 md:py-6 md:pr-8 md:pl-44">
+              <div className="absolute bottom-0 left-2 h-[calc(100%+1.25rem)] w-20 overflow-hidden sm:left-3 sm:w-28 md:left-7 md:w-32">
                 <motion.div
                   animate={
                     shouldReduceMotion
@@ -494,7 +494,7 @@ export default function Hero() {
                 </motion.div>
               </div>
 
-              <span className="absolute -top-4 left-28 border-2 border-black bg-[#FFD400] px-4 py-1 font-pixel text-lg text-black shadow-[3px_3px_0_0_#FF8C00] md:left-40">
+              <span className="absolute -top-4 left-20 border-2 border-black bg-[#FFD400] px-3 py-1 font-pixel text-base text-black shadow-[3px_3px_0_0_#FF8C00] sm:left-28 sm:px-4 sm:text-lg md:left-40">
                 LERAY
               </span>
 
@@ -502,7 +502,7 @@ export default function Hero() {
                 text={tokenMessage}
                 delay={950}
                 speed={16}
-                className="cursor-pointer font-pixel text-xl leading-relaxed text-white outline-none md:text-2xl"
+                className="cursor-pointer break-words font-pixel text-lg leading-relaxed text-white outline-none sm:text-xl md:text-2xl"
               />
 
               <p className="mt-3 hidden font-pixel text-xs uppercase tracking-[0.18em] text-white/35 sm:block">

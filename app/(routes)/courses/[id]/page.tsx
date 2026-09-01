@@ -139,8 +139,8 @@ export default function CoursePage() {
         onEnrollmentChange={handleEnrollmentChange}
       />
 
-      <section className="w-full border-t border-white/10 bg-[#07080C] px-6 py-12 md:px-10 lg:px-16">
-        <div className="grid items-start gap-10 lg:grid-cols-3">
+      <section className="w-full border-t border-white/10 bg-[#07080C] px-4 py-10 sm:px-6 sm:py-12 md:px-10 lg:px-16">
+        <div className="grid items-start gap-8 lg:grid-cols-3 lg:gap-10">
           <CourseChapters
             chapters={chapters}
             isEnrolled={isEnrolled}

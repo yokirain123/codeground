@@ -278,8 +278,8 @@ export default function FriendsHub() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10 lg:py-14">
-      <section className="relative overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] px-6 py-8 shadow-[7px_7px_0_#020307] sm:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-14">
+      <section className="relative overflow-hidden border-2 border-[#899DFF]/45 bg-[#10152A] px-4 py-6 shadow-[7px_7px_0_#020307] sm:px-8 sm:py-8 lg:px-10">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[#899DFF]/12 blur-[100px]"
@@ -290,7 +290,7 @@ export default function FriendsHub() {
             <p className="font-pixel text-xs uppercase tracking-[0.28em] text-[#899DFF]">
               {t("Social hub")}
             </p>
-            <h1 className="mt-2 font-pixel text-4xl text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-2 break-words font-pixel text-3xl text-white sm:text-5xl lg:text-6xl">
               {t("Build your")} <span className="text-[#FFD400]">{t("party")}</span>
             </h1>
             <p className="mt-4 max-w-2xl font-sans text-base leading-7 text-white/55 sm:text-lg">
@@ -300,7 +300,7 @@ export default function FriendsHub() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid w-full grid-cols-3 gap-1.5 sm:w-auto sm:gap-3">
             {[
               { label: t("Friends"), value: friends.total },
               { label: t("Incoming"), value: requests.incoming.length },
@@ -308,12 +308,12 @@ export default function FriendsHub() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="min-w-20 border border-[#899DFF]/25 bg-black/20 px-3 py-3 text-center sm:min-w-24"
+                className="min-w-0 border border-[#899DFF]/25 bg-black/20 px-1.5 py-3 text-center sm:min-w-24 sm:px-3"
               >
                 <p className="font-pixel text-2xl text-[#FFD400]">
                   {stat.value}
                 </p>
-                <p className="mt-1 font-pixel text-[9px] uppercase tracking-wider text-white/35">
+                <p className="mt-1 break-words font-pixel text-[9px] uppercase leading-tight tracking-normal text-white/35 sm:tracking-wider">
                   {stat.label}
                 </p>
               </div>
@@ -442,7 +442,7 @@ export default function FriendsHub() {
                       </div>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="mt-4 grid gap-2 min-[420px]:grid-cols-2">
                       <button
                         type="button"
                         disabled={busyKey === `accept-${player.userId}`}
@@ -566,9 +566,9 @@ function SectionTitle({
   count: number;
 }) {
   return (
-    <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+    <div className="flex min-w-0 items-center gap-3 border-b border-white/10 pb-3">
       <Icon className="size-5 text-[#899DFF]" />
-      <h2 className="font-pixel text-2xl text-white">{title}</h2>
+      <h2 className="min-w-0 flex-1 break-words font-pixel text-2xl leading-tight text-white">{title}</h2>
       <span className="border border-[#899DFF]/25 bg-[#899DFF]/5 px-2 py-0.5 font-pixel text-xs text-[#899DFF]">
         {count}
       </span>
@@ -590,7 +590,7 @@ function EmptyState({
   onAction?: () => void;
 }) {
   return (
-    <div className="mt-6 flex min-h-64 flex-col items-center justify-center border-2 border-dashed border-[#899DFF]/25 bg-[#10152A]/45 px-6 text-center">
+    <div className="mt-6 flex min-h-64 flex-col items-center justify-center border-2 border-dashed border-[#899DFF]/25 bg-[#10152A]/45 px-4 py-10 text-center sm:px-6">
       <span className="flex size-16 items-center justify-center border border-[#899DFF]/25 bg-[#899DFF]/5 text-[#899DFF]">
         <Icon className="size-8" />
       </span>
