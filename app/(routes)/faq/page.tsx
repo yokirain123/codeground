@@ -121,6 +121,11 @@ function normalize(value: string) {
   return value.trim().toLowerCase();
 }
 
+/**
+ * Renders a localized FAQ page with category filtering, search, and expandable answers.
+ *
+ * @returns The FAQ page content
+ */
 export default function FAQPage() {
   const { t, formatNumber } = useI18n();
   const [activeCategory, setActiveCategory] = useState<Category>("All");

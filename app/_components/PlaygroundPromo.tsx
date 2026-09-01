@@ -200,6 +200,11 @@ h1 { color: #ffd400; }
   },
 } as const;
 
+/**
+ * Renders a promotional section with selectable interactive coding demos and a link to the full playground.
+ *
+ * @returns The playground promotion section.
+ */
 export default function PlaygroundPromo() {
   const { t } = useI18n();
   const [demoId, setDemoId] = useState<DemoId>("html");

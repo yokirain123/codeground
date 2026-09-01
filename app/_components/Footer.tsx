@@ -27,6 +27,9 @@ const socialLinks = [
 const linkStyles =
   "font-pixel text-base text-white/50 transition-colors duration-300 hover:text-[#FFD400]";
 
+/**
+ * Renders the localized site footer with navigation, resource links, social links, and branding.
+ */
 export default function Footer() {
   const { t } = useI18n();
   const footerLinks = [

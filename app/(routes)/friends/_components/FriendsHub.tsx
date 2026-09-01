@@ -52,6 +52,9 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return data;
 }
 
+/**
+ * Manages friend relationships, requests, and player discovery.
+ */
 export default function FriendsHub() {
   const { t, formatNumber, translateMessage } = useI18n();
   const searchParams = useSearchParams();
@@ -556,6 +559,13 @@ export default function FriendsHub() {
   );
 }
 
+/**
+ * Renders a section heading with an icon and item count.
+ *
+ * @param icon - The icon component displayed beside the heading
+ * @param title - The section heading text
+ * @param count - The number of items in the section
+ */
 function SectionTitle({
   icon: Icon,
   title,
@@ -576,6 +586,14 @@ function SectionTitle({
   );
 }
 
+/**
+ * Displays an empty-content message with an icon, description, and optional action button.
+ *
+ * @param title - The heading displayed in the empty state
+ * @param description - The explanatory text displayed below the heading
+ * @param actionLabel - The optional label for the action button
+ * @param onAction - The optional callback invoked when the action button is clicked
+ */
 function EmptyState({
   icon: Icon,
   title,

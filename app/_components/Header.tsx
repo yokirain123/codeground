@@ -13,6 +13,11 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 import { UserMenu } from "./user-menu";
 import NotificationBell from "./NotificationBell";
 
+/**
+ * Renders the application's responsive sticky header with navigation, localization, and authentication actions.
+ *
+ * @returns The header navigation element.
+ */
 export function Header() {
   const { t } = useI18n();
 

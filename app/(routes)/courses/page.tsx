@@ -15,6 +15,11 @@ import CoursesIMG from "@/components/images/courseBG.png";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { UserDetailContext } from "@/context/UserDetailContext";
 
+/**
+ * Displays the course archive and provides administrative course management controls.
+ *
+ * @returns The rendered course archive page
+ */
 export default function Courses() {
   const { t, translateMessage } = useI18n();
   const [courses, setCourses] = useState<Course[]>([]);

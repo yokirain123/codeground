@@ -23,6 +23,9 @@ const initialValues: ContactFormValues = {
   website: "",
 };
 
+/**
+ * Renders a support request form that submits messages to the contact API.
+ */
 export default function ContactForm() {
   const { t, formatNumber } = useI18n();
   const [values, setValues] = useState<ContactFormValues>(initialValues);

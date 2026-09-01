@@ -3,6 +3,11 @@
 import { BookOpen, Code2, Trophy } from "lucide-react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 
+/**
+ * Displays the three-step CodeQuest learning journey.
+ *
+ * @returns The rendered learning journey section
+ */
 export default function HowCodeQuestWorks() {
   const { t } = useI18n();
   const steps = [

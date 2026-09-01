@@ -45,6 +45,13 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+/**
+ * Displays course information and provides controls for enrolling in or leaving the course.
+ *
+ * @param course - The course to display, when available
+ * @param loading - Whether course data is still loading
+ * @param onEnrollmentChange - Callback invoked when the enrollment status changes
+ */
 export default function CourseDetailsBanner({
   course,
   loading = false,

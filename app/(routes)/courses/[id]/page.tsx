@@ -14,6 +14,9 @@ import CourseChapters, {
 import CourseDetailsBanner from "./_components/CourseDetailsBanner";
 import CourseProgress from "./_components/CourseProgress";
 
+/**
+ * Displays a course, its chapters, enrollment state, and learning progress.
+ */
 export default function CoursePage() {
   const { t, translateMessage } = useI18n();
   const params = useParams<{ id: string }>();

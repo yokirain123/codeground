@@ -49,6 +49,13 @@ const difficultyStyles: Record<ChallengeDifficulty, string> = {
   hard: "text-[#FF667D]",
 };
 
+/**
+ * Displays a searchable and filterable catalog of coding challenges, including the daily challenge and user progress.
+ *
+ * @param challenges - The available coding challenges
+ * @param dailySlug - The slug of the challenge featured as the daily challenge
+ * @param completions - The user's challenge completion records
+ */
 export default function ChallengesCatalog({
   challenges,
   dailySlug,

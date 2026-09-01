@@ -31,6 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * Renders the admin page for reviewing and generating course exercises.
+ */
 export default async function AdminExercisesPage() {
   const { t } = await getServerI18n();
   const { userId: clerkId } = await auth();

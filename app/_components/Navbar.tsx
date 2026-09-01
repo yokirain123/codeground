@@ -78,6 +78,11 @@ function Navbar() {
   );
 }
 
+/**
+ * Renders a responsive navigation sheet for mobile devices.
+ *
+ * @returns The mobile navigation trigger and its expandable menu.
+ */
 export function MobileNavbar() {
   const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);

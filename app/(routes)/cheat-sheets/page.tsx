@@ -18,6 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * Renders the localized cheat sheets page with pattern statistics and searchable examples.
+ *
+ * @returns The rendered cheat sheets page
+ */
 export default async function CheatSheetsPage() {
   const { locale, t } = await getServerI18n();
   const patternCount = CHEAT_SHEETS.reduce(

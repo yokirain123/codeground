@@ -134,6 +134,9 @@ function ContactCard({ channel }: { channel: ContactChannel }) {
   );
 }
 
+/**
+ * Renders the localized support hub page with contact channels, a contact form, and support guidance.
+ */
 export default async function ContactPage() {
   const { t } = await getServerI18n();
   const localizedChannels = channels.map((channel) => ({

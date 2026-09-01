@@ -206,6 +206,9 @@ function LoadingRows() {
   );
 }
 
+/**
+ * Displays the community leaderboard with player rankings, scores, and completed exercises.
+ */
 export default function Leaderboard() {
   const shouldReduceMotion = useReducedMotion();
   const { t, formatNumber } = useI18n();

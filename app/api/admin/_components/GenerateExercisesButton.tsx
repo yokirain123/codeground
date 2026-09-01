@@ -19,6 +19,13 @@ interface GenerateExercisesResponse {
   error?: string;
 }
 
+/**
+ * Renders a button that generates exercises for a chapter through the admin API.
+ *
+ * @param courseId - The identifier of the course containing the chapter
+ * @param chapterId - The identifier of the chapter for which to generate exercises
+ * @param overwrite - Whether existing exercise content may be replaced
+ */
 export default function GenerateExercisesButton({
   courseId,
   chapterId,

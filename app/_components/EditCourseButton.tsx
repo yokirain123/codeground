@@ -30,6 +30,13 @@ function getInitialForm(course: Course) {
   };
 }
 
+/**
+ * Provides a control for editing a course in a modal form.
+ *
+ * @param course - The course to edit.
+ * @param onUpdated - Callback invoked with the updated course after a successful save.
+ * @returns The edit button and modal interface.
+ */
 export default function EditCourseButton({
   course,
   onUpdated,

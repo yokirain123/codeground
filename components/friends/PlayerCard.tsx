@@ -18,6 +18,13 @@ interface PlayerCardProps {
   onRemove?: (player: PublicPlayer) => void;
 }
 
+/**
+ * Displays a player's profile summary and relationship-specific action.
+ *
+ * @param player - The public player whose information and relationship status are displayed
+ * @param busy - Whether the available relationship action is currently in progress
+ * @returns The rendered player card
+ */
 export default function PlayerCard({
   player,
   busy = false,

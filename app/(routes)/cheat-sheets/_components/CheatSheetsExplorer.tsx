@@ -14,6 +14,11 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 import { CHEAT_SHEETS } from "@/lib/resources/cheat-sheets";
 import { getCheatSheets } from "@/lib/resources/cheat-sheets.uk";
 
+/**
+ * Renders an interactive explorer for localized programming cheat sheets.
+ *
+ * Users can select a language, search its patterns, open the associated playground, and copy pattern code.
+ */
 export default function CheatSheetsExplorer() {
   const { locale, t, formatNumber } = useI18n();
   const sheets = useMemo(() => getCheatSheets(locale), [locale]);

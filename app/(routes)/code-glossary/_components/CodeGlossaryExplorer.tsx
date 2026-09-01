@@ -31,6 +31,9 @@ function groupByLetter(entries: GlossaryEntry[]) {
   }, {});
 }
 
+/**
+ * Displays a searchable, filterable glossary of localized programming terms.
+ */
 export default function CodeGlossaryExplorer() {
   const { locale, t, formatNumber } = useI18n();
   const glossaryEntries = useMemo(() => getGlossaryEntries(locale), [locale]);

@@ -15,6 +15,13 @@ function clamp(value: number, maximum: number) {
   return Math.max(0, Math.min(value, maximum));
 }
 
+/**
+ * Renders a localized sidebar showing course completion and progress statistics.
+ *
+ * @param chapters - The course chapters and their exercises used to calculate totals.
+ * @param completion - The learner's completed chapters, completed exercises, and earned XP.
+ * @returns A course-progress sidebar.
+ */
 export default function CourseProgress({
   chapters,
   completion,
